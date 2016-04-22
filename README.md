@@ -1,6 +1,8 @@
 # PyGeoC
 ***Py***thon for ***GeoC***omputation --- easy, convenient, and efficient.
 
+[![Build Status](https://travis-ci.org/crazyzlj/PyGeoC.svg?branch=master)](https://travis-ci.org/crazyzlj/PyGeoC)
+
 ## 1.Introduction
 
 本科快毕业的时候，接触并开始学习Python和arcpy（当时ArcGIS 9时代还是arcgisscripting）已有五六年时间了，当时写了一篇文章《[[初学入门]ArcGIS中Python脚本的使用](http://www.docin.com/p-164282884.html)》，在各个网站、空间被转载多次。
