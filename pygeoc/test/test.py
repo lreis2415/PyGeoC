@@ -1,7 +1,11 @@
-from mpi4py import MPI
-from mpi4py import MPI
-import sys
-size = MPI.COMM_WORLD.Get_size()
-rank = MPI.COMM_WORLD.Get_rank()
-name = MPI.Get_processor_name()
-print("Hello MPI for Python! I am process %d of %d on %s.\n" % (rank, size, name))
+from pygeoc.hydro import *
+from pygeoc.raster import *
+from pygeoc.vector import *
+from pygeoc.utils import *
+
+
+if __name__ == '__main__':
+    print D8DIR_TD_VALUES
+    dem = r'e:/test/pvdem.tif'
+    demR = ReadRaster(dem)
+    print RasterStatistics(dem)
