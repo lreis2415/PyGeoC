@@ -1,0 +1,13 @@
+language: python
+
+env:
+  - TOXENV=py27
+
+install: pip install tox
+
+script: 
+  - tox
+  - python setup.py bdist_wheel --python-tag py27
+
+notifications:
+  email: false
