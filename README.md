@@ -1,5 +1,5 @@
 # PyGeoC
-Python for GeoComputation --- easy, convenient, and efficient.
+***Py***thon for ***GeoC***omputation --- easy, convenient, and efficient.
 
 ## 1.Introduction
 
