@@ -6,7 +6,6 @@ env:
 install: pip install tox
 
 script: 
-  - tox
   - python setup.py bdist_wheel --python-tag py27
 
 notifications:

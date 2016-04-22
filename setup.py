@@ -10,13 +10,23 @@ from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
 from os import path
+from setuptools.command.test import test as TestCommand
 
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
 with open(path.join(here, 'README_EN.md'), encoding='utf-8') as f:
     long_description = f.read()
-
+class Tox(TestCommand):
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+    def run_tests(self):
+        #import here, cause outside the eggs aren't loaded
+        import tox
+        errcode = tox.cmdline(self.test_args)
+        sys.exit(errcode)
 setup(
     name='PyGeoC',
 
@@ -103,7 +113,8 @@ setup(
     # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
     #data_files=[('my_data', ['data/data_file'])],
     data_files=[],
-
+    tests_require=['tox'],
+    cmdclass = {'test': Tox},
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow
     # pip to create the appropriate form of executable for the target platform.
