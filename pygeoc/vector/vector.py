@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-#coding=utf-8
+# coding=utf-8
 
 import os
 import sys
@@ -7,8 +7,8 @@ import sys
 from osgeo import ogr
 
 
-## Export ESRI Shapefile -- Line feature
-def WriteLineShp(lineList,outShp):
+# Export ESRI Shapefile -- Line feature
+def WriteLineShp(lineList, outShp):
     print "Write line shapefile: %s" % outShp
     driver = ogr.GetDriverByName("ESRI Shapefile")
     if driver is None:
@@ -20,19 +20,20 @@ def WriteLineShp(lineList,outShp):
     if ds is None:
         print "ERROR Output: Creation of output file failed."
         sys.exit(1)
-    lyr = ds.CreateLayer(outShp.rpartition(os.sep)[2].split('.')[0],None,ogr.wkbLineString)
+    lyr = ds.CreateLayer(outShp.rpartition(os.sep)[2].split('.')[
+                         0], None, ogr.wkbLineString)
 #    for field in fields:
 #        fieldDefn = ogr.FieldDefn(field,ogr.OFTString)
 #        fieldDefn.SetWidth(255)
 #        lyr.CreateField(fieldDefn)
     for l in lineList:
-#        defn = lyr.GetLayerDefn()
-#        featureFields = ogr.Feature(defn)
-#        for field in fields:
-#            featureFields.SetField(field,"test")
+        #        defn = lyr.GetLayerDefn()
+        #        featureFields = ogr.Feature(defn)
+        #        for field in fields:
+        #            featureFields.SetField(field,"test")
         line = ogr.Geometry(ogr.wkbLineString)
         for i in l:
-            line.AddPoint(i[0],i[1])
+            line.AddPoint(i[0], i[1])
         templine = ogr.CreateGeometryFromJson(line.ExportToJson())
         feature = ogr.Feature(lyr.GetLayerDefn())
         feature.SetGeometry(templine)
