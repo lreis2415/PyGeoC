@@ -11,7 +11,6 @@ import os,sys
 from shutil import rmtree
 from const import *
 
-
 def currentPath():
     path = sys.path[0]
     if os.path.isdir(path):

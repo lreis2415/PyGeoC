@@ -1,8 +1,12 @@
 #! /usr/bin/env python
 #coding=utf-8
 
-import sys,os
+import os
+import sys
+
 from osgeo import ogr
+
+
 ## Export ESRI Shapefile -- Line feature
 def WriteLineShp(lineList,outShp):
     print "Write line shapefile: %s" % outShp

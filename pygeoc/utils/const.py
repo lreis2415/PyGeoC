@@ -1,13 +1,13 @@
 #! /usr/bin/env python
 #coding=utf-8
-
-import platform
 import math
+import platform
+
 sysstr = platform.system()
 if sysstr == "Windows":
-    LF = '\r'
-elif sysstr == "Linux":
     LF = '\n'
+elif sysstr == "Linux":
+    LF = '\r'
 ZERO = 1e-12
 DELTA = 1e-6
 

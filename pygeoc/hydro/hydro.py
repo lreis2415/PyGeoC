@@ -1,8 +1,9 @@
 #! /usr/bin/env python
 #coding=utf-8
 
-from pygeoc.utils.const import *
 from pygeoc.utils import *
+from pygeoc.utils.const import *
+
 
 ## find downslope coordinate for D8 and D-inf flow models
 def downstream_index(DIR_VALUE, i, j):

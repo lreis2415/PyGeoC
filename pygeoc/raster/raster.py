@@ -1,17 +1,18 @@
 #! /usr/bin/env python
 #coding=utf-8
 
-import os,sys,platform
-from osgeo import gdal
-from osgeo import osr
-from osgeo import ogr
-from osgeo import gdalconst
-from gdalconst import *
-import numpy
 import math
-from shutil import rmtree
+import os
+import platform
 import subprocess
+import sys
+from shutil import rmtree
+
+import numpy
+from gdalconst import *
+from osgeo import gdal, gdalconst, ogr, osr
 from pygeoc.utils import *
+
 
 class Raster:
     def __init__(self, nRows, nCols, data, noDataValue=None, geotransform=None, srs=None):
