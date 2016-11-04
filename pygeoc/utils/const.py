@@ -10,7 +10,7 @@ elif sysstr == "Linux":
     LF = '\r'
 ZERO = 1e-12
 DELTA = 1e-6
-
+DEFAULT_NODATA = -9999.
 # Hydrological Constants
 # D8 flow directions in TauDEM
 D8DIR_TD_VALUES = [1, 2, 3, 4, 5, 6, 7, 8]
