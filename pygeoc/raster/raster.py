@@ -11,23 +11,87 @@ from shutil import rmtree
 import numpy
 from gdalconst import *
 from osgeo import gdal, gdalconst, ogr, osr
-from pygeoc.utils import *
-
+from pygeoc.utils.utils import *
+from pygeoc.utils.const import *
 
 class Raster:
+    '''
+    Basic Raster Class
+    Build-in functions:
+        1. GetAverage()
+        2. GetMax()
+        3. GetMin()
+        4. GetSTD()
+        5. GetSum()
+        6. GetValueByRowCol(row, col)
+        7. GetValueByXY(x, y)
+
+    '''
 
     def __init__(self, nRows, nCols, data, noDataValue=None, geotransform=None, srs=None):
         self.nRows = nRows
         self.nCols = nCols
-        self.data = data
+        self.data = numpy.copy(data)
         self.noDataValue = noDataValue
         self.geotrans = geotransform
         self.srs = srs
+
         self.dx = geotransform[1]
         self.xMin = geotransform[0]
         self.xMax = geotransform[0] + nCols * geotransform[1]
         self.yMax = geotransform[3]
         self.yMin = geotransform[3] + nRows * geotransform[5]
+        self.validZone = self.data != self.noDataValue
+        self.validValues = numpy.where(self.validZone, self.data, numpy.nan)
+
+    def GetAverage(self):
+        return numpy.nanmean(self.validValues)
+
+    def GetMax(self):
+        return numpy.nanmax(self.validValues)
+
+    def GetMin(self):
+        return numpy.nanmin(self.validValues)
+
+    def GetSTD(self):
+        return numpy.nanstd(self.validValues)
+
+    def GetSum(self):
+        return numpy.nansum(self.validValues)
+
+    def GetValueByRowCol(self, row, col):
+        if row < 0 or row >= self.nRows or col < 0 or col >= self.nCols:
+            raise ValueError(
+                "The row or col must be >=0 and less than nRows (%d) or nCols (%d)!"
+                % (self.nRows, self.nCols))
+        else:
+            value = self.data[int(round(row))][int(round(col))]
+            if value == self.noDataValue:
+                return None
+            else:
+                return value
+
+    def GetValueByXY(self, x, y):
+        if x < self.xMin or x > self.xMax or y < self.yMin or y > self.yMax:
+            return None
+            # raise ValueError("The x or y value must be within the Min and Max!")
+        else:
+            row = self.nRows - int(numpy.ceil((y - self.yMin) / self.dx))
+            col = int(numpy.floor((x - self.xMin) / self.dx))
+            value = self.data[row][col]
+            if value == self.noDataValue:
+                return None
+            else:
+                return value
+    def GetCentralCoors(self, row, col):
+        if row < 0 or row >= self.nRows or col < 0 or col >= self.nCols:
+            raise ValueError(
+                "The row or col must be >=0 and less than nRows (%d) or nCols (%d)!"
+                % (self.nRows, self.nCols))
+        else:
+            tmpx = self.xMin + (col - 0.5) * self.dx
+            tmpy = self.yMax - (row - 0.5) * self.dx
+            return tmpx, tmpy
 
 
 def ReadRaster(rasterFile):
@@ -44,7 +108,7 @@ def ReadRaster(rasterFile):
     srs.ImportFromWkt(ds.GetProjection())
     # print srs.ExportToProj4()
     if noDataValue is None:
-        noDataValue = -9999
+        noDataValue = DEFAULT_NODATA
     band = None
     ds = None
     return Raster(ysize, xsize, data, noDataValue, geotrans, srs)
