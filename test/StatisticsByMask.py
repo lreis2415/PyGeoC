@@ -18,22 +18,22 @@ def StatisticsByMask(simf, obsf, maskf):
     E2 = 0.
     for row in range(rows):
         for col in range(cols):
-            if not FloatEqual(maskdata[row][col], nodata):
-                tmpx, tmpy = maskr.GetCentralCoors(row, col)
+            if not maskdata[row][col] == nodata:
+                tmpx, tmpy = maskr.GetCentralCoors(row + 1, col + 1)
                 simV = simr.GetValueByXY(tmpx, tmpy)
                 obsV = obsr.GetValueByXY(tmpx, tmpy)
                 if simV is not None and obsV is not None and \
-                        not FloatEqual(simV, simNodata) and not FloatEqual(obsV, obsNodata):
+                        not simV == simNodata and not obsV == obsNodata:
                     n += 1
                     E += (simV - obsV)
                     E2 += (simV - obsV) * (simV - obsV)
-    # print n, E, E2
+    print n, E, E2
     ME = E / n
     RMSE = math.sqrt(E2 / n)
     return ME, RMSE
 if __name__ == "__main__":
-    MaskRasterFile = r'C:\z_data_m\ArtificialDEM\MASK.tif'
-    SimulateRasterFile = r'C:\z_data_m\ArtificialDEM\SaddleSCA.asc'
-    TheoryRasterFile = r'C:\z_data_m\ArtificialDEM\SCATh.tif'
+    MaskRasterFile = r'C:\Users\ZhuLJ\Desktop\ME_RMSE_testdata\region.tif'
+    SimulateRasterFile = r'C:\Users\ZhuLJ\Desktop\ME_RMSE_testdata\result.tif'
+    TheoryRasterFile = r'C:\Users\ZhuLJ\Desktop\ME_RMSE_testdata\theoSCA_1m.asc'
     ME, RMSE = StatisticsByMask(SimulateRasterFile, TheoryRasterFile, MaskRasterFile)
     print "ME: %f, RMSE: %f" % (ME, RMSE)
