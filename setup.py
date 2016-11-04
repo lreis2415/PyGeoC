@@ -15,7 +15,7 @@ from setuptools.command.test import test as TestCommand
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, 'README_EN.md'), encoding='utf-8') as f:
+with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 class Tox(TestCommand):
     def finalize_options(self):
