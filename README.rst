@@ -1,7 +1,7 @@
 PyGeoC
 ===========
 
-**Py**thon for **GeoC**omputation --- easy, convenient, and efficient.
+Python for GeoComputation --- easy, convenient, and efficient.
 
 
 .. image:: https://travis-ci.org/crazyzlj/PyGeoC.svg?branch=master
@@ -10,6 +10,7 @@ PyGeoC
 1.Introduction
 -----------------
 
+**PyGeoC** is aiming for a easy, convenient, and efficient way to implement GeoComputation.
 
 2.Download and Install
 -----------------------------
@@ -21,14 +22,14 @@ PyGeoC is developed by pure Python and used `Wheels <http://pythonwheels.com/>`_
 + install `pip`: please refer to the `installation page <https://pip.pypa.io/en/latest/installing/>`_
 + install `PyGeoC`
 
-    ::
          pip install <path to PyGeoC>/dist/PyGeoC<version>.whl
 
          e.g., pip install e:/code/PyGeoC/pygeoc-0.1.whl
 
 + test the installation
     
-    ::
         from pygeoc import raster
+        
         from pygeoc import vector
+        
         from pygeoc import utils
