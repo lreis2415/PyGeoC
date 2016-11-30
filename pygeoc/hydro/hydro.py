@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # coding=utf-8
 
-from pygeoc.utils import *
+from pygeoc.utils import FloatEqual
 from pygeoc.utils.const import *
 
 
