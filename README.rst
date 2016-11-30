@@ -31,5 +31,7 @@ PyGeoC is developed by pure Python and used `Wheels <http://pythonwheels.com/>`_
         from pygeoc import raster
         
         from pygeoc import vector
+
+        from pygeoc importy hydro
         
         from pygeoc import utils
