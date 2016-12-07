@@ -37,3 +37,6 @@ if __name__ == "__main__":
     TheoryRasterFile = r'C:\Users\ZhuLJ\Desktop\ME_RMSE_testdata\theoSCA_1m.asc'
     ME, RMSE = StatisticsByMask(SimulateRasterFile, TheoryRasterFile, MaskRasterFile)
     print "ME: %f, RMSE: %f" % (ME, RMSE)
+    f = open(r'C:\Users\ZhuLJ\Desktop\test.txt', 'w+')
+    f.write("ME: %f, RMSE: %f" % (ME, RMSE))
+    f.close()
