@@ -39,7 +39,7 @@ setup(
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/crazyzlj/PyGeoC',
+    url='https://github.com/lreis2415/PyGeoC',
 
     # Author details
     author='Liang-Jun Zhu',
@@ -56,7 +56,7 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 1 - Planning',
+        'Development Status :: 4 - Beta',
 
         # Indicate who your project is intended for
         'Intended Audience :: Science/Research',
