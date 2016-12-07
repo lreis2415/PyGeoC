@@ -1,18 +1,13 @@
 #! /usr/bin/env python
 # coding=utf-8
 
-import math
-import os
-import platform
 import subprocess
-import sys
-from shutil import rmtree
 
 import numpy
-from gdalconst import *
-from osgeo import gdal, gdalconst, ogr, osr
+from osgeo import gdal, ogr, osr
+
 from pygeoc.utils.utils import *
-from pygeoc.utils.const import *
+
 
 class Raster:
     '''
@@ -83,6 +78,7 @@ class Raster:
                 return None
             else:
                 return value
+
     def GetCentralCoors(self, row, col):
         if row < 0 or row >= self.nRows or col < 0 or col >= self.nCols:
             raise ValueError(
@@ -132,7 +128,8 @@ XLLCENTER %f
 YLLCENTER %f
 CELLSIZE %f
 NODATA_VALUE %f
-""" % (xsize, ysize, geotransform[0] + 0.5 * geotransform[1], geotransform[3] - (ysize - 0.5) * geotransform[1], geotransform[1], noDataValue)
+""" % (xsize, ysize, geotransform[0] + 0.5 * geotransform[1], geotransform[3] - (ysize - 0.5) * geotransform[1],
+       geotransform[1], noDataValue)
 
     f = open(filename, 'w')
     f.write(header)
@@ -174,10 +171,11 @@ def SplitRasters(rs, splitShp, fieldName, tempDir):
         for r in rs:
             curFileName = r.split(os.sep)[-1]
             outraster = tempDir + os.sep + \
-                curFileName.replace('.tif', '_%s.tif' %
-                                    cur_field_name.replace(' ', '_'))
+                        curFileName.replace('.tif', '_%s.tif' %
+                                            cur_field_name.replace(' ', '_'))
             subprocess.call(['gdalwarp', r, outraster, '-cutline', splitShp,
-                             '-crop_to_cutline', '-cwhere', "'%s'='%s'" % (fieldName, cur_field_name), '-dstnodata', '-9999'])
+                             '-crop_to_cutline', '-cwhere', "'%s'='%s'" % (fieldName, cur_field_name), '-dstnodata',
+                             '-9999'])
         ft = lyr.GetNextFeature()
     ds = None
     # rmtree(tempDir,True)
