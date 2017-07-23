@@ -18,6 +18,7 @@ import sys
 import time
 from math import sqrt
 from shutil import copy, rmtree
+import re
 
 sysstr = platform.system()
 
@@ -200,6 +201,30 @@ class StringClass(object):
         except Exception:
             return False
 
+    @staticmethod
+    def extract_numeric_values_from_string(str_contains_values):
+        """
+        Find numeric values from string, e.g., 1, .7, 1.2, 4e2, 3e-3, -9, etc.
+        reference: https://stackoverflow.com/questions/4703390/
+                           how-to-extract-a-floating-number-from-a-string-in-python/4703508#4703508
+        Examples:
+            ".1 .12 9.1 98.1 1. 12. 1 12" ==> [0.1, 0.12, 9.1, 98.1, 1.0, 12.0, 1.0, 12.0]
+            "-1 +1 2e9 +2E+09 -2e-9" ==> [-1.0, 1.0, 2000000000.0, 2000000000.0, -2e-09]
+            "current level: -2.03e+99db" ==> [-2.03e+99]
+        Args:
+            str_contains_values: string which may contains numeric values
+
+        Returns:
+            list of numeric values
+        """
+        numeric_const_pattern = r'[-+]?(?:(?:\d*\.\d+)|(?:\d+\.?))(?:[Ee][+-]?\d+)?'
+        rx = re.compile(numeric_const_pattern, re.VERBOSE)
+        value_strs = rx.findall(str_contains_values)
+        if len(value_strs) == 0:
+            return None
+        else:
+            return [float(v) for v in value_strs]
+
 
 class FileClass(object):
     """File IO related"""
@@ -211,7 +236,7 @@ class FileClass(object):
     @staticmethod
     def is_file_exists(filename):
         """Check the existence of file or folder path"""
-        if filename is None or not os.path.exists(filename):
+        if filename is None or not os.path.exists(filename) or not os.path.isfile(filename):
             return False
         else:
             return True
