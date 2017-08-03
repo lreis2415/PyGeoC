@@ -147,9 +147,16 @@ class TauDEM(object):
             TauDEM.error('Input files parameter is required!\n', log_file)
         if not isinstance(in_files, dict):
             TauDEM.error('The input files parameter must be a dict!\n')
-        for (pid, path) in in_files.items():
-            if path is not None and not os.path.exists(path):
-                TauDEM.error('Input files parameter %s: %s is not existed!\n' % (pid, path),
+        for (pid, infile) in in_files.items():
+            if isinstance(infile, list) or isinstance(infile, tuple):
+                for inf in infile:
+                    if inf is not None and not os.path.exists(inf):
+                        TauDEM.error('Input files parameter %s: %s is not '
+                                     'existed!\n' % (pid, inf), log_file)
+            elif len(StringClass.split_string(infile, ' ')) > 0:  # not mean to a file
+                continue
+            elif infile is not None and not os.path.exists(infile):
+                TauDEM.error('Input files parameter %s: %s is not existed!\n' % (pid, infile),
                              log_file)
 
         # check output files to figure out if current run is necessary.
@@ -171,7 +178,11 @@ class TauDEM(object):
             if not isinstance(out_files, dict):
                 TauDEM.error('The output files parameter must be a dict!\n')
             for (pid, out_file) in out_files.items():
-                if out_file is not None:
+                if isinstance(out_file, list) or isinstance(out_file, tuple):
+                    for outf in out_file:
+                        if outf is not None:
+                            FileClass.remove_files(outf)
+                elif out_file is not None:
                     FileClass.remove_files(out_file)
 
         # concatenate command line
@@ -205,7 +216,8 @@ class TauDEM(object):
             commands.append(pid)
             if isinstance(infile, list) or isinstance(infile, tuple):
                 commands.append(' '.join(tmpf for tmpf in infile))
-            commands.append(infile)
+            else:
+                commands.append(infile)
         # append input parameters
         if in_params is not None:
             if not isinstance(in_params, dict):
@@ -228,7 +240,10 @@ class TauDEM(object):
                 if pid[0] != '-':
                     pid = '-' + pid
                 commands.append(pid)
-                commands.append(outfile)
+                if isinstance(outfile, list) or isinstance(outfile, tuple):
+                    commands.append(' '.join(tmpf for tmpf in outfile))
+                else:
+                    commands.append(outfile)
         # run command
         # print (commands)
         runmsg = UtilClass.run_command(commands)
@@ -520,7 +535,7 @@ class TauDEMWorkflow(object):
                              mpi_bin, bin_dir, log_file=logfile, hostfile=hostfile)
         UtilClass.writelog(logfile, "[Output] %d..., %s" %
                            (70, "Flow accumulation with outlet..."), 'a')
-        TauDEM.aread8(np, tau_dir, flow_dir, acc_with_weight, modified_outlet, stream_skeleton,
+        TauDEM.aread8(np, tau_dir, flow_dir, acc_with_weight, None, stream_skeleton,
                       mpi_bin, bin_dir, log_file=logfile, hostfile=hostfile)
 
         if thresh <= 0:  # find the optimal threshold using dropanalysis function

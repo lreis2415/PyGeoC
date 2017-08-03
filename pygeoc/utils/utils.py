@@ -171,6 +171,8 @@ class StringClass(object):
                     for temp_s in temp_strs:
                         temp_s = StringClass.strip_string(temp_s)
                         # if temp_s != '':
+                        if isinstance(temp_s, unicode):
+                            temp_s = temp_s.encode()
                         dest_strs.append(temp_s)
                 src_strs = dest_strs[:]
                 dest_strs = []
