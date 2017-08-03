@@ -286,7 +286,10 @@ class FileClass(object):
         if findout == [] or len(findout) == 0:
             print ("%s is not included in the env path" % name)
             exit(-1)
-        return findout[0].split('\n')[0]
+        first_path = findout[0].split('\n')[0]
+        if os.path.exists(first_path):
+            return first_path
+        return None
 
     @staticmethod
     def get_filename_by_suffixes(dir_src, suffixes):
@@ -327,6 +330,18 @@ class FileClass(object):
         file_name = os.path.basename(file_path)
         core_name = file_name.split('.')[0]
         return core_name
+
+    @staticmethod
+    def add_postfix(file_path, postfix):
+        """Add postfix for a full file path.
+
+        Examples:
+            input: '/home/zhulj/dem.tif', 'filled'
+            output: '/home/zhulj/dem_filled.tif'
+        """
+        corename = FileClass.get_core_name_without_suffix(file_path)
+        suffix = os.path.basename(file_path).split('.')[-1]
+        return os.path.dirname(file_path) + os.sep + corename + '_' + postfix + '.' + suffix
 
 
 class DateClass(object):

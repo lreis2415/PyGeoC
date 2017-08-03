@@ -1,8 +1,10 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 """Hydrology relation functions, e.g. FlowDirectionCode
+
     author: Liangjun Zhu
-    changlog: 17-06-25 lj - check by pylint and reformat by Google style
+
+    changlog: 17-06-25 lj - check by pylint and reformat by Google style.\n
 """
 from ..utils.utils import StringClass, PI, SQ2
 

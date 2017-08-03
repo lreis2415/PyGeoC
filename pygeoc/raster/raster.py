@@ -357,3 +357,12 @@ class RasterUtilClass(object):
                                  '-9999'])
             ft = lyr.GetNextFeature()
         ds = None
+
+    @staticmethod
+    def get_negative_dem(raw_dem, neg_dem):
+        origin = RasterUtilClass.read_raster(raw_dem)
+        max_v = numpy.max(origin.data)
+        temp = origin.data < 0
+        neg = numpy.where(temp, origin.noDataValue, max_v - origin.data)
+        RasterUtilClass.write_gtiff_file(neg_dem, origin.nRows, origin.nCols, neg, origin.geotrans,
+                                         origin.srs, origin.noDataValue, origin.dataType)
