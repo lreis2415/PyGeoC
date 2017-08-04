@@ -148,6 +148,8 @@ class TauDEM(object):
         if not isinstance(in_files, dict):
             TauDEM.error('The input files parameter must be a dict!\n')
         for (pid, infile) in in_files.items():
+            if infile is None:
+                continue
             if isinstance(infile, list) or isinstance(infile, tuple):
                 for inf in infile:
                     if inf is not None and not os.path.exists(inf):
@@ -155,7 +157,7 @@ class TauDEM(object):
                                      'existed!\n' % (pid, inf), log_file)
             elif len(StringClass.split_string(infile, ' ')) > 0:  # not mean to a file
                 continue
-            elif infile is not None and not os.path.exists(infile):
+            elif not os.path.exists(infile):
                 TauDEM.error('Input files parameter %s: %s is not existed!\n' % (pid, infile),
                              log_file)
 
@@ -319,7 +321,7 @@ class TauDEM(object):
             in_params = None
         os.chdir(workingdir)
         return TauDEM.run(TauDEM.fullpath('areadinf', exedir),
-                          {'-ang': angfile,'-o': outlet, '-wg': wg},
+                          {'-ang': angfile, '-o': outlet, '-wg': wg},
                           in_params, {'-sca': sca},
                           {'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
                           {'logfile': TauDEM.fullpath(log_file, workingdir)})
