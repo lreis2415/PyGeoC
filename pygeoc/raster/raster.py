@@ -196,6 +196,8 @@ class RasterUtilClass(object):
         ds = None
         return Raster(ysize, xsize, data, nodata_value, geotrans, srs, dttype)
 
+
+
     @staticmethod
     def get_mask_from_raster(rasterfile, outmaskfile):
         """Generate mask data from a given raster data.
@@ -330,18 +332,25 @@ class RasterUtilClass(object):
         f.close()
 
     @staticmethod
-    def raster_to_gtiff(tif, geotif, gdal_type=GDT_Float32):
+    def raster_to_gtiff(tif, geotif, change_nodata=False, change_gdal_type=False):
         """Converting Raster format to GeoTIFF.
         Args:
             tif: source raster file path
             geotif: output raster file path
-            gdal_type: GDT_Float32 as default
+            change_nodata: change NoDataValue to -9999 or not.
+            change_gdal_type: If False, use input GDAL Type, otherwise, use GDT_Float32.
         """
         rst_file = RasterUtilClass.read_raster(tif)
-        if gdal_type != rst_file.dataType and rst_file.dataType in GDALDataType:
-            gdal_type = rst_file.dataType
+        nodata = rst_file.noDataValue
+        if change_nodata:
+            if not MathClass.floatequal(rst_file.noDataValue, DEFAULT_NODATA):
+                nodata = DEFAULT_NODATA
+                rst_file.data[rst_file.data == rst_file.noDataValue] = DEFAULT_NODATA
+        gdal_type = rst_file.dataType
+        if change_gdal_type:
+            gdal_type = GDT_Float32
         RasterUtilClass.write_gtiff_file(geotif, rst_file.nRows, rst_file.nCols, rst_file.data,
-                                         rst_file.geotrans, rst_file.srs, rst_file.noDataValue,
+                                         rst_file.geotrans, rst_file.srs, nodata,
                                          gdal_type)
 
     @staticmethod
@@ -406,3 +415,14 @@ class RasterUtilClass(object):
         neg = numpy.where(temp, origin.noDataValue, max_v - origin.data)
         RasterUtilClass.write_gtiff_file(neg_dem, origin.nRows, origin.nCols, neg, origin.geotrans,
                                          origin.srs, origin.noDataValue, origin.dataType)
+
+    @staticmethod
+    def mask_raster(in_raster, mask, out_raster):
+        """Mask raster."""
+        origin = RasterUtilClass.read_raster(in_raster)
+        maskr = RasterUtilClass.read_raster(mask)
+        temp = maskr.data == maskr.noDataValue
+        masked = numpy.where(temp, origin.noDataValue, origin.data)
+        RasterUtilClass.write_gtiff_file(out_raster, origin.nRows, origin.nCols, masked,
+                                         origin.geotrans, origin.srs,
+                                         origin.noDataValue, origin.dataType)
