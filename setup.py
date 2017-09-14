@@ -101,8 +101,9 @@ setup(
         # requirements files see:
         # https://packaging.python.org/en/latest/requirements.html
         install_requires=[
-            # 'gdal>=1.9.0,<2.0',
-            # 'numpy>=1.9.0'
+            'gdal>=1.9.0,<2.0',
+            'numpy>=1.9.0',
+            'configparser>=3.0'
         ],
 
         # List additional groups of dependencies here (e.g. development
