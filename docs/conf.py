@@ -6,7 +6,7 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('..'))
 import recommonmark
 from recommonmark.parser import CommonMarkParser
 from recommonmark.transform import AutoStructify
@@ -19,7 +19,21 @@ needs_sphinx = '1.5'
 extensions = ['sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.todo',
-    'sphinx.ext.mathjax']
+    'sphinx.ext.mathjax',
+    'sphinx.ext.napoleon']
+
+# Napoleon settings
+napoleon_google_docstring = True
+napoleon_numpy_docstring = True
+napoleon_include_init_with_doc = False
+napoleon_include_private_with_doc = False
+napoleon_include_special_with_doc = True
+napoleon_use_admonition_for_examples = False
+napoleon_use_admonition_for_notes = False
+napoleon_use_admonition_for_references = False
+napoleon_use_ivar = False
+napoleon_use_param = True
+napoleon_use_rtype = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -31,19 +45,17 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'PyGeoC'
-copyright = u'2017, Liang-Jun Zhu'
+copyright = u'2016-2017, Liang-Jun Zhu'
 author = u'Liang-Jun Zhu'
-github_doc_root = 'https://github.com/lreis2415/PyGeoC/tree/master/docs/'
 version = u'0.1.2'
 release = u'0.1.2'
 
-language = 'en_US'
+language = 'zh_CN'
 exclude_patterns = ['_build']
 pygments_style = 'sphinx'
 todo_include_todos = True
 
 # -- Options for HTML output --
-html_title = u'PyGeoC 用户手册'
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
@@ -73,6 +85,8 @@ texinfo_documents = [
 ]
 
 # app setup hook
+
+github_doc_root = 'https://github.com/lreis2415/PyGeoC/tree/master/docs/'
 def setup(app):
     app.add_config_value('recommonmark_config', {
         'url_resolver': lambda url: github_doc_root + url,
@@ -81,5 +95,3 @@ def setup(app):
         'enable_auto_doc_ref': True,
     }, True)
     app.add_transform(AutoStructify)
-
-
