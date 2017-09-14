@@ -15,7 +15,7 @@ source_parsers = {
     '.md': CommonMarkParser
 }
 
-needs_sphinx = '1.5'
+needs_sphinx = '1.6.3'
 extensions = ['sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.todo',
