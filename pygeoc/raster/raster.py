@@ -3,12 +3,15 @@
 """Raster Utility Class
 
     author: Liangjun Zhu
-    changlog: 12-04-12 jz - origin version
-              16-07-01 lj - reorganized for pygeoc
-              17-06-25 lj - check by pylint and reformat by Google style
-              17-07-20 lj - add GDALDataType dict, and WhiteBox GAT D8 code
+    changlog: 12-04-12 jz - origin version.
+              16-07-01 lj - reorganized for pygeoc.
+              17-06-25 lj - check by pylint and reformat by Google style.
+              17-07-20 lj - add GDALDataType dict, and WhiteBox GAT D8 code.
 """
 import os
+import sys
+# Avoid ValueError: Attempted relative import in non-package
+sys.path.insert(0, os.path.abspath('../..'))
 import subprocess
 
 import numpy
@@ -20,7 +23,7 @@ from osgeo.gdal import Open as gdal_Open
 from osgeo.ogr import Open as ogr_Open
 from osgeo.osr import SpatialReference as osr_SpatialReference
 
-from ..utils.utils import MathClass, UtilClass, DEFAULT_NODATA, DELTA
+from pygeoc.utils.utils import MathClass, UtilClass, DEFAULT_NODATA, DELTA
 
 GDALDataType = {0: GDT_Unknown,  # Unknown or unspecified type
                 1: GDT_Byte,  # Eight bit unsigned integer
@@ -38,30 +41,50 @@ GDALDataType = {0: GDT_Unknown,  # Unknown or unspecified type
 
 
 class Raster(object):
-    """
-    Basic Raster Class
-    Build-in functions:
-        1. get_average()
-        2. get_max()
-        3. get_min()
-        4. get_std()
-        5. get_sum()
-        6. get_value_by_row_col(row, col)
-        7. get_value_by_xy(x, y)
+    """Basic Raster Class.
+
+    Args:
+        n_rows: row count.
+        n_cols: col count.
+        data: 2D array data.
+        nodata_value: NODATA value, None as default.
+        geotransform: geographic transformation, None as default.
+        srs: coordinate system, None as default.
+        datatype(:obj:`pygeoc.raster.raster.GDALDataType`): Raster datatype.
+
+    Attributes:
+        nRows (int): Row number.
+        nCols (int): Column number.
+        data (:obj:`numpy.array`): 2D array raster data.
+        noDataValue (float): NoData value.
+        geotrans (list): geographic transformation list.
+        srs (:obj:`osgeo.osr.SpatialReference`): Spatial reference.
+        dataType (:obj:`pygeoc.raster.raster.GDALDataType`): Raster datatype.
+        dx (float): cell size.
+        xMin (float): left X coordinate.
+        xMax (float): right X coordinate.
+        yMin (float): lower Y coordinate.
+        yMax (float): upper Y coordinate.
+        validZone (:obj:`numpy.array`): 2D boolean array that NoDataValue is False.
+        validValues (:obj:`numpy.array`): 2D raster array with None in NoDataValue.
+
+    Examples:
+        The common usage is read raster data from a raster file (e.g., geotiff) and get the
+        Raster instance.
+
+        >>> from pygeoc.raster.raster import RasterUtilClass
+        >>> rst_file = r'../../examples/data/Jamaica_dem.tif'
+        >>> rst_obj = RasterUtilClass.read_raster(rst_file)
+        >>> print rst_obj
+        <pygeoc.raster.raster.Raster object at 0x...>
+
+    See Also:
+        :func:`pygeoc.raster.raster.RasterUtilClass.read_raster`
     """
 
     def __init__(self, n_rows, n_cols, data, nodata_value=None, geotransform=None,
                  srs=None, datatype=GDT_Float32):
-        """Constructor
-        Args:
-            n_rows: row count
-            n_cols: col count
-            data: 2D array data
-            nodata_value: NODATA value, None as default
-            geotransform: geographic transformation, None as default
-            srs: coordinate system, None as default
-            datatype: Raster datatype
-        """
+        """Constructor."""
         self.nRows = n_rows
         self.nCols = n_cols
         self.data = numpy.copy(data)
@@ -79,38 +102,46 @@ class Raster(object):
         self.validValues = numpy.where(self.validZone, self.data, numpy.nan)
 
     def get_type(self):
-        """get datatype as GDALDataType"""
+        """get datatype as GDALDataType.
+
+        Returns:
+            dataType
+
+        See Also:
+            :obj:`pygeoc.raster.raster.GDALDataType`
+        """
         assert self.dataType in GDALDataType
         return GDALDataType.get(self.dataType)
 
     def get_average(self):
-        """Get average exclude NODATA"""
+        """Get average exclude NODATA."""
         return numpy.nanmean(self.validValues)
 
     def get_max(self):
-        """Get maximum exclude NODATA"""
+        """Get maximum exclude NODATA."""
         return numpy.nanmax(self.validValues)
 
     def get_min(self):
-        """Get minimum exclude NODATA"""
+        """Get minimum exclude NODATA."""
         return numpy.nanmin(self.validValues)
 
     def get_std(self):
-        """Get Standard Deviation exclude NODATA"""
+        """Get Standard Deviation exclude NODATA."""
         return numpy.nanstd(self.validValues)
 
     def get_sum(self):
-        """Get sum exclude NODATA"""
+        """Get sum exclude NODATA."""
         return numpy.nansum(self.validValues)
 
     def get_value_by_row_col(self, row, col):
-        """Get raster value by (row, col)
+        """Get raster value by (row, col).
+
         Args:
-            row: row number
-            col: col number
+            row: row number.
+            col: col number.
 
         Returns:
-            raster value, None if the input are invalid
+            raster value, None if the input are invalid.
         """
         if row < 0 or row >= self.nRows or col < 0 or col >= self.nCols:
             raise ValueError("The row or col must be >=0 and less than "
@@ -123,13 +154,14 @@ class Raster(object):
                 return value
 
     def get_value_by_xy(self, x, y):
-        """Get raster value by xy coordinates
+        """Get raster value by xy coordinates.
+
         Args:
-            x: X Coordinate
-            y: Y Coordinate
+            x: X Coordinate.
+            y: Y Coordinate.
 
         Returns:
-            raster value, None if the input are invalid
+            raster value, None if the input are invalid.
         """
         if x < self.xMin or x > self.xMax or y < self.yMin or y > self.yMax:
             return None
@@ -144,10 +176,11 @@ class Raster(object):
                 return value
 
     def get_central_coors(self, row, col):
-        """Get the coordinates of central grid
+        """Get the coordinates of central grid.
+
         Args:
-            row: row number
-            col: col number
+            row: row number.
+            col: col number.
 
         Returns:
             XY coordinates. If the row or col are invalid, raise ValueError.
@@ -162,17 +195,22 @@ class Raster(object):
 
 
 class RasterUtilClass(object):
-    """Utility function to handle raster data."""
+    """Utility function to handle raster data.
+
+    See Also:
+        :class:`pygeoc.raster.raster.Raster`.
+    """
 
     def __init__(self):
-        """Empty"""
+        """Empty."""
         pass
 
     @staticmethod
     def read_raster(raster_file):
         """Read raster by GDAL.
+
         Args:
-            raster_file: raster file path
+            raster_file: raster file path.
 
         Returns:
             Raster object.
@@ -199,9 +237,10 @@ class RasterUtilClass(object):
     @staticmethod
     def get_mask_from_raster(rasterfile, outmaskfile):
         """Generate mask data from a given raster data.
+
         Args:
-            rasterfile: raster file path
-            outmaskfile: output mask file path
+            rasterfile: raster file path.
+            outmaskfile: output mask file path.
 
         Returns:
             Raster object of mask data.
@@ -253,11 +292,12 @@ class RasterUtilClass(object):
     @staticmethod
     def raster_reclassify(srcfile, v_dict, dstfile, gdaltype=GDT_Float32):
         """Reclassify raster by given classifier dict.
+
         Args:
-            srcfile: source raster file
-            v_dict: classifier dict
-            dstfile: destination file path
-            gdaltype: GDT_Float32 as default. Also, it can be integer, e.g., 4 ==> GDT_UInt32
+            srcfile: source raster file.
+            v_dict: classifier dict.
+            dstfile: destination file path.
+            gdaltype (:obj:`pygeoc.raster.raster.GDALDataType`): GDT_Float32 as default.
         """
         src_r = RasterUtilClass.read_raster(srcfile)
         src_data = src_r.data
@@ -282,15 +322,17 @@ class RasterUtilClass(object):
     def write_gtiff_file(f_name, n_rows, n_cols, data, geotransform, srs, nodata_value,
                          gdal_type=GDT_Float32):
         """Output Raster to GeoTiff format file.
+
         Args:
-            f_name: output gtiff file name
-            n_rows: Row count
-            n_cols: Col count
-            data: 2D array data
-            geotransform: geographic transformation
-            srs: coordinate system
-            nodata_value: nodata_flow value
-            gdal_type: output raster data type, GDT_Float32 as default
+            f_name: output gtiff file name.
+            n_rows: Row count.
+            n_cols: Col count.
+            data: 2D array data.
+            geotransform: geographic transformation.
+            srs: coordinate system.
+            nodata_value: nodata value.
+            gdal_type (:obj:`pygeoc.raster.raster.GDALDataType`): output raster data type,
+                                                                  GDT_Float32 as default.
         """
         driver = gdal_GetDriverByName("GTiff")
         ds = driver.Create(f_name, n_cols, n_rows, 1, gdal_type)
@@ -306,13 +348,14 @@ class RasterUtilClass(object):
     @staticmethod
     def write_asc_file(filename, data, xsize, ysize, geotransform, nodata_value):
         """Output Raster to ASCII file.
+
         Args:
-            filename: output ASCII filename
-            data: 2D array data
-            xsize: Col count
-            ysize: Row count
-            geotransform: geographic transformation
-            nodata_value: nodata_flow value
+            filename: output ASCII filename.
+            data: 2D array data.
+            xsize: Col count.
+            ysize: Row count.
+            geotransform: geographic transformation.
+            nodata_value: nodata_flow value.
         """
         header = """NCOLS %d
     NROWS %d
@@ -335,10 +378,11 @@ class RasterUtilClass(object):
     @staticmethod
     def raster_to_gtiff(tif, geotif, gdal_type=GDT_Float32):
         """Converting Raster format to GeoTIFF.
+
         Args:
-            tif: source raster file path
-            geotif: output raster file path
-            gdal_type: GDT_Float32 as default
+            tif: source raster file path.
+            geotif: output raster file path.
+            gdal_type (:obj:`pygeoc.raster.raster.GDALDataType`): GDT_Float32 as default.
         """
         rst_file = RasterUtilClass.read_raster(tif)
         if gdal_type != rst_file.dataType and rst_file.dataType in GDALDataType:
@@ -350,9 +394,10 @@ class RasterUtilClass(object):
     @staticmethod
     def raster_to_asc(raster_f, asc_f):
         """Converting Raster format to ASCII raster.
+
         Args:
-            raster_f: raster file
-            asc_f: output ASCII file
+            raster_f: raster file.
+            asc_f: output ASCII file.
         """
         raster_r = RasterUtilClass.read_raster(raster_f)
         RasterUtilClass.write_asc_file(asc_f, raster_r.data, raster_r.nCols, raster_r.nRows,
@@ -361,11 +406,12 @@ class RasterUtilClass(object):
     @staticmethod
     def raster_statistics(raster_file):
         """Get basic statistics of raster data.
+
         Args:
-            raster_file: raster file path
+            raster_file: raster file path.
 
         Returns:
-            min, max, mean, std
+            min, max, mean, std.
         """
         ds = gdal_Open(raster_file)
         band = ds.GetRasterBand(1)
@@ -375,11 +421,12 @@ class RasterUtilClass(object):
     @staticmethod
     def split_raster(rs, split_shp, field_name, temp_dir):
         """Split raster by given shapefile and field name.
+
         Args:
-            rs: origin raster file
-            split_shp: boundary (ESRI Shapefile) used to spilt raster
-            field_name: field name identify the spilt value
-            temp_dir: directory to store the spilt rasters
+            rs: origin raster file.
+            split_shp: boundary (ESRI Shapefile) used to spilt raster.
+            field_name: field name identify the spilt value.
+            temp_dir: directory to store the spilt rasters.
         """
         UtilClass.rmmkdir(temp_dir)
         ds = ogr_Open(split_shp)
@@ -409,3 +456,11 @@ class RasterUtilClass(object):
         neg = numpy.where(temp, origin.noDataValue, max_v - origin.data)
         RasterUtilClass.write_gtiff_file(neg_dem, origin.nRows, origin.nCols, neg, origin.geotrans,
                                          origin.srs, origin.noDataValue, origin.dataType)
+
+if __name__=='__main__':
+    # Run doctest in docstrings of Google code style
+    # python -m doctest raster.py (only when doctest.ELLIPSIS is not specified)
+    # or python raster.py -v
+    # or py.test --doctest-module raster.py
+    import doctest
+    doctest.testmod(optionflags=doctest.ELLIPSIS)
