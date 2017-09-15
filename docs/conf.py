@@ -17,6 +17,7 @@ source_parsers = {
 
 needs_sphinx = '1.5'
 extensions = ['sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'sphinx.ext.doctest',
     'sphinx.ext.todo',
     'sphinx.ext.mathjax',

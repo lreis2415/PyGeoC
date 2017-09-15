@@ -34,16 +34,12 @@ GDAL数据类型：
 | 11           | GDT_CFloat64   | Complex Float64                 |
 +--------------+----------------+---------------------------------+
 
+
 栅格数据类
 -------------------------------------------------
-用于创建栅格数据对象。
+用于创建栅格数据对象并进行简单操作，如另存为ASC格式栅格、栅格重分类等。
 
-.. autoclass:: pygeoc.raster.raster.Raster
-   :members:
-   :show-inheritance:
-
-栅格基本操作类
--------------------------------------------------
-.. autoclass:: pygeoc.raster.raster.RasterUtilClass
-   :members:
-   :show-inheritance:
+.. automodule:: pygeoc.raster.raster
+    :members:
+    :undoc-members:
+    :show-inheritance:
