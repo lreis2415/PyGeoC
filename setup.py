@@ -86,11 +86,7 @@ setup(
 
         # You can just specify the packages manually here if your project is
         # simple. Or you can use find_packages().
-        packages=['pygeoc',
-                  'pygeoc.raster',
-                  'pygeoc.vector',
-                  'pygeoc.hydro',
-                  'pygeoc.utils'],
+        packages=['pygeoc'],
 
         # Alternatively, if you want to distribute just a my_module.py, uncomment
         # this:
@@ -101,7 +97,7 @@ setup(
         # requirements files see:
         # https://packaging.python.org/en/latest/requirements.html
         install_requires=[
-            'gdal>=1.9.0,<2.0',
+            # 'gdal>=1.9.0,<2.0',
             'numpy>=1.9.0',
             'configparser>=3.0'
         ],
