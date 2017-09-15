@@ -36,8 +36,7 @@ install:
   - "if [ $(gdal-config --version) == \"$GDALVERSION\" ]; then echo \"Using gdal $GDALVERSION\"; else echo \"NOT using gdal $GDALVERSION as expected; aborting\"; exit 1; fi"
   - "pip wheel -r requirements_dev.txt"
   - "pip install -r requirements_dev.txt"
-  - "GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config pip install --upgrade --force-reinstall -e .[test,plot]"
-  - "pip install gdal >=1.9.0,<2.0"
+  - "GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config pip install --upgrade --force-reinstall -e gdal >=1.9.0,<2.0"
 script:
   - python setup.py bdist_wheel --python-tag py2
   - openssl aes-256-cbc -K $encrypted_945a11aa95b5_key -iv $encrypted_945a11aa95b5_iv
@@ -47,5 +46,6 @@ script:
   - chmod 700 docs/publish-docs
   - ./docs/publish-docs
   - py.test --doctest-module pygeoc -v
+  - py.test --cov pygeoc --cov-report term-missing
 notifications:
   email: false
