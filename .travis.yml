@@ -15,7 +15,7 @@ env:
     - GDALINST=$HOME/gdalinstall
     - GDALBUILD=$HOME/gdalbuild
   matrix:
-    - GDALVERSION="1.9.2"
+    - GDALVERSION="1.11.2"
 addons:
   apt:
     packages:
