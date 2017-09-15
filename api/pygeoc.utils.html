@@ -331,6 +331,17 @@ i.e. regardless of suffix, such as ESRI shapefile</p>
 <dt id="pygeoc.utils.MathClass.isnumerical">
 <em class="property">static </em><code class="descname">isnumerical</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.utils.MathClass.isnumerical" title="永久链接至目标">¶</a></dt>
 <dd><p>Check the input x is numerical or not.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">MathClass</span><span class="o">.</span><span class="n">isnumerical</span><span class="p">(</span><span class="s1">&#39;78&#39;</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">MathClass</span><span class="o">.</span><span class="n">isnumerical</span><span class="p">(</span><span class="s1">&#39;1.e-5&#39;</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">MathClass</span><span class="o">.</span><span class="n">isnumerical</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">MathClass</span><span class="o">.</span><span class="n">isnumerical</span><span class="p">(</span><span class="s1">&#39;a1.2&#39;</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="staticmethod">
