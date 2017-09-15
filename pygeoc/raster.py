@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Raster Utility Class
+"""Raster Utility Class. 用于创建栅格数据对象并进行简单操作，如另存为ASC格式栅格、栅格重分类等。
 
     author: Liangjun Zhu
 
@@ -10,9 +10,6 @@
               17-07-20 lj - add GDALDataType dict, and WhiteBox GAT D8 code.\n
 """
 import os
-#import sys
-# Avoid ValueError: Attempted relative import in non-package
-#sys.path.insert(0, os.path.abspath('../..'))
 import subprocess
 
 import numpy
@@ -24,7 +21,7 @@ from osgeo.gdal import Open as gdal_Open
 from osgeo.ogr import Open as ogr_Open
 from osgeo.osr import SpatialReference as osr_SpatialReference
 
-from pygeoc.utils.utils import MathClass, UtilClass, DEFAULT_NODATA, DELTA
+from pygeoc.utils import MathClass, UtilClass, DEFAULT_NODATA, DELTA
 
 GDALDataType = {0: GDT_Unknown,  # Unknown or unspecified type
                 1: GDT_Byte,  # Eight bit unsigned integer
@@ -51,7 +48,7 @@ class Raster(object):
         nodata_value: NODATA value, None as default.
         geotransform: geographic transformation, None as default.
         srs: coordinate system, None as default.
-        datatype(:obj:`pygeoc.raster.raster.GDALDataType`): Raster datatype.
+        datatype(:obj:`pygeoc.raster.GDALDataType`): Raster datatype.
 
     Attributes:
         nRows (int): Row number.
@@ -60,7 +57,7 @@ class Raster(object):
         noDataValue (float): NoData value.
         geotrans (list): geographic transformation list.
         srs (:obj:`osgeo.osr.SpatialReference`): Spatial reference.
-        dataType (:obj:`pygeoc.raster.raster.GDALDataType`): Raster datatype.
+        dataType (:obj:`pygeoc.raster.GDALDataType`): Raster datatype.
         dx (float): cell size.
         xMin (float): left X coordinate.
         xMax (float): right X coordinate.
@@ -73,14 +70,14 @@ class Raster(object):
         The common usage is read raster data from a raster file (e.g., geotiff) and get the
         Raster instance.
 
-        >>> from pygeoc.raster.raster import RasterUtilClass
-        >>> rst_file = r'examples/data/Jamaica_dem.tif'
+        >>> from pygeoc.raster import RasterUtilClass
+        >>> rst_file = r'../tests/data/Jamaica_dem.tif'
         >>> rst_obj = RasterUtilClass.read_raster(rst_file)
         >>> print rst_obj
-        <pygeoc.raster.raster.Raster object at 0x...>
+        <pygeoc.raster.Raster object at 0x...>
 
     See Also:
-        :func:`pygeoc.raster.raster.RasterUtilClass.read_raster`
+        :func:`pygeoc.raster.RasterUtilClass.read_raster`
     """
 
     def __init__(self, n_rows, n_cols, data, nodata_value=None, geotransform=None,
@@ -109,7 +106,7 @@ class Raster(object):
             dataType
 
         See Also:
-            :obj:`pygeoc.raster.raster.GDALDataType`
+            :obj:`pygeoc.raster.GDALDataType`
         """
         assert self.dataType in GDALDataType
         return GDALDataType.get(self.dataType)
@@ -300,7 +297,7 @@ class RasterUtilClass(object):
             srcfile: source raster file.
             v_dict: classifier dict.
             dstfile: destination file path.
-            gdaltype (:obj:`pygeoc.raster.raster.GDALDataType`): GDT_Float32 as default.
+            gdaltype (:obj:`pygeoc.raster.GDALDataType`): GDT_Float32 as default.
         """
         src_r = RasterUtilClass.read_raster(srcfile)
         src_data = src_r.data
@@ -334,7 +331,7 @@ class RasterUtilClass(object):
             geotransform: geographic transformation.
             srs: coordinate system.
             nodata_value: nodata value.
-            gdal_type (:obj:`pygeoc.raster.raster.GDALDataType`): output raster data type,
+            gdal_type (:obj:`pygeoc.raster.GDALDataType`): output raster data type,
                                                                   GDT_Float32 as default.
         """
         driver = gdal_GetDriverByName("GTiff")
@@ -386,7 +383,7 @@ class RasterUtilClass(object):
             tif: source raster file path.
             geotif: output raster file path.
             change_nodata: change NoDataValue to -9999 or not.
-            gdal_type (:obj:`pygeoc.raster.raster.GDALDataType`): GDT_Float32 as default.
+            gdal_type (:obj:`pygeoc.raster.GDALDataType`): GDT_Float32 as default.
         """
         rst_file = RasterUtilClass.read_raster(tif)
         nodata = rst_file.noDataValue
