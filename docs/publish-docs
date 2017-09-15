@@ -21,7 +21,7 @@ cd -
 cd docs
 make html
 echo "Docs generated done!"
-cd
+cd -
 # Create and commit the documentation repo.
 cd ${HTML_PATH}
 git add .
