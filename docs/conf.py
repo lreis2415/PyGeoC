@@ -48,8 +48,15 @@ master_doc = 'index'
 project = u'PyGeoC'
 copyright = u'2016-2017, Liang-Jun Zhu'
 author = u'Liang-Jun Zhu'
-version = u'0.1.2'
-release = u'0.1.2'
+# Parse the version from the pygeoc module.
+with open('../pygeoc/__init__.py') as f:
+    for line in f:
+        if line.find("__version__") >= 0:
+            version = line.split("=")[1].strip()
+            version = version.strip('"')
+            version = version.strip("'")
+            continue
+release = version
 
 language = 'zh_CN'
 exclude_patterns = ['_build']
