@@ -44,7 +44,19 @@ class MathClass(object):
 
     @staticmethod
     def isnumerical(x):
-        """Check the input x is numerical or not."""
+        """Check the input x is numerical or not.
+
+        Examples:
+            >>> MathClass.isnumerical('78')
+            True
+            >>> MathClass.isnumerical('1.e-5')
+            True
+            >>> MathClass.isnumerical(None)
+            False
+            >>> MathClass.isnumerical('a1.2')
+            False
+
+        """
         try:
             xx = float(x)
         except TypeError:
