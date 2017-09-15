@@ -18,7 +18,7 @@ import pygeoc
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 
@@ -44,7 +44,8 @@ setup(
         version=pygeoc.__version__,
 
         description='Python for GeoComputation',
-        long_description=long_description,
+        long_description='Using Python to handle GeoComputation such as hydrologic analysis'
+                         'by gridded DEM.',
 
         # The project's main homepage.
         url=pygeoc.__url__,
@@ -100,8 +101,9 @@ setup(
         # requirements files see:
         # https://packaging.python.org/en/latest/requirements.html
         install_requires=[
-            # 'gdal>=1.9.0,<2.0',
-            # 'numpy>=1.9.0'
+            'gdal>=1.9.0,<2.0',
+            'numpy>=1.9.0',
+            'configparser>=3.0'
         ],
 
         # List additional groups of dependencies here (e.g. development
