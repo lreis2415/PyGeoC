@@ -1,12 +1,23 @@
+branches:
+  only:
+  - master
+  - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
 language: python
-
-env:
-  - TOXENV=py27
-
-install: pip install tox
+sudo: required
+python:
+  - "2.7"
+before_install:
+  - sudo apt-get install -qq gdal-bin libgdal-dev
+  - sudo ldconfig
+install: pip install tox, numpy, configparser, gdal, sphinx, recommonmark
 
 script: 
   - python setup.py bdist_wheel --python-tag py2
+  - openssl aes-256-cbc -K $encrypted_9c89c5b645f3_key -iv $encrypted_9c89c5b645f3_iv -in doc/doxygen/travisci_rsa.enc -out doc/doxygen/travisci_rsa -d;
+  - chmod 0600 docs/travisci_rsa;
+  - cp docs/travisci_rsa ~/.ssh/id_rsa;
+  - chmod 700 docs/publish-doxygen;
+  - ./docs/publish-doxygen;
 
 notifications:
   email: false
