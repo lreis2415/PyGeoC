@@ -4,17 +4,39 @@ branches:
   - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
 language: python
 sudo: required
+cache:
+  directories:
+    - $GDALINST
+    - ~/.cache/pip
+env:
+  global:
+    - PIP_WHEEL_DIR=$HOME/.cache/pip/wheels
+    - PIP_FIND_LINKS=file://$HOME/.cache/pip/wheels
+    - GDALINST=$HOME/gdalinstall
+    - GDALBUILD=$HOME/gdalbuild
+  matrix:
+    - GDALVERSION="1.9.2"
+addons:
+  apt:
+    packages:
+    - gdal-bin
+    - libproj-dev
+    - libhdf5-serial-dev
+    - libgdal-dev
 python:
   - '2.7'
 before_install:
-
-  - sudo apt-get install -qq gdal-bin libgdal-dev
-  - sudo ldconfig
-install:
+  - pip install -U pip
   - pip install tox
-  - pip install gdal
+  - pip install wheel
+  - . ./travis_gdal_install.sh
+  - export PATH=$GDALINST/gdal-$GDALVERSION/bin:$PATH
+  - export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION/lib:$LD_LIBRARY_PATH
+install:
+  - "if [ $(gdal-config --version) == \"$GDALVERSION\" ]; then echo \"Using gdal $GDALVERSION\"; else echo \"NOT using gdal $GDALVERSION as expected; aborting\"; exit 1; fi"
   - pip wheel -r requirements-dev.txt
   - pip install -r requirements-dev.txt
+  - "GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config pip install --upgrade --force-reinstall -e .[test,plot]"
 script:
   - python setup.py bdist_wheel --python-tag py2
   - openssl aes-256-cbc -K $encrypted_945a11aa95b5_key -iv $encrypted_945a11aa95b5_iv
