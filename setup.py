@@ -22,18 +22,30 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 
-class Tox(TestCommand):
+# class Tox(TestCommand):
+#     def finalize_options(self):
+#         TestCommand.finalize_options(self)
+#         self.test_args = []
+#         self.test_suite = True
+#
+#     def run_tests(self):
+#         # import here, cause outside the eggs aren't loaded
+#         import tox, sys
+#         errcode = tox.cmdline(self.test_args)
+#         sys.exit(errcode)
+
+
+class PyTest(TestCommand):
     def finalize_options(self):
         TestCommand.finalize_options(self)
         self.test_args = []
         self.test_suite = True
 
     def run_tests(self):
-        # import here, cause outside the eggs aren't loaded
-        import tox, sys
-        errcode = tox.cmdline(self.test_args)
+        import pytest
+        import sys
+        errcode = pytest.main(self.test_args)
         sys.exit(errcode)
-
 
 setup(
         name='PyGeoC',
@@ -106,7 +118,7 @@ setup(
         # dependencies). You can install these using the following syntax,
         # for example:
         # $ pip install -e .[dev,test]
-        extras_require={},
+        extras_require={'testing': ['pytest']},
 
         # If there are data files included in your packages that need to be
         # installed, specify them here.  If using Python 2.6 or less, then these
@@ -119,8 +131,9 @@ setup(
         # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
         # data_files=[('my_data', ['data/data_file'])],
         data_files=[],
-        tests_require=['tox'],
-        cmdclass={'test': Tox},
+        tests_require=['pytest'],
+        # cmdclass={'test': Tox},
+        cmdclass={'test': PyTest},
         # To provide executable scripts, use entry points in preference to the
         # "scripts" keyword. Entry points provide cross-platform support and allow
         # pip to create the appropriate form of executable for the target platform.
