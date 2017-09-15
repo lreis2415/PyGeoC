@@ -38,15 +38,21 @@ install:
   - "pip install -r requirements_dev.txt"
   - "GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config"
   - "pip install --upgrade --force-reinstall gdal==$GDALVERSION"
+  - "pip install coveralls>=1.1"
 script:
   - python setup.py bdist_wheel --python-tag py2
+  - cd dist
+  - for i in `find . -name *.whl`; do python -m pip install $i --upgrade; done
+  - cd ..
   - openssl aes-256-cbc -K $encrypted_945a11aa95b5_key -iv $encrypted_945a11aa95b5_iv
     -in docs/travisci_rsa.enc -out docs/travisci_rsa -d
   - chmod 0600 docs/travisci_rsa
   - cp docs/travisci_rsa ~/.ssh/id_rsa
   - chmod 700 docs/publish-docs
   - ./docs/publish-docs
-  - py.test --doctest-module pygeoc -v
-  - py.test --cov pygeoc --cov-report term-missing
+  - python -m pytest --doctest-module pygeoc -v
+  - python -m pytest --cov pygeoc --cov-report term-missing
+after_success:
+  - coveralls || echo "!! intermittent coveralls failure"
 notifications:
   email: false
