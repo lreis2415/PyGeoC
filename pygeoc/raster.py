@@ -71,7 +71,7 @@ class Raster(object):
         Raster instance.
 
         >>> from pygeoc.raster import RasterUtilClass
-        >>> rst_file = r'../tests/data/Jamaica_dem.tif'
+        >>> rst_file = r'tests/data/Jamaica_dem.tif'
         >>> rst_obj = RasterUtilClass.read_raster(rst_file)
         >>> print rst_obj
         <pygeoc.raster.Raster object at 0x...>
