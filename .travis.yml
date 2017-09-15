@@ -21,7 +21,6 @@ addons:
     packages:
     - gdal-bin
     - libproj-dev
-    - libhdf5-serial-dev
     - libgdal-dev
 python:
   - '2.7'
@@ -53,6 +52,6 @@ script:
   - python -m pytest --doctest-module pygeoc -v
   - python -m pytest --cov pygeoc --cov-report term-missing
 after_success:
-  - coveralls || echo "!! intermittent coveralls failure"
+  - coveralls
 notifications:
   email: false
