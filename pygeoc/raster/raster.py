@@ -3,15 +3,16 @@
 """Raster Utility Class
 
     author: Liangjun Zhu
-    changlog: 12-04-12 jz - origin version.
-              16-07-01 lj - reorganized for pygeoc.
-              17-06-25 lj - check by pylint and reformat by Google style.
-              17-07-20 lj - add GDALDataType dict, and WhiteBox GAT D8 code.
+
+    changlog: 12-04-12 jz - origin version.\n
+              16-07-01 lj - reorganized for pygeoc.\n
+              17-06-25 lj - check by pylint and reformat by Google style.\n
+              17-07-20 lj - add GDALDataType dict, and WhiteBox GAT D8 code.\n
 """
 import os
-import sys
+#import sys
 # Avoid ValueError: Attempted relative import in non-package
-sys.path.insert(0, os.path.abspath('../..'))
+#sys.path.insert(0, os.path.abspath('../..'))
 import subprocess
 
 import numpy
@@ -73,7 +74,7 @@ class Raster(object):
         Raster instance.
 
         >>> from pygeoc.raster.raster import RasterUtilClass
-        >>> rst_file = r'../../examples/data/Jamaica_dem.tif'
+        >>> rst_file = r'examples/data/Jamaica_dem.tif'
         >>> rst_obj = RasterUtilClass.read_raster(rst_file)
         >>> print rst_obj
         <pygeoc.raster.raster.Raster object at 0x...>
