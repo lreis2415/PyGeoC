@@ -1,12 +1,57 @@
+branches:
+  only:
+  - master
+  - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
 language: python
-
+sudo: required
+cache:
+  directories:
+    - $GDALINST
+    - ~/.cache/pip
 env:
-  - TOXENV=py27
-
-install: pip install tox
-
-script: 
+  global:
+    - PIP_WHEEL_DIR=$HOME/.cache/pip/wheels
+    - PIP_FIND_LINKS=file://$HOME/.cache/pip/wheels
+    - GDALINST=$HOME/gdalinstall
+    - GDALBUILD=$HOME/gdalbuild
+  matrix:
+    - GDALVERSION="1.11.2"
+addons:
+  apt:
+    packages:
+    - gdal-bin
+    - libproj-dev
+    - libgdal-dev
+python:
+  - '2.7'
+before_install:
+  - pip install -U pip
+  - pip install tox
+  - pip install wheel
+  - . ./travis_gdal_install.sh
+  - export PATH=$GDALINST/gdal-$GDALVERSION/bin:$PATH
+  - export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION/lib:$LD_LIBRARY_PATH
+install:
+  - "if [ $(gdal-config --version) == \"$GDALVERSION\" ]; then echo \"Using gdal $GDALVERSION\"; else echo \"NOT using gdal $GDALVERSION as expected; aborting\"; exit 1; fi"
+  - "pip wheel -r requirements_dev.txt"
+  - "pip install -r requirements_dev.txt"
+  - "GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config"
+  - "pip install --upgrade --force-reinstall gdal==$GDALVERSION"
+  - "pip install coveralls>=1.1"
+script:
   - python setup.py bdist_wheel --python-tag py2
-
+  - cd dist
+  - for i in `find . -name *.whl`; do python -m pip install $i --upgrade; done
+  - cd ..
+  - openssl aes-256-cbc -K $encrypted_945a11aa95b5_key -iv $encrypted_945a11aa95b5_iv
+    -in docs/travisci_rsa.enc -out docs/travisci_rsa -d
+  - chmod 0600 docs/travisci_rsa
+  - cp docs/travisci_rsa ~/.ssh/id_rsa
+  - chmod 700 docs/publish-docs
+  - ./docs/publish-docs
+  - python -m pytest --doctest-module pygeoc -v
+  - python -m pytest --cov pygeoc --cov-report term-missing
+after_success:
+  - coveralls
 notifications:
   email: false

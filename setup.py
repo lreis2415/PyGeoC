@@ -18,22 +18,34 @@ import pygeoc
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 
-class Tox(TestCommand):
+# class Tox(TestCommand):
+#     def finalize_options(self):
+#         TestCommand.finalize_options(self)
+#         self.test_args = []
+#         self.test_suite = True
+#
+#     def run_tests(self):
+#         # import here, cause outside the eggs aren't loaded
+#         import tox, sys
+#         errcode = tox.cmdline(self.test_args)
+#         sys.exit(errcode)
+
+
+class PyTest(TestCommand):
     def finalize_options(self):
         TestCommand.finalize_options(self)
         self.test_args = []
         self.test_suite = True
 
     def run_tests(self):
-        # import here, cause outside the eggs aren't loaded
-        import tox, sys
-        errcode = tox.cmdline(self.test_args)
+        import pytest
+        import sys
+        errcode = pytest.main(self.test_args)
         sys.exit(errcode)
-
 
 setup(
         name='PyGeoC',
@@ -44,7 +56,8 @@ setup(
         version=pygeoc.__version__,
 
         description='Python for GeoComputation',
-        long_description=long_description,
+        long_description='Using Python to handle GeoComputation such as hydrologic analysis'
+                         'by gridded DEM.',
 
         # The project's main homepage.
         url=pygeoc.__url__,
@@ -85,11 +98,7 @@ setup(
 
         # You can just specify the packages manually here if your project is
         # simple. Or you can use find_packages().
-        packages=['pygeoc',
-                  'pygeoc.raster',
-                  'pygeoc.vector',
-                  'pygeoc.hydro',
-                  'pygeoc.utils'],
+        packages=['pygeoc'],
 
         # Alternatively, if you want to distribute just a my_module.py, uncomment
         # this:
@@ -101,14 +110,15 @@ setup(
         # https://packaging.python.org/en/latest/requirements.html
         install_requires=[
             # 'gdal>=1.9.0,<2.0',
-            # 'numpy>=1.9.0'
+            'numpy>=1.9.0',
+            'configparser>=3.0'
         ],
 
         # List additional groups of dependencies here (e.g. development
         # dependencies). You can install these using the following syntax,
         # for example:
         # $ pip install -e .[dev,test]
-        extras_require={},
+        extras_require={'testing': ['pytest']},
 
         # If there are data files included in your packages that need to be
         # installed, specify them here.  If using Python 2.6 or less, then these
@@ -121,8 +131,9 @@ setup(
         # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
         # data_files=[('my_data', ['data/data_file'])],
         data_files=[],
-        tests_require=['tox'],
-        cmdclass={'test': Tox},
+        tests_require=['pytest'],
+        # cmdclass={'test': Tox},
+        cmdclass={'test': PyTest},
         # To provide executable scripts, use entry points in preference to the
         # "scripts" keyword. Entry points provide cross-platform support and allow
         # pip to create the appropriate form of executable for the target platform.

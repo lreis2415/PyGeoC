@@ -11,13 +11,13 @@
 import os
 import sys
 
-from osgeo.ogr import wkbLineString
-from osgeo.ogr import GetDriverByName as ogr_GetDriverByName
 from osgeo.ogr import CreateGeometryFromJson as ogr_CreateGeometryFromJson
-from osgeo.ogr import Geometry as ogr_Geometry
 from osgeo.ogr import Feature as ogr_Feature
+from osgeo.ogr import Geometry as ogr_Geometry
+from osgeo.ogr import GetDriverByName as ogr_GetDriverByName
+from osgeo.ogr import wkbLineString
 
-from ..utils.utils import FileClass, UtilClass, sysstr
+from pygeoc.utils import FileClass, UtilClass, sysstr
 
 
 class VectorUtilClass(object):

@@ -12,9 +12,9 @@ from numpy import frompyfunc, ones, where
 from osgeo.gdal import GDT_Int16, GDT_Float32
 from osgeo.ogr import Open as ogr_Open
 
-from ..hydro.hydro import FlowModelConst, D8Util
-from ..raster.raster import RasterUtilClass
-from ..utils.utils import MathClass, FileClass, DEFAULT_NODATA, PI, DELTA
+from pygeoc.hydro import FlowModelConst, D8Util
+from pygeoc.raster import RasterUtilClass
+from pygeoc.utils import MathClass, FileClass, DEFAULT_NODATA, PI, DELTA
 
 # Field name of stream ESRI shapefile of TauDEM
 FLD_LINKNO = "LINKNO"

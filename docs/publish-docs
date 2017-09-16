@@ -1,0 +1,35 @@
+#!/bin/bash -e
+
+# Settings
+REPO_PATH=git@github.com:lreis2415/PyGeoC.git
+HTML_PATH=docs/_build/html
+COMMIT_USER="crazyzlj"
+COMMIT_EMAIL="crazyzlj@gmail.com"
+CHANGESET=$(git rev-parse --verify HEAD)
+
+# Get a clean version of the HTML documentation repo.
+rm -rf ${HTML_PATH}
+mkdir -p ${HTML_PATH}
+git clone -b gh-pages "${REPO_PATH}" --single-branch ${HTML_PATH}
+
+# rm all the files through git to prevent stale files.
+cd ${HTML_PATH}
+git rm -rf .
+cd -
+
+# Generate the HTML documentation.
+cd docs
+make html
+echo "Docs generated done!"
+cd -
+# copy .nojekyll and CNAME to html dir
+cp .nojekyll ${HTML_PATH}
+cp CNAME ${HTML_PATH}
+# Create and commit the documentation repo.
+cd ${HTML_PATH}
+git add .
+git config user.name "${COMMIT_USER}"
+git config user.email "${COMMIT_EMAIL}"
+git commit -m "Automated docs for changeset ${CHANGESET}."
+git push origin gh-pages
+cd -

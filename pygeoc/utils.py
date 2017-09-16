@@ -1,10 +1,12 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 """Utility Classes and Functions
+
     @author: Liangjun Zhu
-    @changlog: 12-04-12 jz - origin version
-               16-07-01 lj - reorganized for pygeoc
-               17-06-25 lj - check by pylint and reformat by Google style
+
+    @changlog: 12-04-12 jz - origin version.\n
+               16-07-01 lj - reorganized for pygeoc.\n
+               17-06-25 lj - check by pylint and reformat by Google style.\n
 """
 
 import argparse
@@ -42,7 +44,19 @@ class MathClass(object):
 
     @staticmethod
     def isnumerical(x):
-        """Check the input x is numerical or not."""
+        """Check the input x is numerical or not.
+
+        Examples:
+            >>> MathClass.isnumerical('78')
+            True
+            >>> MathClass.isnumerical('1.e-5')
+            True
+            >>> MathClass.isnumerical(None)
+            False
+            >>> MathClass.isnumerical('a1.2')
+            False
+
+        """
         try:
             xx = float(x)
         except TypeError:

@@ -15,9 +15,9 @@
 
 import os
 
-from postTauDEM import DinfUtil
-from ..raster.raster import RasterUtilClass
-from ..utils.utils import UtilClass, MathClass, FileClass, StringClass
+from pygeoc.postTauDEM import DinfUtil
+from pygeoc.raster import RasterUtilClass
+from pygeoc.utils import UtilClass, MathClass, FileClass, StringClass
 
 
 class TauDEMFilesUtils(object):

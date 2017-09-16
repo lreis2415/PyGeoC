@@ -6,9 +6,8 @@
 
     changlog: 17-06-25 lj - check by pylint and reformat by Google style.\n
 """
-from ..raster.raster import RasterUtilClass, GDALDataType
-from ..utils.utils import FileClass
-from ..utils.utils import PI, SQ2
+from pygeoc.raster import RasterUtilClass, GDALDataType
+from pygeoc.utils import FileClass, PI, SQ2
 
 
 class FlowModelConst(object):
