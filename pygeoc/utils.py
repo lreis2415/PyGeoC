@@ -398,8 +398,20 @@ class FileClass(object):
         return False
 
     @staticmethod
-    def get_executable_fullpath(name):
+    def get_executable_fullpath(name, dirname=None):
         """get the full path of a given executable name"""
+        if name is None:
+            return None
+        if isinstance(name, unicode) or isinstance(name, str):
+            name = name.encode()
+        else:
+            raise RuntimeError('The input function name or path must be string!')
+        if dirname is not None:  # check the given path first
+            dirname = os.path.abspath(dirname)
+            fpth = dirname + os.sep + name
+            if os.path.isfile(fpth):
+                return fpth
+        # If dirname is not specified, check the env then.
         if sysstr == 'Windows':  # not test yet
             findout = UtilClass.run_command('where %s' % name)
         else:
@@ -411,6 +423,23 @@ class FileClass(object):
         if os.path.exists(first_path):
             return first_path
         return None
+
+    @staticmethod
+    def get_file_fullpath(name, dirname=None):
+        """Return full path if available."""
+        if name is None:
+            return None
+        if isinstance(name, unicode) or isinstance(name, str):
+            name = name.encode()
+        else:
+            raise RuntimeError('The input function name or path must be string!')
+        if os.sep in name:  # name is full path already
+            name = os.path.abspath(name)
+            return name
+        if dirname is not None:
+            dirname = os.path.abspath(dirname)
+            name = dirname + os.sep + name
+        return name
 
     @staticmethod
     def get_filename_by_suffixes(dir_src, suffixes):
@@ -524,7 +553,7 @@ class UtilClass(object):
             output lines
         """
         commands = StringClass.convert_unicode2str(commands)
-        print (commands)
+        # print (commands)
 
         use_shell = False
         subprocess_flags = 0
@@ -583,7 +612,6 @@ class UtilClass(object):
         """Make directory if not existed"""
         if not os.path.isdir(dir_path) or not os.path.exists(dir_path):
             os.makedirs(dir_path)
-            # os.mkdir(dir_path)
 
     @staticmethod
     def rmmkdir(dir_path):
