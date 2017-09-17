@@ -92,7 +92,7 @@
             
             
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../get_started.html">开始使用PyGeoC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">快速开始</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="api_reference.html">API 参考</a><ul class="current">
@@ -105,7 +105,6 @@
 <li class="toctree-l3"><a class="reference internal" href="pygeoc.vector.html">pygeoc.vector module</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="api_reference.html#id2">全局变量</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api_index.html">API 索引</a></li>
@@ -176,19 +175,13 @@
             
   <div class="section" id="module-pygeoc.TauDEM">
 <span id="pygeoc-taudem-module"></span><h1>pygeoc.TauDEM module<a class="headerlink" href="#module-pygeoc.TauDEM" title="永久链接至标题">¶</a></h1>
-<p>TauDEM Utility Class</p>
-<dl class="docutils">
-<dt>includes fill, d8flowdir, dinfflowdir, aread8, threshold, moveoutletstostrm,</dt>
-<dd>peukerdouglas(peukerdouglas), streamnet, dropanalysis, d8distdowntostream</dd>
-</dl>
-<p>Thanks to the open-source software QSWAT by Chris George.</p>
-<blockquote>
-<div><p>author: Liangjun Zhu</p>
-<p>changlog: 12-04-12 jz - origin version.</p>
+<p>TauDEM Utility Class.</p>
+<p>Thanks to the open-source software <a class="reference external" href="https://github.com/dtarb/TauDEM">TauDEM</a> by David Tarboton and <a class="reference external" href="http://swat.tamu.edu/software/qswat/">QSWAT</a> by Chris George.</p>
+<p>&#64;author: Liangjun Zhu</p>
+<p>&#64;changlog: 12-04-12 jz - origin version.</p>
 <blockquote>
 <div><p>16-07-01 lj - reorganized for pygeoc.</p>
 <p>17-06-25 lj - check by pylint and reformat by Google style.</p>
-</div></blockquote>
 </div></blockquote>
 <dl class="class">
 <dt id="pygeoc.TauDEM.TauDEM">
@@ -197,19 +190,19 @@
 <p>Methods for calling TauDEM executables.</p>
 <dl class="staticmethod">
 <dt id="pygeoc.TauDEM.TauDEM.aread8">
-<em class="property">static </em><code class="descname">aread8</code><span class="sig-paren">(</span><em>np</em>, <em>workingdir</em>, <em>flowdir</em>, <em>acc</em>, <em>outlet=None</em>, <em>streamskeleton=None</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>edgecontaimination=False</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.aread8" title="永久链接至目标">¶</a></dt>
+<em class="property">static </em><code class="descname">aread8</code><span class="sig-paren">(</span><em>np</em>, <em>flowdir</em>, <em>acc</em>, <em>outlet=None</em>, <em>streamskeleton=None</em>, <em>edgecontaimination=False</em>, <em>workingdir=None</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.aread8" title="永久链接至目标">¶</a></dt>
 <dd><p>Run Accumulate area according to D8 flow direction</p>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pygeoc.TauDEM.TauDEM.areadinf">
-<em class="property">static </em><code class="descname">areadinf</code><span class="sig-paren">(</span><em>np</em>, <em>workingdir</em>, <em>angfile</em>, <em>sca</em>, <em>outlet=None</em>, <em>wg=None</em>, <em>edgecontaimination=False</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.areadinf" title="永久链接至目标">¶</a></dt>
+<em class="property">static </em><code class="descname">areadinf</code><span class="sig-paren">(</span><em>np</em>, <em>angfile</em>, <em>sca</em>, <em>outlet=None</em>, <em>wg=None</em>, <em>edgecontaimination=False</em>, <em>workingdir=None</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.areadinf" title="永久链接至目标">¶</a></dt>
 <dd><p>Run Accumulate area according to Dinf flow direction</p>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pygeoc.TauDEM.TauDEM.connectdown">
-<em class="property">static </em><code class="descname">connectdown</code><span class="sig-paren">(</span><em>np</em>, <em>workingdir</em>, <em>acc</em>, <em>outlet</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.connectdown" title="永久链接至目标">¶</a></dt>
+<em class="property">static </em><code class="descname">connectdown</code><span class="sig-paren">(</span><em>np</em>, <em>acc</em>, <em>outlet</em>, <em>workingdir=None</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.connectdown" title="永久链接至目标">¶</a></dt>
 <dd><p>Reads an ad8 contributing area file,
 identifies the location of the largest ad8 value as the outlet of the largest watershed</p>
 </dd></dl>
@@ -228,31 +221,39 @@ identifies the location of the largest ad8 value as the outlet of the largest wa
 
 <dl class="staticmethod">
 <dt id="pygeoc.TauDEM.TauDEM.d8distdowntostream">
-<em class="property">static </em><code class="descname">d8distdowntostream</code><span class="sig-paren">(</span><em>np</em>, <em>workingdir</em>, <em>p</em>, <em>fel</em>, <em>src</em>, <em>dist</em>, <em>distancemethod</em>, <em>thresh</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.d8distdowntostream" title="永久链接至目标">¶</a></dt>
-<dd><p>Run D8 distance down to stream</p>
+<em class="property">static </em><code class="descname">d8distdowntostream</code><span class="sig-paren">(</span><em>np</em>, <em>p</em>, <em>fel</em>, <em>src</em>, <em>dist</em>, <em>distancemethod</em>, <em>thresh</em>, <em>workingdir=None</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.d8distdowntostream" title="永久链接至目标">¶</a></dt>
+<dd><p>Run D8 distance down to stream by different method for distance.
+This function is extended from d8hdisttostrm by Liangjun.</p>
+<p>Please clone <a class="reference external" href="https://github.com/lreis2415/TauDEM">TauDEM by lreis2415</a> and compile for this program.</p>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pygeoc.TauDEM.TauDEM.d8flowdir">
-<em class="property">static </em><code class="descname">d8flowdir</code><span class="sig-paren">(</span><em>np</em>, <em>workingdir</em>, <em>filleddem</em>, <em>flowdir</em>, <em>slope</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.d8flowdir" title="永久链接至目标">¶</a></dt>
+<em class="property">static </em><code class="descname">d8flowdir</code><span class="sig-paren">(</span><em>np</em>, <em>filleddem</em>, <em>flowdir</em>, <em>slope</em>, <em>workingdir=None</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.d8flowdir" title="永久链接至目标">¶</a></dt>
 <dd><p>Run D8 flow direction</p>
 </dd></dl>
 
 <dl class="staticmethod">
+<dt id="pygeoc.TauDEM.TauDEM.d8hdisttostrm">
+<em class="property">static </em><code class="descname">d8hdisttostrm</code><span class="sig-paren">(</span><em>np</em>, <em>p</em>, <em>fel</em>, <em>src</em>, <em>dist</em>, <em>thresh</em>, <em>workingdir=None</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.d8hdisttostrm" title="永久链接至目标">¶</a></dt>
+<dd><p>Run D8 distance down to stream.</p>
+</dd></dl>
+
+<dl class="staticmethod">
 <dt id="pygeoc.TauDEM.TauDEM.dinfdistdown">
-<em class="property">static </em><code class="descname">dinfdistdown</code><span class="sig-paren">(</span><em>np</em>, <em>workingdir</em>, <em>ang</em>, <em>fel</em>, <em>slp</em>, <em>src</em>, <em>statsm</em>, <em>distm</em>, <em>edgecontamination</em>, <em>wg</em>, <em>dist</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.dinfdistdown" title="永久链接至目标">¶</a></dt>
+<em class="property">static </em><code class="descname">dinfdistdown</code><span class="sig-paren">(</span><em>np</em>, <em>ang</em>, <em>fel</em>, <em>slp</em>, <em>src</em>, <em>statsm</em>, <em>distm</em>, <em>edgecontamination</em>, <em>wg</em>, <em>dist</em>, <em>workingdir=None</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.dinfdistdown" title="永久链接至目标">¶</a></dt>
 <dd><p>Run D-inf distance down to stream</p>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pygeoc.TauDEM.TauDEM.dinfflowdir">
-<em class="property">static </em><code class="descname">dinfflowdir</code><span class="sig-paren">(</span><em>np</em>, <em>workingdir</em>, <em>filleddem</em>, <em>flowangle</em>, <em>slope</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.dinfflowdir" title="永久链接至目标">¶</a></dt>
+<em class="property">static </em><code class="descname">dinfflowdir</code><span class="sig-paren">(</span><em>np</em>, <em>filleddem</em>, <em>flowangle</em>, <em>slope</em>, <em>workingdir=None</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.dinfflowdir" title="永久链接至目标">¶</a></dt>
 <dd><p>Run Dinf flow direction</p>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pygeoc.TauDEM.TauDEM.dropanalysis">
-<em class="property">static </em><code class="descname">dropanalysis</code><span class="sig-paren">(</span><em>np</em>, <em>workingdir</em>, <em>fel</em>, <em>p</em>, <em>ad8</em>, <em>ssa</em>, <em>outlet</em>, <em>minthresh</em>, <em>maxthresh</em>, <em>numthresh</em>, <em>logspace</em>, <em>drp</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.dropanalysis" title="永久链接至目标">¶</a></dt>
+<em class="property">static </em><code class="descname">dropanalysis</code><span class="sig-paren">(</span><em>np</em>, <em>fel</em>, <em>p</em>, <em>ad8</em>, <em>ssa</em>, <em>outlet</em>, <em>minthresh</em>, <em>maxthresh</em>, <em>numthresh</em>, <em>logspace</em>, <em>drp</em>, <em>workingdir=None</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.dropanalysis" title="永久链接至目标">¶</a></dt>
 <dd><p>Drop analysis for optimal threshold for extracting stream.</p>
 </dd></dl>
 
@@ -263,20 +264,8 @@ identifies the location of the largest ad8 value as the outlet of the largest wa
 </dd></dl>
 
 <dl class="staticmethod">
-<dt id="pygeoc.TauDEM.TauDEM.fill">
-<em class="property">static </em><code class="descname">fill</code><span class="sig-paren">(</span><em>np</em>, <em>workingdir</em>, <em>dem</em>, <em>filleddem</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.fill" title="永久链接至目标">¶</a></dt>
-<dd><p>Run pit remove using the flooding approach</p>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="pygeoc.TauDEM.TauDEM.fullpath">
-<em class="property">static </em><code class="descname">fullpath</code><span class="sig-paren">(</span><em>name</em>, <em>dirname=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.fullpath" title="永久链接至目标">¶</a></dt>
-<dd><p>Return full path if available.</p>
-</dd></dl>
-
-<dl class="staticmethod">
 <dt id="pygeoc.TauDEM.TauDEM.gridnet">
-<em class="property">static </em><code class="descname">gridnet</code><span class="sig-paren">(</span><em>np</em>, <em>workingdir</em>, <em>pfile</em>, <em>plenfile</em>, <em>tlenfile</em>, <em>gordfile</em>, <em>outlet=None</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.gridnet" title="永久链接至目标">¶</a></dt>
+<em class="property">static </em><code class="descname">gridnet</code><span class="sig-paren">(</span><em>np</em>, <em>pfile</em>, <em>plenfile</em>, <em>tlenfile</em>, <em>gordfile</em>, <em>outlet=None</em>, <em>workingdir=None</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.gridnet" title="永久链接至目标">¶</a></dt>
 <dd><p>Run gridnet</p>
 </dd></dl>
 
@@ -288,56 +277,75 @@ identifies the location of the largest ad8 value as the outlet of the largest wa
 
 <dl class="staticmethod">
 <dt id="pygeoc.TauDEM.TauDEM.moveoutletstostrm">
-<em class="property">static </em><code class="descname">moveoutletstostrm</code><span class="sig-paren">(</span><em>np</em>, <em>workingdir</em>, <em>flowdir</em>, <em>streamRaster</em>, <em>outlet</em>, <em>modifiedOutlet</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.moveoutletstostrm" title="永久链接至目标">¶</a></dt>
+<em class="property">static </em><code class="descname">moveoutletstostrm</code><span class="sig-paren">(</span><em>np</em>, <em>flowdir</em>, <em>streamRaster</em>, <em>outlet</em>, <em>modifiedOutlet</em>, <em>workingdir=None</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.moveoutletstostrm" title="永久链接至目标">¶</a></dt>
 <dd><p>Run move the given outlets to stream</p>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pygeoc.TauDEM.TauDEM.peukerdouglas">
-<em class="property">static </em><code class="descname">peukerdouglas</code><span class="sig-paren">(</span><em>np</em>, <em>workingdir</em>, <em>fel</em>, <em>streamSkeleton</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.peukerdouglas" title="永久链接至目标">¶</a></dt>
+<em class="property">static </em><code class="descname">peukerdouglas</code><span class="sig-paren">(</span><em>np</em>, <em>fel</em>, <em>streamSkeleton</em>, <em>workingdir=None</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.peukerdouglas" title="永久链接至目标">¶</a></dt>
 <dd><p>Run peuker-douglas function</p>
 </dd></dl>
 
 <dl class="staticmethod">
+<dt id="pygeoc.TauDEM.TauDEM.pitremove">
+<em class="property">static </em><code class="descname">pitremove</code><span class="sig-paren">(</span><em>np</em>, <em>dem</em>, <em>filleddem</em>, <em>workingdir=None</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.pitremove" title="永久链接至目标">¶</a></dt>
+<dd><p>Run pit remove using the flooding approach</p>
+</dd></dl>
+
+<dl class="staticmethod">
 <dt id="pygeoc.TauDEM.TauDEM.run">
-<em class="property">static </em><code class="descname">run</code><span class="sig-paren">(</span><em>function_name</em>, <em>in_files</em>, <em>in_params=None</em>, <em>out_files=None</em>, <em>mpi_params=None</em>, <em>log_params=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.run" title="永久链接至目标">¶</a></dt>
-<dd><p>Run TauDEM function.
-The command will not execute if:</p>
+<em class="property">static </em><code class="descname">run</code><span class="sig-paren">(</span><em>function_name</em>, <em>in_files</em>, <em>wp=None</em>, <em>in_params=None</em>, <em>out_files=None</em>, <em>mpi_params=None</em>, <em>log_params=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.run" title="永久链接至目标">¶</a></dt>
+<dd><p>Run TauDEM function.</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li>any input file does not exist;</li>
-<li>all output files exist and were last modified no earlier than any input file.</li>
+<li>The command will not execute if any input file does not exist.</li>
 </ol>
+<p>2. An error will be detected after running the TauDEM command if
+any output file does not exist;</p>
 </div></blockquote>
-<dl class="docutils">
-<dt>An error will be detected after running the TauDEM command if:</dt>
-<dd><ol class="first last arabic simple">
-<li>any output file does not exist ;</li>
-<li>any output file was last modified earlier than any input file.</li>
-</ol>
-</dd>
-</dl>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">参数:</th><td class="field-body"><ul class="first simple">
-<li><strong>function_name</strong> – TauDEM function name (with or without path) as string</li>
-<li><strong>in_files</strong> – Required. Dict of pairs of parameter id (string) and file path
-(string or list) for input files.</li>
-<li><strong>in_params</strong> – Optional. Dict of pairs of parameter id (string) and value (or None for a
-flag parameter without a value) for input parameters.</li>
-<li><strong>out_files</strong> – Optional. Dict of pairs of parameter id (string) and file path (string) for
-output files.</li>
-<li><strong>mpi_params</strong> – <dl class="docutils">
-<dt>Optional. Dict of pairs of parameter id (string) and value or path for</dt>
-<dd>MPI setting.</dd>
-<dt>e.g. {‘mpipath’:’/soft/bin’,’hostfile’:’/soft/bin/cluster.node’,’n’:4} or</dt>
-<dd>{‘mpipath’:’/soft/bin’, ‘n’:4} or {‘n’:4}</dd>
-</dl>
+<li><strong>function_name</strong> (<em>str</em>) – Full path of TauDEM function.</li>
+<li><strong>in_files</strong> (<em>dict</em><em>, </em><em>required</em>) – <p>Dict of pairs of parameter id (string) and file path
+(string or list) for input files, e.g.:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;-z&#39;</span><span class="p">:</span> <span class="s1">&#39;/full/path/to/dem.tif&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
 </li>
-<li><strong>log_params</strong> – Optional. Dict of pairs of parameter id (string) and value or path for
-runtime and log output parameters. e.g. {‘logfile’: ‘/home/user/log.txt’}</li>
+<li><strong>wp</strong> (<em>str</em><em>, </em><em>optional</em>) – Workspace for outputs. If not specified, the directory of the
+first input file in <code class="docutils literal"><span class="pre">in_files</span></code> will be used.</li>
+<li><strong>in_params</strong> (<em>dict</em><em>, </em><em>optional</em>) – <p>Dict of pairs of parameter id (string) and value
+(or None for a flag parameter without a value) for input parameters, e.g.:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;-nc&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+<span class="p">{</span><span class="s1">&#39;-thresh&#39;</span><span class="p">:</span> <span class="n">threshold</span><span class="p">}</span>
+<span class="p">{</span><span class="s1">&#39;-m&#39;</span><span class="p">:</span> <span class="s1">&#39;ave&#39;</span> <span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;-nc&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><strong>out_files</strong> (<em>dict</em><em>, </em><em>optional</em>) – <p>Dict of pairs of parameter id (string) and file
+path (string) for output files, e.g.:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;-fel&#39;</span><span class="p">:</span> <span class="s1">&#39;filleddem.tif&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><strong>mpi_params</strong> (<em>dict</em><em>, </em><em>optional</em>) – <p>Dict of pairs of parameter id (string) and value or
+path for MPI setting, e.g.:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;mpipath&#39;</span><span class="p">:</span><span class="s1">&#39;/soft/bin&#39;</span><span class="p">,</span><span class="s1">&#39;hostfile&#39;</span><span class="p">:</span><span class="s1">&#39;/soft/bin/cluster.node&#39;</span><span class="p">,</span><span class="s1">&#39;n&#39;</span><span class="p">:</span><span class="mi">4</span><span class="p">}</span>
+<span class="p">{</span><span class="s1">&#39;mpipath&#39;</span><span class="p">:</span><span class="s1">&#39;/soft/bin&#39;</span><span class="p">,</span> <span class="s1">&#39;n&#39;</span><span class="p">:</span><span class="mi">4</span><span class="p">}</span>
+<span class="p">{</span><span class="s1">&#39;n&#39;</span><span class="p">:</span><span class="mi">4</span><span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><strong>log_params</strong> (<em>dict</em><em>, </em><em>optional</em>) – <p>Dict of pairs of parameter id (string) and value or
+path for runtime and log output parameters. e.g.:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;logfile&#39;</span><span class="p">:</span> <span class="s1">&#39;/home/user/log.txt&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+</li>
 </ul>
 </td>
 </tr>
@@ -350,13 +358,13 @@ runtime and log output parameters. e.g. {‘logfile’: ‘/home/user/log.txt’
 
 <dl class="staticmethod">
 <dt id="pygeoc.TauDEM.TauDEM.streamnet">
-<em class="property">static </em><code class="descname">streamnet</code><span class="sig-paren">(</span><em>np</em>, <em>workingdir</em>, <em>filleddem</em>, <em>flowdir</em>, <em>acc</em>, <em>streamRaster</em>, <em>modifiedOutlet</em>, <em>streamOrder</em>, <em>chNetwork</em>, <em>chCoord</em>, <em>streamNet</em>, <em>subbasin</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.streamnet" title="永久链接至目标">¶</a></dt>
+<em class="property">static </em><code class="descname">streamnet</code><span class="sig-paren">(</span><em>np</em>, <em>filleddem</em>, <em>flowdir</em>, <em>acc</em>, <em>streamRaster</em>, <em>modifiedOutlet</em>, <em>streamOrder</em>, <em>chNetwork</em>, <em>chCoord</em>, <em>streamNet</em>, <em>subbasin</em>, <em>workingdir=None</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.streamnet" title="永久链接至目标">¶</a></dt>
 <dd><p>Run streamnet</p>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pygeoc.TauDEM.TauDEM.threshold">
-<em class="property">static </em><code class="descname">threshold</code><span class="sig-paren">(</span><em>np</em>, <em>workingdir</em>, <em>acc</em>, <em>stream_raster</em>, <em>threshold=100.0</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.threshold" title="永久链接至目标">¶</a></dt>
+<em class="property">static </em><code class="descname">threshold</code><span class="sig-paren">(</span><em>np</em>, <em>acc</em>, <em>stream_raster</em>, <em>threshold=100.0</em>, <em>workingdir=None</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.threshold" title="永久链接至目标">¶</a></dt>
 <dd><p>Run threshold for stream raster</p>
 </dd></dl>
 
@@ -376,16 +384,10 @@ runtime and log output parameters. e.g. {‘logfile’: ‘/home/user/log.txt’
 <p>Common used workflow based on TauDEM</p>
 <dl class="staticmethod">
 <dt id="pygeoc.TauDEM.TauDEMWorkflow.watershed_delineation">
-<em class="property">static </em><code class="descname">watershed_delineation</code><span class="sig-paren">(</span><em>bin_dir</em>, <em>mpi_bin</em>, <em>np</em>, <em>dem</em>, <em>outlet_file</em>, <em>thresh</em>, <em>d8_down_method</em>, <em>namecfg</em>, <em>logfile=None</em>, <em>hostfile=None</em>, <em>singlebasin=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEMWorkflow.watershed_delineation" title="永久链接至目标">¶</a></dt>
+<em class="property">static </em><code class="descname">watershed_delineation</code><span class="sig-paren">(</span><em>np</em>, <em>dem</em>, <em>outlet_file=None</em>, <em>thresh=0</em>, <em>singlebasin=False</em>, <em>tau_dir=None</em>, <em>mpi_bin=None</em>, <em>bin_dir=None</em>, <em>logfile=None</em>, <em>hostfile='delineate_wtsd.log'</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEMWorkflow.watershed_delineation" title="永久链接至目标">¶</a></dt>
 <dd><p>Watershed Delineation.</p>
 </dd></dl>
 
-</dd></dl>
-
-<dl class="function">
-<dt id="pygeoc.TauDEM.run_test">
-<code class="descclassname">pygeoc.TauDEM.</code><code class="descname">run_test</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.run_test" title="永久链接至目标">¶</a></dt>
-<dd><p>run test function</p>
 </dd></dl>
 
 </div>

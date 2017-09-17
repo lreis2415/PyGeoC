@@ -1,10 +1,16 @@
+=================================================
+PyGeoC
+=================================================
+
 .. image:: img/pygeoc.png
    :scale: 100 %
    :alt: Logo of Python for GeoComputation
    :align: center
 
-.. image:: https://travis-ci.org/lreis2415/PyGeoC.svg?branch=master
+.. image:: https://img.shields.io/travis/lreis2415/PyGeoC/master.svg
    :target: https://travis-ci.org/lreis2415/PyGeoC
+.. image:: https://img.shields.io/coveralls/lreis2415/PyGeoC/master.svg
+   :target: https://coveralls.io/github/lreis2415/PyGeoC?branch=master
 
 PyGeoC意为用Python进行地学计算。
 
@@ -13,7 +19,7 @@ PyGeoC意为用Python进行地学计算。
 .. toctree::
    :maxdepth: 2
    
-   get_started
+   quickstart
 
 开发文档
 -------------------------------------------------

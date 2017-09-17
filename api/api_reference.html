@@ -37,7 +37,7 @@
         <link rel="search" title="搜索" href="../search.html"/>
     <link rel="top" title="PyGeoC 0.2.0 文档" href="../index.html"/>
         <link rel="next" title="pygeoc.utils module" href="pygeoc.utils.html"/>
-        <link rel="prev" title="开始使用PyGeoC" href="../get_started.html"/> 
+        <link rel="prev" title="快速开始" href="../quickstart.html"/> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -91,7 +91,7 @@
             
             
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../get_started.html">开始使用PyGeoC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">快速开始</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API 参考</a><ul>
@@ -104,7 +104,6 @@
 <li class="toctree-l3"><a class="reference internal" href="pygeoc.vector.html">pygeoc.vector module</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">全局变量</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api_index.html">API 索引</a></li>
@@ -187,123 +186,6 @@
 </ul>
 </div>
 </div>
-<div class="section" id="id2">
-<h2>全局变量<a class="headerlink" href="#id2" title="永久链接至标题">¶</a></h2>
-<ul>
-<li><p class="first">数值常量</p>
-<ul class="simple">
-<li>根号2: 1.4142135623730951</li>
-</ul>
-<dl class="data">
-<dt id="pygeoc.utils.SQ2">
-<code class="descclassname">pygeoc.utils.</code><code class="descname">SQ2</code><a class="headerlink" href="#pygeoc.utils.SQ2" title="永久链接至目标">¶</a></dt>
-<dd></dd></dl>
-
-<ul class="simple">
-<li><span class="math">\(\pi\)</span> : 3.141592653589793</li>
-</ul>
-<dl class="data">
-<dt id="pygeoc.utils.PI">
-<code class="descclassname">pygeoc.utils.</code><code class="descname">PI</code><a class="headerlink" href="#pygeoc.utils.PI" title="永久链接至目标">¶</a></dt>
-<dd></dd></dl>
-
-<ul class="simple">
-<li>零值: 1e-12</li>
-</ul>
-<dl class="data">
-<dt id="pygeoc.utils.ZERO">
-<code class="descclassname">pygeoc.utils.</code><code class="descname">ZERO</code><a class="headerlink" href="#pygeoc.utils.ZERO" title="永久链接至目标">¶</a></dt>
-<dd></dd></dl>
-
-<ul class="simple">
-<li>浮点数相等判断: 1e-6</li>
-</ul>
-<dl class="data">
-<dt id="pygeoc.utils.DELTA">
-<code class="descclassname">pygeoc.utils.</code><code class="descname">DELTA</code><a class="headerlink" href="#pygeoc.utils.DELTA" title="永久链接至目标">¶</a></dt>
-<dd></dd></dl>
-
-<ul class="simple">
-<li>默认NoData值: -9999.</li>
-</ul>
-<dl class="data">
-<dt id="pygeoc.utils.DEFAULT_NODATA">
-<code class="descclassname">pygeoc.utils.</code><code class="descname">DEFAULT_NODATA</code><a class="headerlink" href="#pygeoc.utils.DEFAULT_NODATA" title="永久链接至目标">¶</a></dt>
-<dd></dd></dl>
-
-</li>
-<li><p class="first">GDAL数据类型：</p>
-</li>
-</ul>
-<dl class="data">
-<dt id="pygeoc.raster.GDALDataType">
-<code class="descclassname">pygeoc.raster.</code><code class="descname">GDALDataType</code><a class="headerlink" href="#pygeoc.raster.GDALDataType" title="永久链接至目标">¶</a></dt>
-<dd></dd></dl>
-
-<table border="1" class="docutils">
-<colgroup>
-<col width="22%" />
-<col width="25%" />
-<col width="52%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">GDAL数据类型</th>
-<th class="head">GDAL数据类型</th>
-<th class="head">描述</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>0</td>
-<td>GDT_Unknown</td>
-<td>Unknown or unspecified type</td>
-</tr>
-<tr class="row-odd"><td>1</td>
-<td>GDT_Byte</td>
-<td>Eight bit unsigned integer</td>
-</tr>
-<tr class="row-even"><td>2</td>
-<td>GDT_UInt16</td>
-<td>Sixteen bit unsigned integer</td>
-</tr>
-<tr class="row-odd"><td>3</td>
-<td>GDT_Int16</td>
-<td>Sixteen bit signed integer</td>
-</tr>
-<tr class="row-even"><td>4</td>
-<td>GDT_UInt32</td>
-<td>Thirty two bit unsigned integer</td>
-</tr>
-<tr class="row-odd"><td>5</td>
-<td>GDT_Int32</td>
-<td>Thirty two bit signed integer</td>
-</tr>
-<tr class="row-even"><td>6</td>
-<td>GDT_Float32</td>
-<td>Thirty two bit floating point</td>
-</tr>
-<tr class="row-odd"><td>7</td>
-<td>GDT_Float64</td>
-<td>Sixty four bit floating point</td>
-</tr>
-<tr class="row-even"><td>8</td>
-<td>GDT_CInt16</td>
-<td>Complex Int16</td>
-</tr>
-<tr class="row-odd"><td>9</td>
-<td>GDT_CInt32</td>
-<td>Complex Int32</td>
-</tr>
-<tr class="row-even"><td>10</td>
-<td>GDT_CFloat32</td>
-<td>Complex Float32</td>
-</tr>
-<tr class="row-odd"><td>11</td>
-<td>GDT_CFloat64</td>
-<td>Complex Float64</td>
-</tr>
-</tbody>
-</table>
-</div>
 </div>
 
 
@@ -319,7 +201,7 @@
         <a href="pygeoc.utils.html" class="btn btn-neutral float-right" title="pygeoc.utils module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="../get_started.html" class="btn btn-neutral" title="开始使用PyGeoC" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../quickstart.html" class="btn btn-neutral" title="快速开始" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

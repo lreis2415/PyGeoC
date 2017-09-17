@@ -92,7 +92,7 @@
             
             
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../get_started.html">开始使用PyGeoC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">快速开始</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="api_reference.html">API 参考</a><ul class="current">
@@ -105,7 +105,6 @@
 <li class="toctree-l3"><a class="reference internal" href="pygeoc.vector.html">pygeoc.vector module</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="api_reference.html#id2">全局变量</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api_index.html">API 索引</a></li>
@@ -184,6 +183,75 @@
 <p>17-06-25 lj - check by pylint and reformat by Google style.</p>
 <p>17-07-20 lj - add GDALDataType dict, and WhiteBox GAT D8 code.</p>
 </div></blockquote>
+<dl class="data">
+<dt id="pygeoc.raster.GDALDataType">
+<code class="descclassname">pygeoc.raster.</code><code class="descname">GDALDataType</code><em class="property"> = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11}</em><a class="headerlink" href="#pygeoc.raster.GDALDataType" title="永久链接至目标">¶</a></dt>
+<dd><p><em>dict</em> – GDAL DataType</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="25%" />
+<col width="52%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">GDAL数据类型</th>
+<th class="head">GDAL数据类型</th>
+<th class="head">描述</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>0</td>
+<td>GDT_Unknown</td>
+<td>Unknown or unspecified type</td>
+</tr>
+<tr class="row-odd"><td>1</td>
+<td>GDT_Byte</td>
+<td>Eight bit unsigned integer</td>
+</tr>
+<tr class="row-even"><td>2</td>
+<td>GDT_UInt16</td>
+<td>Sixteen bit unsigned integer</td>
+</tr>
+<tr class="row-odd"><td>3</td>
+<td>GDT_Int16</td>
+<td>Sixteen bit signed integer</td>
+</tr>
+<tr class="row-even"><td>4</td>
+<td>GDT_UInt32</td>
+<td>Thirty two bit unsigned integer</td>
+</tr>
+<tr class="row-odd"><td>5</td>
+<td>GDT_Int32</td>
+<td>Thirty two bit signed integer</td>
+</tr>
+<tr class="row-even"><td>6</td>
+<td>GDT_Float32</td>
+<td>Thirty two bit floating point</td>
+</tr>
+<tr class="row-odd"><td>7</td>
+<td>GDT_Float64</td>
+<td>Sixty four bit floating point</td>
+</tr>
+<tr class="row-even"><td>8</td>
+<td>GDT_CInt16</td>
+<td>Complex Int16</td>
+</tr>
+<tr class="row-odd"><td>9</td>
+<td>GDT_CInt32</td>
+<td>Complex Int32</td>
+</tr>
+<tr class="row-even"><td>10</td>
+<td>GDT_CFloat32</td>
+<td>Complex Float32</td>
+</tr>
+<tr class="row-odd"><td>11</td>
+<td>GDT_CFloat64</td>
+<td>Complex Float64</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="class">
 <dt id="pygeoc.raster.Raster">
 <em class="property">class </em><code class="descclassname">pygeoc.raster.</code><code class="descname">Raster</code><span class="sig-paren">(</span><em>n_rows</em>, <em>n_cols</em>, <em>data</em>, <em>nodata_value=None</em>, <em>geotransform=None</em>, <em>srs=None</em>, <em>datatype=6</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.raster.Raster" title="永久链接至目标">¶</a></dt>
@@ -200,7 +268,7 @@
 <li><strong>nodata_value</strong> – NODATA value, None as default.</li>
 <li><strong>geotransform</strong> – geographic transformation, None as default.</li>
 <li><strong>srs</strong> – coordinate system, None as default.</li>
-<li><strong>datatype</strong> (<a class="reference internal" href="api_reference.html#pygeoc.raster.GDALDataType" title="pygeoc.raster.GDALDataType"><code class="xref py py-obj docutils literal"><span class="pre">pygeoc.raster.GDALDataType</span></code></a>) – Raster datatype.</li>
+<li><strong>datatype</strong> (<a class="reference internal" href="#pygeoc.raster.GDALDataType" title="pygeoc.raster.GDALDataType"><code class="xref py py-obj docutils literal"><span class="pre">pygeoc.raster.GDALDataType</span></code></a>) – Raster datatype.</li>
 </ul>
 </td>
 </tr>
@@ -245,7 +313,7 @@
 <dl class="attribute">
 <dt id="pygeoc.raster.Raster.dataType">
 <code class="descname">dataType</code><a class="headerlink" href="#pygeoc.raster.Raster.dataType" title="永久链接至目标">¶</a></dt>
-<dd><p><a class="reference internal" href="api_reference.html#pygeoc.raster.GDALDataType" title="pygeoc.raster.GDALDataType"><code class="xref py py-obj docutils literal"><span class="pre">pygeoc.raster.GDALDataType</span></code></a> – Raster datatype.</p>
+<dd><p><a class="reference internal" href="#pygeoc.raster.GDALDataType" title="pygeoc.raster.GDALDataType"><code class="xref py py-obj docutils literal"><span class="pre">pygeoc.raster.GDALDataType</span></code></a> – Raster datatype.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -369,7 +437,7 @@ Raster instance.</p>
 </table>
 <div class="admonition seealso">
 <p class="first admonition-title">参见</p>
-<p class="last"><a class="reference internal" href="api_reference.html#pygeoc.raster.GDALDataType" title="pygeoc.raster.GDALDataType"><code class="xref py py-obj docutils literal"><span class="pre">pygeoc.raster.GDALDataType</span></code></a></p>
+<p class="last"><a class="reference internal" href="#pygeoc.raster.GDALDataType" title="pygeoc.raster.GDALDataType"><code class="xref py py-obj docutils literal"><span class="pre">pygeoc.raster.GDALDataType</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -471,7 +539,7 @@ Raster instance.</p>
 <li><strong>srcfile</strong> – source raster file.</li>
 <li><strong>v_dict</strong> – classifier dict.</li>
 <li><strong>dstfile</strong> – destination file path.</li>
-<li><strong>gdaltype</strong> (<a class="reference internal" href="api_reference.html#pygeoc.raster.GDALDataType" title="pygeoc.raster.GDALDataType"><code class="xref py py-obj docutils literal"><span class="pre">pygeoc.raster.GDALDataType</span></code></a>) – GDT_Float32 as default.</li>
+<li><strong>gdaltype</strong> (<a class="reference internal" href="#pygeoc.raster.GDALDataType" title="pygeoc.raster.GDALDataType"><code class="xref py py-obj docutils literal"><span class="pre">pygeoc.raster.GDALDataType</span></code></a>) – GDT_Float32 as default.</li>
 </ul>
 </td>
 </tr>
@@ -525,7 +593,7 @@ Raster instance.</p>
 <li><strong>tif</strong> – source raster file path.</li>
 <li><strong>geotif</strong> – output raster file path.</li>
 <li><strong>change_nodata</strong> – change NoDataValue to -9999 or not.</li>
-<li><strong>gdal_type</strong> (<a class="reference internal" href="api_reference.html#pygeoc.raster.GDALDataType" title="pygeoc.raster.GDALDataType"><code class="xref py py-obj docutils literal"><span class="pre">pygeoc.raster.GDALDataType</span></code></a>) – GDT_Float32 as default.</li>
+<li><strong>gdal_type</strong> (<a class="reference internal" href="#pygeoc.raster.GDALDataType" title="pygeoc.raster.GDALDataType"><code class="xref py py-obj docutils literal"><span class="pre">pygeoc.raster.GDALDataType</span></code></a>) – GDT_Float32 as default.</li>
 </ul>
 </td>
 </tr>
@@ -607,7 +675,7 @@ Raster instance.</p>
 <li><strong>geotransform</strong> – geographic transformation.</li>
 <li><strong>srs</strong> – coordinate system.</li>
 <li><strong>nodata_value</strong> – nodata value.</li>
-<li><strong>gdal_type</strong> (<a class="reference internal" href="api_reference.html#pygeoc.raster.GDALDataType" title="pygeoc.raster.GDALDataType"><code class="xref py py-obj docutils literal"><span class="pre">pygeoc.raster.GDALDataType</span></code></a>) – output raster data type,
+<li><strong>gdal_type</strong> (<a class="reference internal" href="#pygeoc.raster.GDALDataType" title="pygeoc.raster.GDALDataType"><code class="xref py py-obj docutils literal"><span class="pre">pygeoc.raster.GDALDataType</span></code></a>) – output raster data type,
 GDT_Float32 as default.</li>
 </ul>
 </td>

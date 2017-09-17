@@ -92,7 +92,7 @@
             
             
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../get_started.html">开始使用PyGeoC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">快速开始</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="api_reference.html">API 参考</a><ul class="current">
@@ -105,7 +105,6 @@
 <li class="toctree-l3"><a class="reference internal" href="pygeoc.vector.html">pygeoc.vector module</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="api_reference.html#id2">全局变量</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api_index.html">API 索引</a></li>
@@ -190,6 +189,18 @@
 <p>Empty</p>
 </dd></dl>
 
+<dl class="data">
+<dt id="pygeoc.utils.DEFAULT_NODATA">
+<code class="descclassname">pygeoc.utils.</code><code class="descname">DEFAULT_NODATA</code><em class="property"> = -9999.0</em><a class="headerlink" href="#pygeoc.utils.DEFAULT_NODATA" title="永久链接至目标">¶</a></dt>
+<dd><p>Default NoData value for raster dataset.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pygeoc.utils.DELTA">
+<code class="descclassname">pygeoc.utils.</code><code class="descname">DELTA</code><em class="property"> = 1e-06</em><a class="headerlink" href="#pygeoc.utils.DELTA" title="永久链接至目标">¶</a></dt>
+<dd><p>Delta value to check two approximately equal floats.</p>
+</dd></dl>
+
 <dl class="class">
 <dt id="pygeoc.utils.DateClass">
 <em class="property">class </em><code class="descclassname">pygeoc.utils.</code><code class="descname">DateClass</code><a class="headerlink" href="#pygeoc.utils.DateClass" title="永久链接至目标">¶</a></dt>
@@ -253,8 +264,14 @@ r’/home/zhulj/dta/taudem/area8’ ==&gt; area8</p>
 
 <dl class="staticmethod">
 <dt id="pygeoc.utils.FileClass.get_executable_fullpath">
-<em class="property">static </em><code class="descname">get_executable_fullpath</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.utils.FileClass.get_executable_fullpath" title="永久链接至目标">¶</a></dt>
+<em class="property">static </em><code class="descname">get_executable_fullpath</code><span class="sig-paren">(</span><em>name</em>, <em>dirname=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.utils.FileClass.get_executable_fullpath" title="永久链接至目标">¶</a></dt>
 <dd><p>get the full path of a given executable name</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="pygeoc.utils.FileClass.get_file_fullpath">
+<em class="property">static </em><code class="descname">get_file_fullpath</code><span class="sig-paren">(</span><em>name</em>, <em>dirname=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.utils.FileClass.get_file_fullpath" title="永久链接至目标">¶</a></dt>
+<dd><p>Return full path if available.</p>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -347,14 +364,19 @@ i.e. regardless of suffix, such as ESRI shapefile</p>
 <dl class="staticmethod">
 <dt id="pygeoc.utils.MathClass.nashcoef">
 <em class="property">static </em><code class="descname">nashcoef</code><span class="sig-paren">(</span><em>obsvalues</em>, <em>simvalues</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.utils.MathClass.nashcoef" title="永久链接至目标">¶</a></dt>
-<dd><p>Calculate Nash coefficient.
-:param obsvalues: observe values array
-:param simvalues: simulate values array</p>
+<dd><p>Calculate Nash coefficient.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">返回:</th><td class="field-body">NSE, or raise exception</td>
+<tr class="field-odd field"><th class="field-name">参数:</th><td class="field-body"><ul class="first simple">
+<li><strong>obsvalues</strong> – observe values array</li>
+<li><strong>simvalues</strong> – simulate values array</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">返回:</th><td class="field-body"><p class="first last">NSE, or raise exception</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -424,6 +446,18 @@ i.e. regardless of suffix, such as ESRI shapefile</p>
 </table>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="data">
+<dt id="pygeoc.utils.PI">
+<code class="descclassname">pygeoc.utils.</code><code class="descname">PI</code><em class="property"> = 3.141592653589793</em><a class="headerlink" href="#pygeoc.utils.PI" title="永久链接至目标">¶</a></dt>
+<dd><p>approximate value of pi.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="pygeoc.utils.SQ2">
+<code class="descclassname">pygeoc.utils.</code><code class="descname">SQ2</code><em class="property"> = 1.4142135623730951</em><a class="headerlink" href="#pygeoc.utils.SQ2" title="永久链接至目标">¶</a></dt>
+<dd><p>approximate of square root of 2.</p>
 </dd></dl>
 
 <dl class="class">
@@ -600,6 +634,12 @@ reference: <a class="reference external" href="https://stackoverflow.com/questio
 <dd><p>write log</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="data">
+<dt id="pygeoc.utils.ZERO">
+<code class="descclassname">pygeoc.utils.</code><code class="descname">ZERO</code><em class="property"> = 1e-12</em><a class="headerlink" href="#pygeoc.utils.ZERO" title="永久链接至目标">¶</a></dt>
+<dd><p>approximate of zero.</p>
 </dd></dl>
 
 <dl class="function">
