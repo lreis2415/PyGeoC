@@ -7,12 +7,10 @@ PyGeoC
    :alt: Logo of Python for GeoComputation
    :align: center
 
-.. image:: https://travis-ci.org/lreis2415/PyGeoC.svg?branch=master
+.. image:: https://img.shields.io/travis/lreis2415/PyGeoC/master.svg
    :target: https://travis-ci.org/lreis2415/PyGeoC
-
-.. image:: https://coveralls.io/repos/github/lreis2415/PyGeoC/badge.svg?branch=master
+.. image:: https://img.shields.io/coveralls/lreis2415/PyGeoC/master.svg
    :target: https://coveralls.io/github/lreis2415/PyGeoC?branch=master
-
 
 PyGeoC意为用Python进行地学计算。
 
