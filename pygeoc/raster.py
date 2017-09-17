@@ -36,6 +36,37 @@ GDALDataType = {0: GDT_Unknown,  # Unknown or unspecified type
                 10: GDT_CFloat32,  # Complex Float32
                 11: GDT_CFloat64  # Complex Float64
                 }
+"""dict: GDAL DataType
+
+    +--------------+----------------+---------------------------------+
+    | GDAL数据类型 | GDAL数据类型   | 描述                            |
+    +==============+================+=================================+
+    | 0            | GDT_Unknown    | Unknown or unspecified type     |
+    +--------------+----------------+---------------------------------+
+    | 1            | GDT_Byte       | Eight bit unsigned integer      |
+    +--------------+----------------+---------------------------------+
+    | 2            | GDT_UInt16     | Sixteen bit unsigned integer    |
+    +--------------+----------------+---------------------------------+
+    | 3            | GDT_Int16      | Sixteen bit signed integer      |
+    +--------------+----------------+---------------------------------+
+    | 4            | GDT_UInt32     | Thirty two bit unsigned integer |
+    +--------------+----------------+---------------------------------+
+    | 5            | GDT_Int32      | Thirty two bit signed integer   |
+    +--------------+----------------+---------------------------------+
+    | 6            | GDT_Float32    | Thirty two bit floating point   |
+    +--------------+----------------+---------------------------------+
+    | 7            | GDT_Float64    | Sixty four bit floating point   |
+    +--------------+----------------+---------------------------------+
+    | 8            | GDT_CInt16     | Complex Int16                   |
+    +--------------+----------------+---------------------------------+
+    | 9            | GDT_CInt32     | Complex Int32                   |
+    +--------------+----------------+---------------------------------+
+    | 10           | GDT_CFloat32   | Complex Float32                 |
+    +--------------+----------------+---------------------------------+
+    | 11           | GDT_CFloat64   | Complex Float64                 |
+    +--------------+----------------+---------------------------------+
+    
+"""
 
 
 class Raster(object):
@@ -231,8 +262,6 @@ class RasterUtilClass(object):
         band = None
         ds = None
         return Raster(ysize, xsize, data, nodata_value, geotrans, srs, dttype)
-
-
 
     @staticmethod
     def get_mask_from_raster(rasterfile, outmaskfile):
@@ -475,10 +504,12 @@ class RasterUtilClass(object):
                                          origin.geotrans, origin.srs,
                                          origin.noDataValue, origin.dataType)
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     # Run doctest in docstrings of Google code style
     # python -m doctest raster.py (only when doctest.ELLIPSIS is not specified)
     # or python raster.py -v
     # or py.test --doctest-module raster.py
     import doctest
+
     doctest.testmod(optionflags=doctest.ELLIPSIS)

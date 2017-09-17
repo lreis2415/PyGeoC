@@ -16,12 +16,14 @@ source_parsers = {
 }
 
 needs_sphinx = '1.5'
-extensions = ['sphinx.ext.autodoc',
-    'sphinx.ext.autosummary',
-    'sphinx.ext.doctest',
-    'sphinx.ext.todo',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.napoleon']
+extensions = ['matplotlib.sphinxext.plot_directive',
+              'sphinx.ext.inheritance_diagram',
+              'sphinx.ext.autodoc',
+              'sphinx.ext.autosummary',
+              'sphinx.ext.doctest',
+              'sphinx.ext.todo',
+              'sphinx.ext.mathjax',
+              'sphinx.ext.napoleon']
 
 # Napoleon settings
 napoleon_google_docstring = True

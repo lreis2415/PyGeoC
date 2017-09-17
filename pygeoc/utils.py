@@ -30,10 +30,15 @@ sysstr = platform.system()
 
 # Global constants
 SQ2 = 1.4142135623730951
+"""approximate of square root of 2."""
 PI = 3.141592653589793
+"""approximate value of pi."""
 ZERO = 1e-12
+"""approximate of zero."""
 DELTA = 1e-6
+"""Delta value to check two approximately equal floats."""
 DEFAULT_NODATA = -9999.
+"""Default NoData value for raster dataset."""
 
 
 class MathClass(object):
@@ -76,6 +81,7 @@ class MathClass(object):
     @staticmethod
     def nashcoef(obsvalues, simvalues):
         """Calculate Nash coefficient.
+
         Args:
             obsvalues: observe values array
             simvalues: simulate values array
@@ -398,8 +404,20 @@ class FileClass(object):
         return False
 
     @staticmethod
-    def get_executable_fullpath(name):
+    def get_executable_fullpath(name, dirname=None):
         """get the full path of a given executable name"""
+        if name is None:
+            return None
+        if isinstance(name, unicode) or isinstance(name, str):
+            name = name.encode()
+        else:
+            raise RuntimeError('The input function name or path must be string!')
+        if dirname is not None:  # check the given path first
+            dirname = os.path.abspath(dirname)
+            fpth = dirname + os.sep + name
+            if os.path.isfile(fpth):
+                return fpth
+        # If dirname is not specified, check the env then.
         if sysstr == 'Windows':  # not test yet
             findout = UtilClass.run_command('where %s' % name)
         else:
@@ -411,6 +429,23 @@ class FileClass(object):
         if os.path.exists(first_path):
             return first_path
         return None
+
+    @staticmethod
+    def get_file_fullpath(name, dirname=None):
+        """Return full path if available."""
+        if name is None:
+            return None
+        if isinstance(name, unicode) or isinstance(name, str):
+            name = name.encode()
+        else:
+            raise RuntimeError('The input function name or path must be string!')
+        if os.sep in name:  # name is full path already
+            name = os.path.abspath(name)
+            return name
+        if dirname is not None:
+            dirname = os.path.abspath(dirname)
+            name = dirname + os.sep + name
+        return name
 
     @staticmethod
     def get_filename_by_suffixes(dir_src, suffixes):
@@ -524,7 +559,7 @@ class UtilClass(object):
             output lines
         """
         commands = StringClass.convert_unicode2str(commands)
-        print (commands)
+        # print (commands)
 
         use_shell = False
         subprocess_flags = 0
@@ -583,7 +618,6 @@ class UtilClass(object):
         """Make directory if not existed"""
         if not os.path.isdir(dir_path) or not os.path.exists(dir_path):
             os.makedirs(dir_path)
-            # os.mkdir(dir_path)
 
     @staticmethod
     def rmmkdir(dir_path):
@@ -674,3 +708,12 @@ def get_config_parser():
     ini_file = get_config_file()
     cf.read(ini_file)
     return cf
+
+if __name__ == '__main__':
+    # Run doctest in docstrings of Google code style
+    # python -m doctest raster.py (only when doctest.ELLIPSIS is not specified)
+    # or python raster.py -v
+    # or py.test --doctest-module raster.py
+    import doctest
+
+    doctest.testmod()
