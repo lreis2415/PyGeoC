@@ -30,10 +30,15 @@ sysstr = platform.system()
 
 # Global constants
 SQ2 = 1.4142135623730951
+"""approximate of square root of 2."""
 PI = 3.141592653589793
+"""approximate value of pi."""
 ZERO = 1e-12
+"""approximate of zero."""
 DELTA = 1e-6
+"""Delta value to check two approximately equal floats."""
 DEFAULT_NODATA = -9999.
+"""Default NoData value for raster dataset."""
 
 
 class MathClass(object):
@@ -76,6 +81,7 @@ class MathClass(object):
     @staticmethod
     def nashcoef(obsvalues, simvalues):
         """Calculate Nash coefficient.
+
         Args:
             obsvalues: observe values array
             simvalues: simulate values array
@@ -702,3 +708,12 @@ def get_config_parser():
     ini_file = get_config_file()
     cf.read(ini_file)
     return cf
+
+if __name__ == '__main__':
+    # Run doctest in docstrings of Google code style
+    # python -m doctest raster.py (only when doctest.ELLIPSIS is not specified)
+    # or python raster.py -v
+    # or py.test --doctest-module raster.py
+    import doctest
+
+    doctest.testmod()
