@@ -1,8 +1,9 @@
 ![pygeoc](docs/img/pygeoc.png)
 
-[![Build Status](https://travis-ci.org/lreis2415/PyGeoC.svg?branch=master)](https://travis-ci.org/lreis2415/PyGeoC)
-[![Coverage Status](https://coveralls.io/repos/github/lreis2415/PyGeoC/badge.svg)](https://coveralls.io/github/lreis2415/PyGeoC)
+[![Travis branch](https://img.shields.io/travis/lreis2415/PyGeoC/master.svg)](https://travis-ci.org/lreis2415/PyGeoC)
+[![Coveralls branch](https://img.shields.io/coveralls/lreis2415/PyGeoC/master.svg)](https://coveralls.io/github/lreis2415/PyGeoC?branch=master)
 
+详情请访问[用户手册及开发文档](http://pygeoc.zhulj.net/)。
 
 ## 依赖
 + Python 2.7
@@ -23,34 +24,3 @@ cd PyGeoC
 python setup.py install
 ```
 
-## 快速开始
-
-+ 1.读取栅格文件
-```python
-from pygeoc.raster import RasterUtilClass
-input_tif = "../tests/data/Jamaica_dem.tif"
-rst = RasterUtilClass.read_raster(input_tif)
-# rst 为pygeoc.raster.Raster类，可访问栅格元数据或简单统计信息
-print ("rows: %d, cols: %d" % (rst.nRows, rst.nCols))
-print ("LLCornerX: %f, LLCornerY: %f" % (rst.xMin, rst.yMin))
-print ("cell size: %f" % rst.dx)
-print ("mean: %f, max: %f, min: %f" % (rst.get_average(), rst.get_max(), rst.get_min()))
-print ("std: %f, sum: %f" % (rst.get_std(), rst.get_sum()))
-```
-
-输出为：
-```pydocstring
-rows: 130, cols: 100
-LLCornerX: 755145.277178, LLCornerY: 654294.061945
-cell size: 10.000000
-Coornate system: 
-mean: 203.920532, max: 284.074493, min: 139.114227
-std: 32.323097, sum: 2650967.000000
-```
-+ 2.子流域划分
-
-`PyGeoC.TauDEM`和`PyGeoC.postTauDEM`子模块提供了基于TauDEM的单个算法或工作流接口，以子流域划分为例。
-
-```python
-
-```
