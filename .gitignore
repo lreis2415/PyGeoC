@@ -63,3 +63,6 @@ target/
 
 #PyCharm Project files
 .idea
+
+#temp result files
+tmp_results
