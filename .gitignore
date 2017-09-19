@@ -63,6 +63,7 @@ target/
 
 #PyCharm Project files
 .idea
-
+#VSCode Project files
+.vscode
 #temp result files
 tmp_results
