@@ -483,13 +483,23 @@ class FileClass(object):
     @staticmethod
     def get_core_name_without_suffix(file_path):
         """Return core file name without suffix.
+
         Examples:
-            r'/home/zhulj/1990.01.30/test.01.tif' ==> test.01
-            r'C:\zhulj\igsnrr\lreis.txt' ==> lreis
-            r'/home/zhulj/dta/taudem/area8' ==> area8
+            >>> FileClass.get_core_name_without_suffix(r'/home/zhulj/1990.01.30/test.01.tif')
+            'test.01'
+            >>> FileClass.get_core_name_without_suffix(r'C:\zhulj\igsnrr\lreis.txt')
+            'lreis'
+            >>> FileClass.get_core_name_without_suffix(r'/home/zhulj/dta/taudem/aread8')
+            'aread8'
+            >>> FileClass.get_core_name_without_suffix('singlename')
+            'singlename'
+            >>> FileClass.get_core_name_without_suffix('singlename.txt')
+            'singlename'
         """
         file_name = os.path.basename(file_path)
-        core_names = file_name.split('.')[:-1]
+        core_names = file_name.split('.')
+        if len(core_names) > 1:
+            core_names = core_names[:-1]
         if isinstance(core_names, list):
             return '.'.join(core_names)
         else:

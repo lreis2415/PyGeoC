@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Exercise 5: Calculate and plot model performance indexes with PyGeoC
 import os
-
+import math
 import matplotlib
 
 from pygeoc.utils import MathClass
@@ -27,8 +27,8 @@ def cal_model_performance(obsl, siml):
     plt.ylabel('Simulation', fontsize=20)
     plt.title('\nNSE: %.2f, R$^2$: %.2f, PBIAS: %.2f%%\nRMSE: %.2f, RSR: %.2f' %
               (nse, r2, pbias, rmse, rsr), color='red', loc='right')
-    minv = min(min(obsl), min(siml))
-    maxv = max(max(obsl), max(siml))
+    minv = math.floor(min(min(obsl), min(siml)))
+    maxv = math.ceil(max(max(obsl), max(siml)))
     ax.set_xlim(left=minv, right=maxv)
     ax.set_ylim(bottom=minv, top=maxv)
     plt.tight_layout()

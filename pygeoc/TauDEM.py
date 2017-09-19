@@ -223,6 +223,7 @@ class TauDEM(object):
                     log_file = wp + os.sep + log_file
                     log_file = os.path.abspath(log_file)
         # remove out_files to avoid any file IO related error
+        new_out_files = list()
         if out_files is not None:
             if not isinstance(out_files, dict):
                 TauDEM.error('The output files parameter must be a dict!')
@@ -236,10 +237,12 @@ class TauDEM(object):
                         outf = FileClass.get_file_fullpath(outf, wp)
                         FileClass.remove_files(outf)
                         out_files[pid][idx] = outf
+                        new_out_files.append(outf)
                 else:
                     out_file = FileClass.get_file_fullpath(out_file, wp)
                     FileClass.remove_files(out_file)
                     out_files[pid] = out_file
+                new_out_files.append(out_file)
 
         # concatenate command line
         commands = list()
@@ -301,9 +304,13 @@ class TauDEM(object):
                 else:
                     commands.append(outfile)
         # run command
-        # print (commands)
         runmsg = UtilClass.run_command(commands)
         TauDEM.log(runmsg, log_file)
+        # Check out_files, raise RuntimeError if not exist.
+        for of in new_out_files:
+            if not os.path.exists(of):
+                TauDEM.error('%s failed, and the %s was not generated!' % (function_name, of))
+                return False
         return True
 
     @staticmethod
@@ -372,12 +379,15 @@ class TauDEM(object):
                           {'logfile': log_file})
 
     @staticmethod
-    def connectdown(np, acc, outlet, workingdir=None, mpiexedir=None,
+    def connectdown(np, acc, outlet, wtsd=None, workingdir=None, mpiexedir=None,
                     exedir=None, log_file=None, hostfile=None):
         """Reads an ad8 contributing area file,
         identifies the location of the largest ad8 value as the outlet of the largest watershed"""
+        # if wtsd is None or os.path.exists(wtsd):
+
         return TauDEM.run(FileClass.get_executable_fullpath('connectdown', exedir),
-                          {'-ad8': acc}, workingdir,
+                          {'-ad8': acc, '-w': wtsd},
+                          workingdir,
                           None,
                           {'-o': outlet},
                           {'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
