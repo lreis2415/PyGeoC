@@ -48,8 +48,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'PyGeoC'
-copyright = u'2016-2017, Liang-Jun Zhu'
-author = u'Liang-Jun Zhu'
+copyright = u'2016-2017, Liangjun Zhu'
+author = u'Liangjun Zhu'
 # Parse the version from the pygeoc module.
 with open('../pygeoc/__init__.py') as f:
     for line in f:
@@ -78,7 +78,7 @@ latex_elements = {
 
 latex_documents = [
     (master_doc, 'PyGeoC.tex', u'PyGeoC Documentation',
-     u'Liang-Jun Zhu', 'manual'),
+     u'Liangjun Zhu', 'manual'),
 ]
 
 # -- Options for manual page output --

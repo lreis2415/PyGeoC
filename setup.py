@@ -1,6 +1,6 @@
 """A setuptools based setup module for PyGeoC.
    PyGeoC is short for "Python for GeoComputation"
-   Author: Liang-Jun Zhu
+   Author: Liangjun Zhu
    E-mail: zlj@lreis.ac.cn
    Blog  : zhulj.net
 """
