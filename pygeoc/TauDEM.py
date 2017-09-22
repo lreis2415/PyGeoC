@@ -110,6 +110,26 @@ class TauDEM(object):
             TauDEM.error("Error occurred when calling TauDEM function, please check!", log_file)
 
     @staticmethod
+    def check_infile_and_wp(curinf, curwp):
+        """Check the existence of the given file and directory path.
+           1. Raise Runtime exception of both not existed.
+           2. If the ``curwp`` is None, the set the base folder of ``curinf`` to it.
+        """
+        if not os.path.exists(curinf):
+            if curwp is None:
+                TauDEM.error('You must specify one of the workspace and the '
+                             'full path of input file!')
+            curinf = curwp + os.sep + curinf
+            curinf = os.path.abspath(curinf)
+            if not os.path.exists(curinf):
+                TauDEM.error('Input files parameter %s is not existed!' % curinf)
+        else:
+            curinf = os.path.abspath(curinf)
+            if curwp is None:
+                curwp = os.path.dirname(curinf)
+        return curinf, curwp
+
+    @staticmethod
     def run(function_name, in_files, wp=None, in_params=None, out_files=None, mpi_params=None,
             log_params=None):
         """
@@ -155,27 +175,6 @@ class TauDEM(object):
         Returns:
             True if TauDEM run successfully, otherwise False.
         """
-
-        def check_infile_and_wp(curinf, curwp):
-            """Check the existance of the given file and directory path.
-               1. Raise Runtime exception of both not existed.
-               2. If the ``curwp`` is None, the set the base folder of ``curinf`` to it.
-
-            """
-            if not os.path.exists(curinf):
-                if curwp is None:
-                    TauDEM.error('You must specify one of the workspace and the '
-                                 'full path of input file!')
-                curinf = curwp + os.sep + curinf
-                curinf = os.path.abspath(curinf)
-                if not os.path.exists(curinf):
-                    TauDEM.error('Input files parameter %s is not existed!' % curinf)
-            else:
-                curinf = os.path.abspath(curinf)
-                if curwp is None:
-                    curwp = os.path.dirname(curinf)
-            return curinf, curwp
-
         # Check input files
         if in_files is None:
             TauDEM.error('Input files parameter is required!')
@@ -188,11 +187,11 @@ class TauDEM(object):
                 for idx, inf in enumerate(infile):
                     if inf is None:
                         continue
-                    inf, wp = check_infile_and_wp(inf, wp)
+                    inf, wp = TauDEM.check_infile_and_wp(inf, wp)
                     in_files[pid][idx] = inf
                 continue
             if os.path.exists(infile):
-                infile, wp = check_infile_and_wp(infile, wp)
+                infile, wp = TauDEM.check_infile_and_wp(infile, wp)
                 in_files[pid] = os.path.abspath(infile)
             else:
                 # For more flexible input files extension.
@@ -379,14 +378,17 @@ class TauDEM(object):
                           {'logfile': log_file})
 
     @staticmethod
-    def connectdown(np, acc, outlet, wtsd=None, workingdir=None, mpiexedir=None,
+    def connectdown(np, p, acc, outlet, wtsd=None, workingdir=None, mpiexedir=None,
                     exedir=None, log_file=None, hostfile=None):
         """Reads an ad8 contributing area file,
         identifies the location of the largest ad8 value as the outlet of the largest watershed"""
-        # if wtsd is None or os.path.exists(wtsd):
-
+        # If watershed is not specified, use acc to generate a mask layer.
+        if wtsd is None or not os.path.isfile(wtsd):
+            p, workingdir = TauDEM.check_infile_and_wp(p, workingdir)
+            wtsd = workingdir + os.sep + 'wtsd_default.tif'
+            RasterUtilClass.get_mask_from_raster(p, wtsd, True)
         return TauDEM.run(FileClass.get_executable_fullpath('connectdown', exedir),
-                          {'-ad8': acc, '-w': wtsd},
+                          {'-p': p, '-ad8': acc, '-w': wtsd},
                           workingdir,
                           None,
                           {'-o': outlet},
@@ -473,12 +475,12 @@ class TauDEM(object):
             return 'ave'
 
     @staticmethod
-    def d8hdisttostrm(np, p, fel, src, dist, thresh, workingdir=None,
+    def d8hdisttostrm(np, p, src, dist, thresh, workingdir=None,
                       mpiexedir=None, exedir=None, log_file=None, hostfile=None):
-        """Run D8 distance down to stream.
+        """Run D8 horizontal distance down to stream.
         """
         return TauDEM.run(FileClass.get_executable_fullpath('d8hdisttostrm', exedir),
-                          {'-fel': fel, '-p': p, '-src': src},
+                          {'-p': p, '-src': src},
                           workingdir,
                           {'-thresh': thresh},
                           {'-dist': dist},
@@ -617,7 +619,7 @@ class TauDEMWorkflow(object):
         UtilClass.writelog(logfile, "[Output] %d..., %s" % (50, "Moving outlet to stream..."), 'a')
         if outlet_file is None:
             outlet_file = default_outlet
-            TauDEM.connectdown(np, acc, outlet_file, tau_dir, mpi_bin, bin_dir,
+            TauDEM.connectdown(np, flow_dir, acc, outlet_file, tau_dir, mpi_bin, bin_dir,
                                log_file=logfile, hostfile=hostfile)
         TauDEM.moveoutletstostrm(np, flow_dir, stream_raster, outlet_file,
                                  modified_outlet, tau_dir, mpi_bin, bin_dir,
@@ -668,20 +670,21 @@ class TauDEMWorkflow(object):
                          log_file=logfile, hostfile=hostfile)
         UtilClass.writelog(logfile, "[Output] %d..., %s" %
                            (95, "Calculating distance to stream (D8)..."), 'a')
-        TauDEM.d8hdisttostrm(np, flow_dir, filled_dem, stream_raster, dist2_stream_d8, 1,
+        TauDEM.d8hdisttostrm(np, flow_dir, stream_raster, dist2_stream_d8, 1,
                              tau_dir, mpi_bin, bin_dir, log_file=logfile, hostfile=hostfile)
         UtilClass.writelog(logfile, "[Output] %d.., %s" %
                            (100, "Original subbasin delineation is finished!"), 'a')
 
 
 def run_test():
-    workingspace = r'../tests/data/tmp_results'
+    workingspace = r'../tests/data'
     dem = '../tests/data/Jamaica_dem.tif'
     log = 'taudem.log'
     td_names = TauDEMFilesUtils(workingspace)
 
-    TauDEM.pitremove(1, dem, td_names.filldem, workingspace, log_file=log)
-    TauDEM.d8flowdir(4, td_names.filldem, td_names.d8flow, td_names.slp, workingspace, log_file=log)
+    # TauDEM.pitremove(1, dem, td_names.filldem, workingspace, log_file=log)
+    # TauDEM.d8flowdir(4, td_names.filldem, td_names.d8flow, td_names.slp, workingspace, log_file=log)
+    TauDEM.connectdown(2, td_names.d8flow, td_names.d8acc, td_names.outlet_pre)
 
 
 if __name__ == "__main__":
