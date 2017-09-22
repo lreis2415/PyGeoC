@@ -599,6 +599,7 @@ class UtilClass(object):
                     if isinstance(v, int) or isinstance(v, float):
                         # Fix :TypeError: execv() arg 2 must contain only strings
                         commands[idx] = str(v)
+        print (commands)
         process = subprocess.Popen(commands, shell=use_shell, stdout=subprocess.PIPE,
                                    stdin=open(os.devnull),
                                    stderr=subprocess.STDOUT, universal_newlines=True,
@@ -609,7 +610,7 @@ class UtilClass(object):
 
         if out is None:
             return ['']
-        if 'ERROR' in out.upper() or (recode is not None and recode != 0):
+        if recode is not None and recode != 0:
             raise subprocess.CalledProcessError(-1, commands,
                                                 "ERROR occurred when running subprocess!")
         return [out]

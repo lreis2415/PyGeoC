@@ -264,7 +264,7 @@ class RasterUtilClass(object):
         return Raster(ysize, xsize, data, nodata_value, geotrans, srs, dttype)
 
     @staticmethod
-    def get_mask_from_raster(rasterfile, outmaskfile):
+    def get_mask_from_raster(rasterfile, outmaskfile, keep_nodata=False):
         """Generate mask data from a given raster data.
 
         Args:
@@ -284,24 +284,31 @@ class RasterUtilClass(object):
         dx = raster_r.dx
         data = raster_r.data
 
-        i_min = ysize - 1
-        i_max = 0
-        j_min = xsize - 1
-        j_max = 0
+        if not keep_nodata:
+            i_min = ysize - 1
+            i_max = 0
+            j_min = xsize - 1
+            j_max = 0
+            for i in range(ysize):
+                for j in range(xsize):
+                    if abs(data[i][j] - nodata_value) > DELTA:
+                        i_min = min(i, i_min)
+                        i_max = max(i, i_max)
+                        j_min = min(j, j_min)
+                        j_max = max(j, j_max)
 
-        for i in range(ysize):
-            for j in range(xsize):
-                if abs(data[i][j] - nodata_value) > DELTA:
-                    i_min = min(i, i_min)
-                    i_max = max(i, i_max)
-                    j_min = min(j, j_min)
-                    j_max = max(j, j_max)
-
-        # print i_min, i_max, j_min, j_max
-        y_size_mask = i_max - i_min + 1
-        x_size_mask = j_max - j_min + 1
-        x_min_mask = x_min + j_min * dx
-        y_max_mask = y_max - i_min * dx
+            # print i_min, i_max, j_min, j_max
+            y_size_mask = i_max - i_min + 1
+            x_size_mask = j_max - j_min + 1
+            x_min_mask = x_min + j_min * dx
+            y_max_mask = y_max - i_min * dx
+        else:
+            y_size_mask = ysize
+            x_size_mask = xsize
+            x_min_mask = x_min
+            y_max_mask = y_max
+            i_min = 0
+            j_min = 0
         print ("%dx%d -> %dx%d" % (xsize, ysize, x_size_mask, y_size_mask))
 
         mask = numpy.zeros((y_size_mask, x_size_mask))
