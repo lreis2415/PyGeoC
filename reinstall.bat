@@ -4,6 +4,7 @@ REM
 
 cd %~dp0
 rd /s/q dist
+rd /s/q build
 pip install tox
 python setup.py bdist_wheel --python-tag py2
 cd dist

@@ -4,6 +4,7 @@
 #
 cd $PWD
 rm -r dist
+rm -r build
 python -m pip install tox
 python setup.py bdist_wheel --python-tag py2
 cd dist
