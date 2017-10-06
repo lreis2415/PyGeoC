@@ -208,18 +208,18 @@ class Raster(object):
         """Get the coordinates of central grid.
 
         Args:
-            row: row number.
-            col: col number.
+            row: row number, range from 0 to (nRows - 1).
+            col: col number, range from 0 to (nCols - 1).
 
         Returns:
             XY coordinates. If the row or col are invalid, raise ValueError.
         """
         if row < 0 or row >= self.nRows or col < 0 or col >= self.nCols:
-            raise ValueError("The row or col must be >=0 and less than "
-                             "nRows (%d) or nCols (%d)!" % (self.nRows, self.nCols))
+            raise ValueError("The row (%d) or col (%d) must be >=0 and less than "
+                             "nRows (%d) or nCols (%d)!" % (row, col, self.nRows, self.nCols))
         else:
-            tmpx = self.xMin + (col - 0.5) * self.dx
-            tmpy = self.yMax - (row - 0.5) * self.dx
+            tmpx = self.xMin + (col + 0.5) * self.dx
+            tmpy = self.yMax - (row + 0.5) * self.dx
             return tmpx, tmpy
 
 
@@ -502,14 +502,45 @@ class RasterUtilClass(object):
 
     @staticmethod
     def mask_raster(in_raster, mask, out_raster):
-        """Mask raster."""
-        origin = RasterUtilClass.read_raster(in_raster)
+        """
+        Mask raster data.
+        Args:
+            in_raster: list or one raster
+            mask: Mask raster data
+            out_raster: list or one raster
+
+        """
+        if isinstance(in_raster, str) and isinstance(out_raster, str):
+            in_raster = [in_raster]
+            out_raster = [out_raster]
+        if len(in_raster) != len(out_raster):
+            raise RuntimeError('input rasters and output raster must have the same size.')
+
         maskr = RasterUtilClass.read_raster(mask)
-        temp = maskr.data == maskr.noDataValue
-        masked = numpy.where(temp, origin.noDataValue, origin.data)
-        RasterUtilClass.write_gtiff_file(out_raster, origin.nRows, origin.nCols, masked,
-                                         origin.geotrans, origin.srs,
-                                         origin.noDataValue, origin.dataType)
+        rows = maskr.nRows
+        cols = maskr.nCols
+        maskdata = maskr.data
+        temp = maskdata == maskr.noDataValue
+        for inr, outr in zip(in_raster, out_raster):
+            origin = RasterUtilClass.read_raster(inr)
+            if origin.nRows == rows and origin.nCols == cols:
+                masked = numpy.where(temp, origin.noDataValue, origin.data)
+            else:
+                masked = numpy.ones((rows, cols)) * origin.noDataValue
+                # TODO, the following loop should be optimized by numpy or numba
+                for i in range(rows):
+                    for j in range(cols):
+                        if maskdata[i][j] == maskr.noDataValue:
+                            continue
+                        # get the center point coordinate of current cell
+                        tempx, tempy = maskr.get_central_coors(i, j)
+                        tempv = origin.get_value_by_xy(tempx, tempy)
+                        if tempv is None:
+                            continue
+                        masked[i][j] = tempv
+            RasterUtilClass.write_gtiff_file(outr, maskr.nRows, maskr.nCols, masked,
+                                             maskr.geotrans, maskr.srs,
+                                             origin.noDataValue, origin.dataType)
 
 
 if __name__ == '__main__':

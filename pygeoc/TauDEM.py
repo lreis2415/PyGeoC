@@ -609,7 +609,7 @@ class TauDEMWorkflow(object):
                            mpi_bin, bin_dir, log_file=logfile, hostfile=hostfile)
         DinfUtil.output_compressed_dinf(flow_dir_dinf, dir_code_dinf, weight_dinf)
         UtilClass.writelog(logfile, "[Output] %d..., %s" % (30, "D8 flow accumulation..."), 'a')
-        TauDEM.aread8(np, flow_dir, acc, None, None, workingdir, mpi_bin, bin_dir,
+        TauDEM.aread8(np, flow_dir, acc, None, None, False, workingdir, mpi_bin, bin_dir,
                       log_file=logfile, hostfile=hostfile)
         UtilClass.writelog(logfile, "[Output] %d..., %s" %
                            (40, "Generating stream raster initially..."), 'a')
@@ -633,7 +633,7 @@ class TauDEMWorkflow(object):
         tmp_outlet = None
         if singlebasin:
             tmp_outlet = modified_outlet
-        TauDEM.aread8(np, flow_dir, acc_with_weight, tmp_outlet, stream_skeleton,
+        TauDEM.aread8(np, flow_dir, acc_with_weight, tmp_outlet, stream_skeleton, False,
                       workingdir, mpi_bin, bin_dir, log_file=logfile, hostfile=hostfile)
 
         if thresh <= 0:  # find the optimal threshold using dropanalysis function
