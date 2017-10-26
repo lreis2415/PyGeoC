@@ -323,17 +323,19 @@ hostfile文件的绝对路径。</p>
 13
 14
 15
-16</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="ch">#! /usr/bin/env python</span>
+16
+17</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="ch">#! /usr/bin/env python</span>
 <span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="c1"># Exercise 4: Delineate watershed based on TauDEM functions with PyGeoC</span>
 
-<span class="kn">from</span> <span class="nn">pygeoc.TauDEM</span> <span class="kn">import</span> <span class="n">TauDEMWorkflow</span>
+<span class="kn">from</span> <span class="nn">pygeoc.TauDEM</span> <span class="kn">import</span> <span class="n">TauDEMWorkflow</span><span class="p">,</span> <span class="n">TauDEMFilesUtils</span><span class="p">,</span> <span class="n">TauDEM</span>
 
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;The simplest usage of watershed delineation based on TauDEM.&quot;&quot;&quot;</span>
     <span class="n">dem</span> <span class="o">=</span> <span class="s1">&#39;../tests/data/Jamaica_dem.tif&#39;</span>
     <span class="n">num_proc</span> <span class="o">=</span> <span class="mi">2</span>
+
     <span class="n">TauDEMWorkflow</span><span class="o">.</span><span class="n">watershed_delineation</span><span class="p">(</span><span class="n">num_proc</span><span class="p">,</span> <span class="n">dem</span><span class="p">)</span>
 
 
@@ -435,7 +437,7 @@ hostfile文件的绝对路径。</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2016-2017, Liang-Jun Zhu.
+        &copy; Copyright 2016-2017, Liangjun Zhu.
 
     </p>
   </div>

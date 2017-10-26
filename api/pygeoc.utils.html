@@ -255,11 +255,20 @@ output: ‘/home/zhulj/dem_filled.tif’</p>
 <dl class="staticmethod">
 <dt id="pygeoc.utils.FileClass.get_core_name_without_suffix">
 <em class="property">static </em><code class="descname">get_core_name_without_suffix</code><span class="sig-paren">(</span><em>file_path</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.utils.FileClass.get_core_name_without_suffix" title="永久链接至目标">¶</a></dt>
-<dd><p>Return core file name without suffix.
-.. rubric:: Examples</p>
-<p>r’/home/zhulj/1990.01.30/test.01.tif’ ==&gt; test.01
-r’C:zhuljigsnrrlreis.txt’ ==&gt; lreis
-r’/home/zhulj/dta/taudem/area8’ ==&gt; area8</p>
+<dd><p>Return core file name without suffix.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">FileClass</span><span class="o">.</span><span class="n">get_core_name_without_suffix</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;/home/zhulj/1990.01.30/test.01.tif&#39;</span><span class="p">)</span>
+<span class="go">&#39;test.01&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">FileClass</span><span class="o">.</span><span class="n">get_core_name_without_suffix</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;C:\zhulj\igsnrr\lreis.txt&#39;</span><span class="p">)</span>
+<span class="go">&#39;lreis&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">FileClass</span><span class="o">.</span><span class="n">get_core_name_without_suffix</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;/home/zhulj/dta/taudem/aread8&#39;</span><span class="p">)</span>
+<span class="go">&#39;aread8&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">FileClass</span><span class="o">.</span><span class="n">get_core_name_without_suffix</span><span class="p">(</span><span class="s1">&#39;singlename&#39;</span><span class="p">)</span>
+<span class="go">&#39;singlename&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">FileClass</span><span class="o">.</span><span class="n">get_core_name_without_suffix</span><span class="p">(</span><span class="s1">&#39;singlename.txt&#39;</span><span class="p">)</span>
+<span class="go">&#39;singlename&#39;</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -678,7 +687,7 @@ reference: <a class="reference external" href="https://stackoverflow.com/questio
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2016-2017, Liang-Jun Zhu.
+        &copy; Copyright 2016-2017, Liangjun Zhu.
 
     </p>
   </div>

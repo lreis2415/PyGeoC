@@ -201,8 +201,16 @@
 </dd></dl>
 
 <dl class="staticmethod">
+<dt id="pygeoc.TauDEM.TauDEM.check_infile_and_wp">
+<em class="property">static </em><code class="descname">check_infile_and_wp</code><span class="sig-paren">(</span><em>curinf</em>, <em>curwp</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.check_infile_and_wp" title="永久链接至目标">¶</a></dt>
+<dd><p>Check the existence of the given file and directory path.
+1. Raise Runtime exception of both not existed.
+2. If the <code class="docutils literal"><span class="pre">curwp</span></code> is None, the set the base folder of <code class="docutils literal"><span class="pre">curinf</span></code> to it.</p>
+</dd></dl>
+
+<dl class="staticmethod">
 <dt id="pygeoc.TauDEM.TauDEM.connectdown">
-<em class="property">static </em><code class="descname">connectdown</code><span class="sig-paren">(</span><em>np</em>, <em>acc</em>, <em>outlet</em>, <em>workingdir=None</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.connectdown" title="永久链接至目标">¶</a></dt>
+<em class="property">static </em><code class="descname">connectdown</code><span class="sig-paren">(</span><em>np</em>, <em>p</em>, <em>acc</em>, <em>outlet</em>, <em>wtsd=None</em>, <em>workingdir=None</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.connectdown" title="永久链接至目标">¶</a></dt>
 <dd><p>Reads an ad8 contributing area file,
 identifies the location of the largest ad8 value as the outlet of the largest watershed</p>
 </dd></dl>
@@ -235,8 +243,8 @@ This function is extended from d8hdisttostrm by Liangjun.</p>
 
 <dl class="staticmethod">
 <dt id="pygeoc.TauDEM.TauDEM.d8hdisttostrm">
-<em class="property">static </em><code class="descname">d8hdisttostrm</code><span class="sig-paren">(</span><em>np</em>, <em>p</em>, <em>fel</em>, <em>src</em>, <em>dist</em>, <em>thresh</em>, <em>workingdir=None</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.d8hdisttostrm" title="永久链接至目标">¶</a></dt>
-<dd><p>Run D8 distance down to stream.</p>
+<em class="property">static </em><code class="descname">d8hdisttostrm</code><span class="sig-paren">(</span><em>np</em>, <em>p</em>, <em>src</em>, <em>dist</em>, <em>thresh</em>, <em>workingdir=None</em>, <em>mpiexedir=None</em>, <em>exedir=None</em>, <em>log_file=None</em>, <em>hostfile=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEM.d8hdisttostrm" title="永久链接至目标">¶</a></dt>
+<dd><p>Run D8 horizontal distance down to stream.</p>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -384,7 +392,7 @@ path for runtime and log output parameters. e.g.:</p>
 <p>Common used workflow based on TauDEM</p>
 <dl class="staticmethod">
 <dt id="pygeoc.TauDEM.TauDEMWorkflow.watershed_delineation">
-<em class="property">static </em><code class="descname">watershed_delineation</code><span class="sig-paren">(</span><em>np</em>, <em>dem</em>, <em>outlet_file=None</em>, <em>thresh=0</em>, <em>singlebasin=False</em>, <em>tau_dir=None</em>, <em>mpi_bin=None</em>, <em>bin_dir=None</em>, <em>logfile=None</em>, <em>hostfile='delineate_wtsd.log'</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEMWorkflow.watershed_delineation" title="永久链接至目标">¶</a></dt>
+<em class="property">static </em><code class="descname">watershed_delineation</code><span class="sig-paren">(</span><em>np</em>, <em>dem</em>, <em>outlet_file=None</em>, <em>thresh=0</em>, <em>singlebasin=False</em>, <em>workingdir=None</em>, <em>mpi_bin=None</em>, <em>bin_dir=None</em>, <em>logfile=None</em>, <em>hostfile='delineate_wtsd.log'</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.TauDEM.TauDEMWorkflow.watershed_delineation" title="永久链接至目标">¶</a></dt>
 <dd><p>Watershed Delineation.</p>
 </dd></dl>
 
@@ -414,7 +422,7 @@ path for runtime and log output parameters. e.g.:</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2016-2017, Liang-Jun Zhu.
+        &copy; Copyright 2016-2017, Liangjun Zhu.
 
     </p>
   </div>

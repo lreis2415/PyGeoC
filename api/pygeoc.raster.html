@@ -387,8 +387,8 @@ Raster instance.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">参数:</th><td class="field-body"><ul class="first simple">
-<li><strong>row</strong> – row number.</li>
-<li><strong>col</strong> – col number.</li>
+<li><strong>row</strong> – row number, range from 0 to (nRows - 1).</li>
+<li><strong>col</strong> – col number, range from 0 to (nCols - 1).</li>
 </ul>
 </td>
 </tr>
@@ -496,7 +496,7 @@ Raster instance.</p>
 </div>
 <dl class="staticmethod">
 <dt id="pygeoc.raster.RasterUtilClass.get_mask_from_raster">
-<em class="property">static </em><code class="descname">get_mask_from_raster</code><span class="sig-paren">(</span><em>rasterfile</em>, <em>outmaskfile</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.raster.RasterUtilClass.get_mask_from_raster" title="永久链接至目标">¶</a></dt>
+<em class="property">static </em><code class="descname">get_mask_from_raster</code><span class="sig-paren">(</span><em>rasterfile</em>, <em>outmaskfile</em>, <em>keep_nodata=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.raster.RasterUtilClass.get_mask_from_raster" title="永久链接至目标">¶</a></dt>
 <dd><p>Generate mask data from a given raster data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -524,7 +524,10 @@ Raster instance.</p>
 <dl class="staticmethod">
 <dt id="pygeoc.raster.RasterUtilClass.mask_raster">
 <em class="property">static </em><code class="descname">mask_raster</code><span class="sig-paren">(</span><em>in_raster</em>, <em>mask</em>, <em>out_raster</em><span class="sig-paren">)</span><a class="headerlink" href="#pygeoc.raster.RasterUtilClass.mask_raster" title="永久链接至目标">¶</a></dt>
-<dd><p>Mask raster.</p>
+<dd><p>Mask raster data.
+:param in_raster: list or one raster
+:param mask: Mask raster data
+:param out_raster: list or one raster</p>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -710,7 +713,7 @@ GDT_Float32 as default.</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2016-2017, Liang-Jun Zhu.
+        &copy; Copyright 2016-2017, Liangjun Zhu.
 
     </p>
   </div>
