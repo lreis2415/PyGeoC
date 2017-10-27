@@ -562,7 +562,7 @@ class TauDEMWorkflow(object):
     @staticmethod
     def watershed_delineation(np, dem, outlet_file=None, thresh=0, singlebasin=False,
                               workingdir=None, mpi_bin=None, bin_dir=None,
-                              logfile=None, hostfile='delineate_wtsd.log'):
+                              logfile=None, hostfile=None):
         """Watershed Delineation."""
         # 1. Check directories
         if not os.path.exists(dem):

@@ -496,6 +496,8 @@ class FileClass(object):
             >>> FileClass.get_core_name_without_suffix('singlename.txt')
             'singlename'
         """
+        if '\\' in file_path:
+            file_path = file_path.replace('\\', '/')
         file_name = os.path.basename(file_path)
         core_names = file_name.split('.')
         if len(core_names) > 1:
@@ -720,11 +722,12 @@ def get_config_parser():
     cf.read(ini_file)
     return cf
 
+
 if __name__ == '__main__':
     # Run doctest in docstrings of Google code style
-    # python -m doctest raster.py (only when doctest.ELLIPSIS is not specified)
-    # or python raster.py -v
-    # or py.test --doctest-module raster.py
+    # python -m doctest utils.py (only when doctest.ELLIPSIS is not specified)
+    # or python utils.py -v
+    # or py.test --doctest-module utils.py
     import doctest
 
     doctest.testmod()
