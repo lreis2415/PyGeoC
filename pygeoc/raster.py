@@ -378,6 +378,10 @@ class RasterUtilClass(object):
         except AttributeError or Exception:
             ds.SetProjection(srs)
         ds.GetRasterBand(1).SetNoDataValue(nodata_value)
+        # if data contains numpy.nan, then replaced by nodata_value
+        if isinstance(data, numpy.ndarray) and data.dtype in [numpy.dtype('int'),
+                                                              numpy.dtype('float')]:
+            data = numpy.where(numpy.isnan(data), nodata_value, data)
         ds.GetRasterBand(1).WriteArray(data)
         ds = None
 
