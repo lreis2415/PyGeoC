@@ -9,8 +9,9 @@ def main():
     """The simplest usage of watershed delineation based on TauDEM."""
     dem = '../tests/data/Jamaica_dem.tif'
     num_proc = 2
+    wp = '../tests/data/tmpresults/wtsd_delineation'
 
-    TauDEMWorkflow.watershed_delineation(num_proc, dem)
+    TauDEMWorkflow.watershed_delineation(num_proc, dem, workingdir=wp)
 
 
 if __name__ == "__main__":
