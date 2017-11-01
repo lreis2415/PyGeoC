@@ -43,14 +43,14 @@ script:
   - cd dist
   - for i in `find . -name *.whl`; do python -m pip install $i --upgrade; done
   - cd ..
+  - python -m pytest --doctest-module pygeoc -v
+  - python -m pytest --cov pygeoc --cov-report term-missing
   - openssl aes-256-cbc -K $encrypted_945a11aa95b5_key -iv $encrypted_945a11aa95b5_iv
     -in docs/travisci_rsa.enc -out docs/travisci_rsa -d
   - chmod 0600 docs/travisci_rsa
   - cp docs/travisci_rsa ~/.ssh/id_rsa
   - chmod 700 docs/publish-docs
   - ./docs/publish-docs
-  - python -m pytest --doctest-module pygeoc -v
-  - python -m pytest --cov pygeoc --cov-report term-missing
 after_success:
   - coveralls
 notifications:
