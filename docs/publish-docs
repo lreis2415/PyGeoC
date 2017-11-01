@@ -22,9 +22,8 @@ cd docs
 make html
 echo "Docs generated done!"
 cd -
-# copy .nojekyll and CNAME to html dir
+# copy .nojekyll to html dir
 cp .nojekyll ${HTML_PATH}
-cp CNAME ${HTML_PATH}
 # Create and commit the documentation repo.
 cd ${HTML_PATH}
 git add .

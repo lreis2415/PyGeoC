@@ -28,7 +28,7 @@ before_install:
   - pip install -U pip
   - pip install tox
   - pip install wheel
-  - . ./travis_gdal_install.sh
+  - . docs/travis_gdal_install.sh
   - export PATH=$GDALINST/gdal-$GDALVERSION/bin:$PATH
   - export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION/lib:$LD_LIBRARY_PATH
 install:

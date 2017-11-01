@@ -3,7 +3,7 @@
 [![Travis branch](https://img.shields.io/travis/lreis2415/PyGeoC/master.svg)](https://travis-ci.org/lreis2415/PyGeoC)
 [![Coveralls branch](https://img.shields.io/coveralls/lreis2415/PyGeoC/master.svg)](https://coveralls.io/github/lreis2415/PyGeoC?branch=master)
 
-详情请访问[用户手册及开发文档](http://pygeoc.zhulj.net/)。
+详情请访问[用户手册及开发文档](https://lreis2415.github.io/PyGeoC/)。
 
 ## 依赖
 + Python 2.7
