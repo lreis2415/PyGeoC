@@ -225,17 +225,6 @@ class StringClass(object):
         return str1.lower() == str2.lower()
 
     @staticmethod
-    def strip_string(str_src):
-        """Remove space(' ') and indent('\t') at the begin and end of the string."""
-        old_str = ''
-        new_str = str_src
-        while old_str != new_str:
-            old_str = new_str
-            new_str = old_str.strip('\t')
-            new_str = new_str.strip(' ')
-        return new_str
-
-    @staticmethod
     def split_string(str_src, spliters=None, elim_empty=False):
         """Split string by split character space(' ') and indent('\t') as default
         Args:
@@ -256,7 +245,7 @@ class StringClass(object):
                 for src_s in src_strs:
                     temp_strs = src_s.split(s)
                     for temp_s in temp_strs:
-                        temp_s = StringClass.strip_string(temp_s)
+                        temp_s = temp_s.strip()
                         if temp_s == '' and elim_empty:
                             continue
                         if isinstance(temp_s, unicode):
@@ -320,6 +309,7 @@ class StringClass(object):
         """get datetime() object from string formatted %Y-%m-%d %H:%M:%S"""
         date_fmts = ['%m-%d-%Y', '%Y-%m-%d', '%m-%d-%y', '%y-%m-%d']
         date_fmts += [d.replace('-', '/') for d in date_fmts]
+        date_fmts += [d.replace('-', '') for d in date_fmts]
         time_fmts = ['%H:%M', '%H:%M:%S']
         fmts = date_fmts + ['%s %s' % (d, t) for d in date_fmts for t in time_fmts]
         if user_fmt is not None:
