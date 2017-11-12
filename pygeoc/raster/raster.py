@@ -22,6 +22,8 @@ class Raster(object):
         5. GetSum()
         6. GetValueByRowCol(row, col)
         7. GetValueByXY(x, y)
+        8. Erosion()
+        9. Dilation()
     """
 
     def __init__(self, nRows, nCols, data, noDataValue = None, geotransform = None, srs = None):
@@ -90,6 +92,87 @@ class Raster(object):
             tmpy = self.yMax - (row - 0.5) * self.dx
             return tmpx, tmpy
 
+    def Erosion(self):
+        """Erode the raster image.
+
+             Find the min pixel's value in 8-neighborhood. Then change the compute
+             pixel's value into the min pixel's value.
+
+            Args:
+                binary_raster: input original raster image.
+
+            Returns:
+                erosion_raster: raster image after erosion.
+            """
+        max_value_raster = self.GetMax()
+        erosion_raster = numpy.zeros((self.nRows, self.nCols))
+        # In order to compute the raster edges, we need to expand the original
+        # raster's rows and cols. We need to add the edges whose pixels' value is
+        # the max pixel's value in raster.
+        add_row = numpy.full((1, self.nCols), max_value_raster)
+        temp_raster = numpy.vstack((numpy.vstack((add_row, self.data)),
+                                           add_row))
+        add_col = numpy.full((self.nRows + 2, 1), max_value_raster)
+        expand_raster = numpy.hstack((numpy.hstack((add_col,
+                                                           temp_raster)),
+                                            add_col))
+        # Erode the raster.
+        for i in range(self.nRows):
+            for j in range(self.nCols):
+                min_pixel_value = max_value_raster
+                # Find the min pixel value in the 8-neighborhood.
+                for k in range(3):
+                    for l in range(3):
+                        if expand_raster[
+                                    i + k, j + l] <= min_pixel_value:
+                            min_pixel_value = expand_raster[i + k, j + l]
+                            # After this loop, we get the min pixel's value of the
+                            # 8-neighborhood. Then we change the compute pixel's value into
+                            # the min pixel's value.
+                    erosion_raster[i, j] = min_pixel_value
+        # Return the result.
+        return erosion_raster
+
+    def Dilation(self):
+        """Dilate the raster image.
+
+             Find the max pixel's value in 8-neighborhood. Then change the compute
+             pixel's value into the max pixel's value.
+
+            Args:
+                binary_raster: input original raster image.
+
+            Returns:
+                dilation_raster: raster image after dilation.
+            """
+        min_value_raster = self.GetMin()
+        dilation_raster = numpy.zeros((self.nRows, self.nCols))
+        # In order to compute the raster edges, we need to expand the original
+        # raster's rows and cols. We need to add the edges whose pixels' value is
+        # the max pixel's value in raster.
+        add_row = numpy.full((1, self.nCols), min_value_raster)
+        temp_raster = numpy.vstack((numpy.vstack((add_row,
+                                                         self.data)), add_row))
+        add_col = numpy.full((self.nRows + 2, 1), min_value_raster)
+        expand_raster = numpy.hstack((numpy.hstack((add_col,
+                                                           temp_raster)),
+                                          add_col))
+        # Dilate the raster.
+        for i in range(self.nRows):
+            for j in range(self.nCols):
+                max_pixel_value = min_value_raster
+                # Find the max pixel value in the 8-neighborhood.
+                for k in range(3):
+                    for l in range(3):
+                        if expand_raster[
+                                    i + k, j + l] >= max_pixel_value:
+                            max_pixel_value = expand_raster[i + k, j + l]
+                            # After this loop, we get the max pixel's value of the
+                            # 8-neighborhood. Then we change the compute pixel's value into
+                            # the max pixel's value.
+                    dilation_raster[i, j] = max_pixel_value
+        # Return the result.
+        return dilation_raster
 
 class RasterUtilClass(object):
     """Utility function to handle raster data."""
