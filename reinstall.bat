@@ -12,7 +12,6 @@ REM
 
 pushd %~dp0
 cd %~dp0
-cd pygeoc
 rd /s/q dist
 rd /s/q build
 REM Compile and install PyGeoC through pip
