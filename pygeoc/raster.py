@@ -8,6 +8,8 @@
               16-07-01 lj - reorganized for pygeoc.\n
               17-06-25 lj - check by pylint and reformat by Google style.\n
               17-07-20 lj - add GDALDataType dict, and WhiteBox GAT D8 code.\n
+              17-11-21 yw - add raster_binarization, raster_erosion,
+              raster_dilation, openning, closing functions. \n
 """
 import os
 import subprocess
@@ -546,6 +548,159 @@ class RasterUtilClass(object):
                                              maskr.geotrans, maskr.srs,
                                              origin.noDataValue, origin.dataType)
 
+    @staticmethod
+    def raster_binarization(given_value, rasterfilename):
+        """Make the raster into binarization.
+
+        The opening and closing are based on binary image. Therefore we need to
+        make the raster into binarization.
+
+        Args:
+            given_value: The given value's pixels will be value in 1,
+            other pixels will be value in 0.
+            rasterfilename: The initial rasterfilena,e.
+
+        Returns:
+            binary_raster: Raster after binarization.
+        """
+        origin_raster = RasterUtilClass.read_raster(rasterfilename)
+        binary_raster = numpy.where(origin_raster.data == given_value, 1, 0)
+        return binary_raster
+
+    @staticmethod
+    def raster_erosion(rasterfilename):
+        """Erode the raster image.
+
+         Find the min pixel's value in 8-neighborhood. Then change the compute
+         pixel's value into the min pixel's value.
+
+        Args:
+            rasterfilename: input original raster image filename.
+
+        Returns:
+            erosion_raster: raster image after erosion.
+        """
+        origin_raster = RasterUtilClass.read_raster(rasterfilename)
+        max_value_raster = origin_raster.max()
+        erosion_raster = numpy.zeros(
+            (origin_raster.shape[0], origin_raster.shape[1]))
+        # In order to compute the raster edges, we need to expand the original
+        # raster's rows and cols. We need to add the edges whose pixels' value is
+        # the max pixel's value in raster.
+        add_row = numpy.full((1, origin_raster.shape[1]), max_value_raster)
+        temp_origin_raster = numpy.vstack((numpy.vstack((add_row,
+                                                         origin_raster)),
+                                           add_row))
+        add_col = numpy.full((origin_raster.shape[0] + 2, 1),
+                             max_value_raster)
+        expand_origin_raster = numpy.hstack((numpy.hstack((add_col,
+                                                           temp_origin_raster)),
+                                             add_col))
+        # Erode the raster.
+        for i in range(origin_raster.shape[0]):
+            for j in range(origin_raster.shape[1]):
+                min_pixel_value = max_value_raster
+                # Find the min pixel value in the 8-neighborhood.
+                for k in range(3):
+                    for l in range(3):
+                        if expand_origin_raster[
+                                    i + k, j + l] <= min_pixel_value:
+                            min_pixel_value = expand_origin_raster[
+                                i + k, j + l]
+                            # After this loop, we get the min pixel's value of the
+                            # 8-neighborhood. Then we change the compute pixel's value into
+                            # the min pixel's value.
+                    erosion_raster[i, j] = min_pixel_value
+        # Return the result.
+        return erosion_raster
+
+    @staticmethod
+    def raster_dilation(rasterfilename):
+        """Dilate the raster image.
+
+         Find the max pixel's value in 8-neighborhood. Then change the compute
+         pixel's value into the max pixel's value.
+
+        Args:
+            rasterfilename: input original raster image filename.
+
+        Returns:
+            dilation_raster: raster image after dilation.
+        """
+        origin_raster = RasterUtilClass.read_raster(rasterfilename)
+        min_value_raster = origin_raster.min()
+        dilation_raster = numpy.zeros(
+            (origin_raster.shape[0], origin_raster.shape[1]))
+        # In order to compute the raster edges, we need to expand the original
+        # raster's rows and cols. We need to add the edges whose pixels' value is
+        # the max pixel's value in raster.
+        add_row = numpy.full((1, origin_raster.shape[1]), min_value_raster)
+        temp_origin_raster = numpy.vstack((numpy.vstack((add_row,
+                                                         origin_raster)),
+                                           add_row))
+        add_col = numpy.full((origin_raster.shape[0] + 2, 1), min_value_raster)
+        expand_origin_raster = numpy.hstack((numpy.hstack((add_col,
+                                                           temp_origin_raster)),
+                                             add_col))
+        # Dilate the raster.
+        for i in range(origin_raster.shape[0]):
+            for j in range(origin_raster.shape[1]):
+                max_pixel_value = min_value_raster
+                # Find the max pixel value in the 8-neighborhood.
+                for k in range(3):
+                    for l in range(3):
+                        if expand_origin_raster[
+                                    i + k, j + l] >= max_pixel_value:
+                            max_pixel_value = expand_origin_raster[
+                                i + k, j + l]
+                            # After this loop, we get the max pixel's value of the
+                            # 8-neighborhood. Then we change the compute pixel's value into
+                            # the max pixel's value.
+                    dilation_raster[i, j] = max_pixel_value
+        # Return the result.
+        return dilation_raster
+
+    @staticmethod
+    def openning(input_rasterfilename, times):
+        """Do openning.
+
+        Openning: Erode firstly, then Dilate.
+
+        Args:
+            input_rasterfilename: input original raster image filename.
+            times: Erode and Dilate times.
+
+        Returns:
+            openning_raster: raster image after open.
+        """
+        input_raster = RasterUtilClass.read_raster(input_rasterfilename)
+        openning_raster = input_raster
+        for i in range(times):
+            openning_raster = RasterUtilClass.raster_erosion(openning_raster)
+        for i in range(times):
+            openning_raster = RasterUtilClass.raster_dilation(openning_raster)
+        return openning_raster
+
+    @staticmethod
+    def closing(input_rasterfilename, times):
+        """Do closing.
+
+        Closing: Dilate firstly, then Erode.
+
+        Args:
+            input_rasterfilename: input original raster image filename.
+            times: Erode and Dilate times.
+
+        Returns:
+            closing_raster: raster image after close.
+        """
+        input_raster = RasterUtilClass.read_raster(input_rasterfilename)
+        closing_raster = input_raster
+        for i in range(times):
+            closing_raster = RasterUtilClass.raster_dilation(closing_raster)
+        for i in range(times):
+            closing_raster = RasterUtilClass.raster_erosion(closing_raster)
+        return closing_raster
 
 if __name__ == '__main__':
     # Run doctest in docstrings of Google code style
