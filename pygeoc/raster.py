@@ -568,19 +568,28 @@ class RasterUtilClass(object):
         return binary_raster
 
     @staticmethod
-    def raster_erosion(rasterfilename):
+    def raster_erosion(rasterfilename):        
         """Erode the raster image.
 
          Find the min pixel's value in 8-neighborhood. Then change the compute
          pixel's value into the min pixel's value.
 
         Args:
-            rasterfilename: input original raster image filename.
+            rasterfile: input original raster image, type can be filename(string,
+            like "test1.tif"), rasterfile(class Raster) or numpy.ndarray.
 
         Returns:
-            erosion_raster: raster image after erosion.
+            erosion_raster: raster image after erosion, type is numpy.ndarray.
         """
-        origin_raster = RasterUtilClass.read_raster(rasterfilename)
+        if isinstance(rasterfile, str):
+            origin_raster = RasterUtilClass.read_raster(rasterfile)
+        elif isinstance(rasterfile, Raster):
+            origin_raster = rasterfile.data
+        elif isinstance(rasterfile, numpy.ndarray):
+            origin_raster = rasterfile
+        else:
+            return "Your rasterfile has a wrong type. Type must be string or " \
+                   "numpy.array or class Raster in pygeoc."
         max_value_raster = origin_raster.max()
         erosion_raster = numpy.zeros(
             (origin_raster.shape[0], origin_raster.shape[1]))
@@ -622,12 +631,21 @@ class RasterUtilClass(object):
          pixel's value into the max pixel's value.
 
         Args:
-            rasterfilename: input original raster image filename.
+            rasterfile: input original raster image, type can be filename(string,
+            like "test1.tif"), rasterfile(class Raster) or numpy.ndarray.
 
         Returns:
-            dilation_raster: raster image after dilation.
+            dilation_raster: raster image after dilation, type is numpy.ndarray.
         """
-        origin_raster = RasterUtilClass.read_raster(rasterfilename)
+        if isinstance(rasterfile, str):
+            origin_raster = RasterUtilClass.read_raster(rasterfile)
+        elif isinstance(rasterfile, Raster):
+            origin_raster = rasterfile.data
+        elif isinstance(rasterfile, numpy.ndarray):
+            origin_raster = rasterfile
+        else:
+            return "Your rasterfile has a wrong type. Type must be string or " \
+                   "numpy.array or class Raster in pygeoc."
         min_value_raster = origin_raster.min()
         dilation_raster = numpy.zeros(
             (origin_raster.shape[0], origin_raster.shape[1]))
