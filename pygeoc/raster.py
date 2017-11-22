@@ -568,7 +568,7 @@ class RasterUtilClass(object):
         return binary_raster
 
     @staticmethod
-    def raster_erosion(rasterfilename):        
+    def raster_erosion(rasterfile):        
         """Erode the raster image.
 
          Find the min pixel's value in 8-neighborhood. Then change the compute
@@ -624,7 +624,7 @@ class RasterUtilClass(object):
         return erosion_raster
 
     @staticmethod
-    def raster_dilation(rasterfilename):
+    def raster_dilation(rasterfile):
         """Dilate the raster image.
 
          Find the max pixel's value in 8-neighborhood. Then change the compute
