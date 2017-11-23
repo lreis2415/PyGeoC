@@ -20,7 +20,7 @@ import os
 
 from pygeoc.postTauDEM import DinfUtil
 from pygeoc.raster import RasterUtilClass
-from pygeoc.utils import UtilClass, MathClass, FileClass, StringClass
+from pygeoc.utils import UtilClass, MathClass, FileClass, StringClass, sysstr
 
 
 class TauDEMFilesUtils(object):
@@ -108,6 +108,13 @@ class TauDEM(object):
                 break
         if err:
             TauDEM.error("Error occurred when calling TauDEM function, please check!", log_file)
+
+    @staticmethod
+    def func_name(fname):
+        if sysstr == 'Windows' and '.exe' not in fname:
+            return fname + '.exe'
+        else:
+            return fname
 
     @staticmethod
     def check_infile_and_wp(curinf, curwp):
@@ -327,7 +334,8 @@ class TauDEM(object):
     def d8flowdir(np, filleddem, flowdir, slope, workingdir=None, mpiexedir=None, exedir=None,
                   log_file=None, hostfile=None):
         """Run D8 flow direction"""
-        return TauDEM.run(FileClass.get_executable_fullpath('d8flowdir', exedir),
+        fname = TauDEM.func_name('d8flowdir')
+        return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
                           {'-fel': filleddem}, workingdir,
                           None,
                           {'-p': flowdir, '-sd8': slope},
@@ -338,7 +346,8 @@ class TauDEM(object):
     def dinfflowdir(np, filleddem, flowangle, slope, workingdir=None, mpiexedir=None, exedir=None,
                     log_file=None, hostfile=None):
         """Run Dinf flow direction"""
-        return TauDEM.run(FileClass.get_executable_fullpath('dinfflowdir', exedir),
+        fname = TauDEM.func_name('dinfflowdir')
+        return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
                           {'-fel': filleddem}, workingdir,
                           None,
                           {'-ang': flowangle, '-slp': slope},
@@ -354,7 +363,8 @@ class TauDEM(object):
             in_params = {'-nc': None}
         else:
             in_params = None
-        return TauDEM.run(FileClass.get_executable_fullpath('aread8', exedir),
+        fname = TauDEM.func_name('aread8')
+        return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
                           {'-p': flowdir, '-o': outlet, '-wg': streamskeleton}, workingdir,
                           in_params,
                           {'-ad8': acc},
@@ -370,7 +380,8 @@ class TauDEM(object):
             in_params = {'-nc': None}
         else:
             in_params = None
-        return TauDEM.run(FileClass.get_executable_fullpath('areadinf', exedir),
+        fname = TauDEM.func_name('areadinf')
+        return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
                           {'-ang': angfile, '-o': outlet, '-wg': wg}, workingdir,
                           in_params,
                           {'-sca': sca},
@@ -387,7 +398,8 @@ class TauDEM(object):
             p, workingdir = TauDEM.check_infile_and_wp(p, workingdir)
             wtsd = workingdir + os.sep + 'wtsd_default.tif'
             RasterUtilClass.get_mask_from_raster(p, wtsd, True)
-        return TauDEM.run(FileClass.get_executable_fullpath('connectdown', exedir),
+        fname = TauDEM.func_name('connectdown')
+        return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
                           {'-p': p, '-ad8': acc, '-w': wtsd},
                           workingdir,
                           None,
@@ -399,7 +411,8 @@ class TauDEM(object):
     def gridnet(np, pfile, plenfile, tlenfile, gordfile, outlet=None, workingdir=None,
                 mpiexedir=None, exedir=None, log_file=None, hostfile=None):
         """Run gridnet"""
-        return TauDEM.run(FileClass.get_executable_fullpath('gridnet', exedir),
+        fname = TauDEM.func_name('gridnet')
+        return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
                           {'-p': pfile, '-o': outlet}, workingdir,
                           None,
                           {'-plen': plenfile, '-tlen': tlenfile, '-gord': gordfile},
@@ -410,7 +423,8 @@ class TauDEM(object):
     def threshold(np, acc, stream_raster, threshold=100., workingdir=None,
                   mpiexedir=None, exedir=None, log_file=None, hostfile=None):
         """Run threshold for stream raster"""
-        return TauDEM.run(FileClass.get_executable_fullpath('threshold', exedir),
+        fname = TauDEM.func_name('threshold')
+        return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
                           {'-ssa': acc}, workingdir,
                           {'-thresh': threshold},
                           {'-src': stream_raster},
@@ -422,7 +436,8 @@ class TauDEM(object):
                   streamOrder, chNetwork, chCoord, streamNet, subbasin, workingdir=None,
                   mpiexedir=None, exedir=None, log_file=None, hostfile=None):
         """Run streamnet"""
-        return TauDEM.run(FileClass.get_executable_fullpath('streamnet', exedir),
+        fname = TauDEM.func_name('streamnet')
+        return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
                           {'-fel': filleddem, '-p': flowdir, '-ad8': acc, '-src': streamRaster,
                            '-o': modifiedOutlet}, workingdir,
                           None,
@@ -436,7 +451,8 @@ class TauDEM(object):
                           workingdir=None, mpiexedir=None,
                           exedir=None, log_file=None, hostfile=None):
         """Run move the given outlets to stream"""
-        return TauDEM.run(FileClass.get_executable_fullpath('moveoutletstostrm', exedir),
+        fname = TauDEM.func_name('moveoutletstostrm')
+        return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
                           {'-p': flowdir, '-src': streamRaster, '-o': outlet},
                           workingdir,
                           None,
@@ -479,7 +495,8 @@ class TauDEM(object):
                       mpiexedir=None, exedir=None, log_file=None, hostfile=None):
         """Run D8 horizontal distance down to stream.
         """
-        return TauDEM.run(FileClass.get_executable_fullpath('d8hdisttostrm', exedir),
+        fname = TauDEM.func_name('d8hdisttostrm')
+        return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
                           {'-p': p, '-src': src},
                           workingdir,
                           {'-thresh': thresh},
@@ -498,7 +515,8 @@ class TauDEM(object):
         .. _TauDEM by lreis2415:
            https://github.com/lreis2415/TauDEM
         """
-        return TauDEM.run(FileClass.get_executable_fullpath('d8distdowntostream', exedir),
+        fname = TauDEM.func_name('d8distdowntostream')
+        return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
                           {'-fel': fel, '-p': p, '-src': src},
                           workingdir,
                           {'-thresh': thresh, '-m': TauDEM.convertdistmethod(distancemethod)},
@@ -514,7 +532,8 @@ class TauDEM(object):
                                       TauDEM.convertdistmethod(distm))}
         if StringClass.string_match(edgecontamination, 'false') or edgecontamination is False:
             in_params['-nc'] = None
-        return TauDEM.run(FileClass.get_executable_fullpath('dinfdistdown', exedir),
+        fname = TauDEM.func_name('dinfdistdown')
+        return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
                           {'-fel': fel, '-slp': slp, '-ang': ang, '-src': src, '-wg': wg},
                           workingdir,
                           in_params,
@@ -526,7 +545,8 @@ class TauDEM(object):
     def peukerdouglas(np, fel, streamSkeleton, workingdir=None, mpiexedir=None, exedir=None,
                       log_file=None, hostfile=None):
         """Run peuker-douglas function"""
-        return TauDEM.run(FileClass.get_executable_fullpath('peukerdouglas', exedir),
+        fname = TauDEM.func_name('peukerdouglas')
+        return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
                           {'-fel': fel}, workingdir,
                           None,
                           {'-ss': streamSkeleton},
@@ -543,7 +563,8 @@ class TauDEM(object):
             parstr += ' 1'
         else:
             parstr += ' 0'
-        return TauDEM.run(FileClass.get_executable_fullpath('dropanalysis', exedir),
+        fname = TauDEM.func_name('dropanalysis')
+        return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
                           {'-fel': fel, '-p': p, '-ad8': ad8, '-ssa': ssa, '-o': outlet},
                           workingdir,
                           {'-par': parstr},
