@@ -323,7 +323,8 @@ class TauDEM(object):
     def pitremove(np, dem, filleddem, workingdir=None, mpiexedir=None, exedir=None, log_file=None,
                   hostfile=None):
         """Run pit remove using the flooding approach """
-        return TauDEM.run(FileClass.get_executable_fullpath('pitremove', exedir),
+        fname = TauDEM.func_name('pitremove')
+        return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
                           {'-z': dem}, workingdir,
                           None,
                           {'-fel': filleddem},
