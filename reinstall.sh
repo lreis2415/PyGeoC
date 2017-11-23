@@ -14,6 +14,7 @@ cd $PWD
 rm -r dist
 rm -r build
 python -m pip install tox
+python -m pip install wheel
 python setup.py bdist_wheel --python-tag py2
 cd dist
 if python -c "import pygeoc" &> /dev/null; then
