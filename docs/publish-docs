@@ -48,5 +48,5 @@ contains() {
 }
 
 ANY_CHANGES=$(git commit -m "Any changes?")
-contains "$ANY_CHANGES" "no changes added to commit" && git push origin gh-pages
+contains "$ANY_CHANGES" "no changes added to commit" || contains "$ANY_CHANGES" "nothing to commit" || git push origin gh-pages
 cd -
