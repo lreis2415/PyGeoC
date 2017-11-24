@@ -15,6 +15,12 @@ git clone -b gh-pages "${REPO_PATH}" --single-branch ${HTML_PATH}
 # rm all the files through git to prevent stale files.
 cd ${HTML_PATH}
 git rm -rf .
+git add .
+git config user.name "${COMMIT_USER}"
+git config user.email "${COMMIT_EMAIL}"
+
+git commit -m "Clean repo."
+git push origin gh-pages
 cd -
 
 # Generate the HTML documentation.
@@ -27,25 +33,6 @@ cp .nojekyll ${HTML_PATH}
 # Create and commit the documentation repo.
 cd ${HTML_PATH}
 git add .
-git config user.name "${COMMIT_USER}"
-git config user.email "${COMMIT_EMAIL}"
-
-# contains(string, substring)
-#
-# Returns 0 if the specified string contains the specified substring,
-# otherwise returns 1.
-# https://stackoverflow.com/questions/2829613/how-do-you-tell-if-a-string-contains-another-string-in-unix-shell-scripting
-contains() {
-    string="$1"
-    substring="$2"
-    if test "${string#*$substring}" != "$string"
-    then
-        return 0    # $substring is in $string
-    else
-        return 1    # $substring is not in $string
-    fi
-}
-
-ANY_CHANGES=$(git commit -m "Any changes?")
-contains "$ANY_CHANGES" "nothing to commit" || git commit -m "Automated docs for changeset ${CHANGESET}." && git push origin gh-pages
+git commit -m "Automated docs for changeset ${CHANGESET}."
+git push origin gh-pages
 cd -
