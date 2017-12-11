@@ -8,7 +8,7 @@
 ## 依赖
 + Python 2.7
 + GDAL >=1.9,<2.0 
- 
+
   详细安装配置请参考[GDAL for Python](docs/python_gdal_install.rst)。
 + Numpy >=1.9
 + [TauDEM](http://hydrology.usu.edu/taudem/taudem5/)
@@ -21,6 +21,7 @@ PyGeoC处在不断开发完善中，请根据如下命令安装最新开发版�
 ```bash
 git clone https://github.com/lreis2415/PyGeoC
 cd PyGeoC
-python setup.py install
+sudo ./reinstall.sh (linux)
+./reinstall.bat (windows, open cmd as Administrator)
 ```
 
