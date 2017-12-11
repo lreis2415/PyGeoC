@@ -12,7 +12,8 @@ PyGeoC处在不断开发完善中，请根据如下命令安装最新开发版�
 
    git clone https://github.com/lreis2415/PyGeoC
    cd PyGeoC
-   python setup.py install
+   sudo ./reinstall.sh (linux)
+   ./reinstall.bat (windows, open cmd as Administrator)
 
 
 2.读取栅格文件
