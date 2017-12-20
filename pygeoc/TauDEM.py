@@ -163,9 +163,10 @@ class TauDEM(object):
                     {'-m': 'ave' 's', '-nc': None}
 
             out_files (dict, optional): Dict of pairs of parameter id (string) and file
-                path (string) for output files, e.g.::
+                path (string or list) for output files, e.g.::
 
                     {'-fel': 'filleddem.tif'}
+                    {'-maxS': ['harden.tif', 'maxsimi.tif']}
 
             mpi_params (dict, optional): Dict of pairs of parameter id (string) and value or
                 path for MPI setting, e.g.::
@@ -248,7 +249,7 @@ class TauDEM(object):
                     out_file = FileClass.get_file_fullpath(out_file, wp)
                     FileClass.remove_files(out_file)
                     out_files[pid] = out_file
-                new_out_files.append(out_file)
+                    new_out_files.append(out_file)
 
         # concatenate command line
         commands = list()
@@ -641,7 +642,8 @@ class TauDEMWorkflow(object):
         UtilClass.writelog(logfile, "[Output] %d..., %s" % (50, "Moving outlet to stream..."), 'a')
         if outlet_file is None:
             outlet_file = default_outlet
-            TauDEM.connectdown(np, flow_dir, acc, outlet_file, workingdir, mpi_bin, bin_dir,
+            TauDEM.connectdown(np, flow_dir, acc, outlet_file, wtsd=None,
+                               workingdir=workingdir, mpiexedir=mpi_bin, exedir=bin_dir,
                                log_file=logfile, hostfile=hostfile)
         TauDEM.moveoutletstostrm(np, flow_dir, stream_raster, outlet_file,
                                  modified_outlet, workingdir, mpi_bin, bin_dir,
