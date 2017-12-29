@@ -35,37 +35,37 @@ class DinfUtil(object):
         """Check the given Dinf angle based on D8 flow direction encoding code by ArcGIS"""
         flow_dir = -1
         if MathClass.floatequal(angle, FlowModelConst.e):
-            flow_dir = 1  # 1
+            flow_dir = 1  # TauDEM: 1
         elif MathClass.floatequal(angle, FlowModelConst.ne):
-            flow_dir = 2  # 128
+            flow_dir = 128  # TauDEM: 2
         elif MathClass.floatequal(angle, FlowModelConst.n):
-            flow_dir = 3  # 64
+            flow_dir = 64  # TauDEM: 3
         elif MathClass.floatequal(angle, FlowModelConst.nw):
-            flow_dir = 4  # 32
+            flow_dir = 32  # TauDEM: 4
         elif MathClass.floatequal(angle, FlowModelConst.w):
-            flow_dir = 5  # 16
+            flow_dir = 16  # TauDEM: 5
         elif MathClass.floatequal(angle, FlowModelConst.sw):
-            flow_dir = 6  # 8
+            flow_dir = 8  # TauDEM: 6
         elif MathClass.floatequal(angle, FlowModelConst.s):
-            flow_dir = 7  # 4
+            flow_dir = 4  # TauDEM: 7
         elif MathClass.floatequal(angle, FlowModelConst.se):
-            flow_dir = 8  # 2
+            flow_dir = 2  # TauDEM: 8
         return flow_dir
 
     @staticmethod
     def compress_dinf(angle, nodata):
-        """Compress dinf flow direction to D8 direction with weight
+        """Compress dinf flow direction to D8 direction with weight follows ArcGIS D8 codes.
         Args:
             angle: D-inf flow direction angle
             nodata: NoData value
 
         Returns:
-            Compressed flow direction and weight of the first direction
+            Compressed flow direction follows ArcGIS D8 codes rule and weight of the first direction
         """
         if MathClass.floatequal(angle, nodata):
             return DEFAULT_NODATA, DEFAULT_NODATA
         d = DinfUtil.check_orthogonal(angle)
-        if d is not None:
+        if d != -1:
             return d, 1
         if angle < FlowModelConst.ne:
             a1 = angle
@@ -269,3 +269,17 @@ class StreamnetUtil(object):
         RasterUtilClass.write_gtiff_file(out_stream_file, nrows, ncols, newstream_data,
                                          stream_raster.geotrans, stream_raster.srs,
                                          DEFAULT_NODATA, GDT_Int16)
+
+
+def main():
+    """Test code"""
+    import os
+    wp = r'C:\z_code\subrepos\PyGeoC\tests\data\tmp_results\wtsd_delineation'
+    dinfflowang = wp + os.sep + 'flowDirDinfTau.tif'
+    compdinffile = wp + os.sep + 'dirCodeDinfTau.tif'
+    weightfile = wp + os.sep + 'weightDinfTau.tif'
+    DinfUtil.output_compressed_dinf(dinfflowang, compdinffile, weightfile)
+
+
+if __name__ == '__main__':
+    main()
