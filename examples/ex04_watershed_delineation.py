@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Exercise 4: Delineate watershed based on TauDEM functions with PyGeoC
 
-from pygeoc.TauDEM import TauDEMWorkflow, TauDEMFilesUtils, TauDEM
+from pygeoc.TauDEM import TauDEMWorkflow
 
 
 def main():
