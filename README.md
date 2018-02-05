@@ -6,8 +6,8 @@
 详情请访问[用户手册及开发文档](https://lreis2415.github.io/PyGeoC/)。
 
 ## 依赖
-+ Python 2.7
-+ GDAL >=1.9,<2.0 
++ Python >= 2.7 (compatible with Python 3)
++ GDAL >=1.9
 
   详细安装配置请参考[GDAL for Python](docs/python_gdal_install.rst)。
 + Numpy >=1.9
