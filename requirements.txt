@@ -1,4 +1,4 @@
-# gdal >=1.9.0,<2.0
+# gdal >=1.9.0
 numpy >= 1.10
 configparser >= 3.0
-matplotlib
+matplotlib >= 1.5
