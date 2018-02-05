@@ -11,7 +11,7 @@
 
   详细安装配置请参考[GDAL for Python](docs/python_gdal_install.rst)。
 + Numpy >=1.9
-+ [TauDEM](http://hydrology.usu.edu/taudem/taudem5/)
++ [TauDEM 5.3.7+](http://hydrology.usu.edu/taudem/taudem5/)
 
   用于水文模块。
 
