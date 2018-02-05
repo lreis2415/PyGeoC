@@ -16,6 +16,13 @@ env:
     - GDALBUILD=$HOME/gdalbuild
   matrix:
     - GDALVERSION="1.11.2"
+    - GDALVERSION="2.0.3"
+    - GDALVERSION="2.1.1"
+    - GDALVERSION="2.2.2"
+    - GDALVERSION="trunk"
+matrix:
+  allow_failures:
+    - env: GDALVERSION="trunk"
 addons:
   apt:
     packages:
@@ -24,22 +31,24 @@ addons:
     - libgdal-dev
 python:
   - '2.7'
+  - '3.6'
 before_install:
   - pip install -U pip
   - pip install tox
   - pip install wheel
+  - pip install coveralls>=1.1 --upgrade
   - . docs/travis_gdal_install.sh
   - export PATH=$GDALINST/gdal-$GDALVERSION/bin:$PATH
   - export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION/lib:$LD_LIBRARY_PATH
+  - export GDAL_DATA=$GDALINST/gdal-$GDALVERSION/share/gdal
+  - gdal-config --version
 install:
-  - "if [ $(gdal-config --version) == \"$GDALVERSION\" ]; then echo \"Using gdal $GDALVERSION\"; else echo \"NOT using gdal $GDALVERSION as expected; aborting\"; exit 1; fi"
-  - "pip wheel -r requirements_dev.txt"
-  - "pip install -r requirements_dev.txt"
-  - "GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config"
-  - "pip install --upgrade --force-reinstall gdal==$GDALVERSION"
-  - "pip install coveralls>=1.1"
+  - if [ "$GDALVERSION" = "trunk" ]; then echo "Using gdal trunk"; elif [ $(gdal-config --version) == "$GDALVERSION" ]; then echo "Using gdal $GDALVERSION"; else echo "NOT using gdal $GDALVERSION as expected; aborting"; exit 1; fi
+  - pip install -r requirements_dev.txt
+  - GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config
+  - pip install --upgrade --force-reinstall gdal==$GDALVERSION
 script:
-  - python setup.py bdist_wheel --python-tag py2
+  - python setup.py bdist_wheel
   - cd dist
   - for i in `find . -name *.whl`; do python -m pip install $i --upgrade; done
   - cd ..
@@ -52,6 +61,8 @@ script:
   - chmod 700 docs/publish-docs
   - ./docs/publish-docs
 after_success:
-  - coveralls
+  - coveralls || echo "!! intermittent coveralls failure"
+before_cache:
+  - if [ "$GDALVERSION" = "trunk" ]; then rm -rf $GDALINST/gdal-$GDALVERSION; fi
 notifications:
   email: false
