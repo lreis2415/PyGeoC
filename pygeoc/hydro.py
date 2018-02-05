@@ -5,6 +5,7 @@
     author: Liangjun Zhu
 
     changlog: 17-06-25 lj - check by pylint and reformat by Google style.\n
+              18-02-05 lj - compatible with Python3\n
 """
 from pygeoc.raster import RasterUtilClass, GDALDataType
 from pygeoc.utils import FileClass, PI, SQ2
@@ -146,7 +147,7 @@ class D8Util(object):
         out_alg = out_alg.lower()
         if in_alg not in FlowModelConst.d8_dirs or out_alg not in FlowModelConst.d8_dirs:
             raise RuntimeError("The input algorithm name should one of %s" %
-                               ', '.join(FlowModelConst.d8_dirs.keys()))
+                               ', '.join(list(FlowModelConst.d8_dirs.keys())))
         convert_dict = dict()
         in_code = FlowModelConst.d8_dirs.get(in_alg)
         out_code = FlowModelConst.d8_dirs.get(out_alg)

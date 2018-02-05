@@ -28,10 +28,10 @@ def pitremove_example():
     rawdem = RasterUtilClass.read_raster(dem)
     feldem = RasterUtilClass.read_raster(wp + os.sep + fel)
 
-    print ('RawDEM: Max: %.2f, Min: %.2f, Mean: %.2f' % (rawdem.get_max(), rawdem.get_min(),
-                                                         rawdem.get_average()))
-    print ('FilledDEM: Max: %.2f, Min: %.2f, Mean: %.2f' % (feldem.get_max(), feldem.get_min(),
-                                                            feldem.get_average()))
+    print('RawDEM: Max: %.2f, Min: %.2f, Mean: %.2f' % (rawdem.get_max(), rawdem.get_min(),
+                                                        rawdem.get_average()))
+    print('FilledDEM: Max: %.2f, Min: %.2f, Mean: %.2f' % (feldem.get_max(), feldem.get_min(),
+                                                           feldem.get_average()))
 
 
 if __name__ == "__main__":

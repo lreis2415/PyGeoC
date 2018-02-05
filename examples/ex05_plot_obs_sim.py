@@ -3,6 +3,7 @@
 # Exercise 5: Calculate and plot model performance indexes with PyGeoC
 import os
 import math
+
 import matplotlib
 
 from pygeoc.utils import MathClass

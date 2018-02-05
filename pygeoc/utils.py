@@ -8,7 +8,9 @@
                16-07-01 lj - reorganized for pygeoc.\n
                17-06-25 lj - check by pylint and reformat by Google style.\n
 """
+from __future__ import division
 
+import six
 import argparse
 import glob
 import os
@@ -200,8 +202,15 @@ class StringClass(object):
 
     @staticmethod
     def convert_unicode2str(unicode_str):
-        """convert the input string or string list which is unicode to string."""
-        if isinstance(unicode_str, unicode):
+        """convert the input string or string list which is unicode to string.
+
+        Examples:
+            >>> StringClass.convert_unicode2str(u'unicode_str')
+            'unicode_str'
+            >>> StringClass.convert_unicode2str('normal_str')
+            'normal_str'
+        """
+        if isinstance(unicode_str, six.text_type):
             return StringClass.convert_unicode2str_num(unicode_str)
         elif isinstance(unicode_str, tuple) or isinstance(unicode_str, list):
             return [StringClass.convert_unicode2str_num(v) for v in unicode_str]
@@ -211,8 +220,8 @@ class StringClass(object):
     @staticmethod
     def convert_unicode2str_num(unicode_str):
         """Convert unicode string to string, integer, or float."""
-        if isinstance(unicode_str, unicode):
-            unicode_str = unicode_str.encode()
+        if isinstance(unicode_str, six.text_type):
+            unicode_str = str(unicode_str)
         if MathClass.isnumerical(unicode_str):
             unicode_str = float(unicode_str)
             if unicode_str % 1. == 0.:
@@ -248,8 +257,8 @@ class StringClass(object):
                         temp_s = temp_s.strip()
                         if temp_s == '' and elim_empty:
                             continue
-                        if isinstance(temp_s, unicode):
-                            temp_s = temp_s.encode()
+                        if isinstance(temp_s, six.text_type):
+                            temp_s = str(temp_s)
                         dest_strs.append(temp_s)
                 src_strs = dest_strs[:]
                 dest_strs = []
@@ -313,7 +322,7 @@ class StringClass(object):
         time_fmts = ['%H:%M', '%H:%M:%S']
         fmts = date_fmts + ['%s %s' % (d, t) for d in date_fmts for t in time_fmts]
         if user_fmt is not None:
-            if isinstance(user_fmt, str):
+            if isinstance(user_fmt, six.text_type):
                 fmts.insert(0, user_fmt)
             elif isinstance(user_fmt, list):
                 fmts = user_fmt + fmts
@@ -398,8 +407,8 @@ class FileClass(object):
         """get the full path of a given executable name"""
         if name is None:
             return None
-        if isinstance(name, unicode) or isinstance(name, str):
-            name = name.encode()
+        if isinstance(name, six.text_type):
+            name = str(name)
         else:
             raise RuntimeError('The input function name or path must be string!')
         if dirname is not None:  # check the given path first
@@ -413,7 +422,7 @@ class FileClass(object):
         else:
             findout = UtilClass.run_command('which %s' % name)
         if findout == [] or len(findout) == 0:
-            print ("%s is not included in the env path" % name)
+            print("%s is not included in the env path" % name)
             exit(-1)
         first_path = findout[0].split('\n')[0]
         if os.path.exists(first_path):
@@ -425,13 +434,14 @@ class FileClass(object):
         """Return full path if available."""
         if name is None:
             return None
-        if isinstance(name, unicode) or isinstance(name, str):
-            name = name.encode()
+        if isinstance(name, six.text_type):
+            name = str(name)
         else:
             raise RuntimeError('The input function name or path must be string!')
-        if os.sep in name:  # name is full path already
-            name = os.path.abspath(name)
-            return name
+        for sep in ['\\', '/', os.sep]:  # Loop all possible separators
+            if sep in name:  # name is full path already
+                name = os.path.abspath(name)
+                return name
         if dirname is not None:
             dirname = os.path.abspath(dirname)
             name = dirname + os.sep + name
@@ -561,7 +571,7 @@ class UtilClass(object):
             output lines
         """
         commands = StringClass.convert_unicode2str(commands)
-        # print (commands)
+        # print(commands)
 
         use_shell = False
         subprocess_flags = 0
@@ -578,20 +588,20 @@ class UtilClass(object):
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             # not sure if node outputs on stderr or stdout so capture both
         else:  # for Linux/Unix OS, commands is better to be a list.
-            if isinstance(commands, str):
+            if isinstance(commands, six.text_type):
                 use_shell = True
                 # https://docs.python.org/2/library/subprocess.html
                 #     Using shell=True can be a security hazard.
             elif isinstance(commands, list):
                 # the executable path may be enclosed with quotes, if not windows, delete the quotes
                 if commands[0][0] == commands[0][-1] == '"' or \
-                                        commands[0][0] == commands[0][-1] == "'":
+                        commands[0][0] == commands[0][-1] == "'":
                     commands[0] = commands[0][1:-1]
                 for idx, v in enumerate(commands):
                     if isinstance(v, int) or isinstance(v, float):
                         # Fix :TypeError: execv() arg 2 must contain only strings
                         commands[idx] = str(v)
-        print (commands)
+        print(commands)
         process = subprocess.Popen(commands, shell=use_shell, stdout=subprocess.PIPE,
                                    stdin=open(os.devnull),
                                    stderr=subprocess.STDOUT, universal_newlines=True,
@@ -653,7 +663,7 @@ class UtilClass(object):
     def writelog(logfile, contentlist, mode='replace'):
         """write log"""
         if logfile is None:  # If logfile is not assigned, just print msg.
-            print (UtilClass.print_msg(contentlist))
+            print(UtilClass.print_msg(contentlist))
         else:
             if os.path.exists(logfile):
                 if mode == 'replace':
@@ -680,8 +690,8 @@ class UtilClass(object):
             decoded dict: {'name': 'zhulj', 'age': 26, 1: [1, 2, 3]}
         """
         unicode_dict = {StringClass.convert_unicode2str(k): StringClass.convert_unicode2str(v) for
-                        k, v in unicode_dict.items()}
-        for k, v in unicode_dict.items():
+                        k, v in list(unicode_dict.items())}
+        for k, v in list(unicode_dict.items()):
             if isinstance(v, dict):
                 unicode_dict[k] = UtilClass.decode_strs_in_dict(v)
         return unicode_dict
@@ -700,7 +710,7 @@ def get_config_file():
     args = parser.parse_args(namespace=c)
     ini_file = args.ini
     if not FileClass.is_file_exists(ini_file):
-        print ("Usage: -ini <full path to the configuration file.>")
+        print("Usage: -ini <full path to the configuration file.>")
         exit(0)
     return ini_file
 

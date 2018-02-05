@@ -17,7 +17,7 @@ rd /s/q build
 REM Compile and install PyGeoC through pip
 pip install tox
 pip install wheel
-python setup.py bdist_wheel --python-tag py2
+python setup.py bdist_wheel
 cd dist
 for /f "delims=" %%i in ('dir /s/b "*.whl"') do (
 echo installing %%~ni ...

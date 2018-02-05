@@ -188,7 +188,7 @@ class TauDEM(object):
             TauDEM.error('Input files parameter is required!')
         if not isinstance(in_files, dict):
             TauDEM.error('The input files parameter must be a dict!')
-        for (pid, infile) in in_files.items():
+        for (pid, infile) in list(in_files.items()):
             if infile is None:
                 continue
             if isinstance(infile, list) or isinstance(infile, tuple):
@@ -234,7 +234,7 @@ class TauDEM(object):
         if out_files is not None:
             if not isinstance(out_files, dict):
                 TauDEM.error('The output files parameter must be a dict!')
-            for (pid, out_file) in out_files.items():
+            for (pid, out_file) in list(out_files.items()):
                 if out_file is None:
                     continue
                 if isinstance(out_file, list) or isinstance(out_file, tuple):
@@ -274,7 +274,7 @@ class TauDEM(object):
         # append TauDEM function name, which can be full path or just one name
         commands.append(function_name)
         # append input files
-        for (pid, infile) in in_files.items():
+        for (pid, infile) in list(in_files.items()):
             if infile is None:
                 continue
             if pid[0] != '-':
@@ -288,7 +288,7 @@ class TauDEM(object):
         if in_params is not None:
             if not isinstance(in_params, dict):
                 TauDEM.error('The input parameters must be a dict!')
-            for (pid, v) in in_params.items():
+            for (pid, v) in list(in_params.items()):
                 if pid[0] != '-':
                     pid = '-' + pid
                 commands.append(pid)
@@ -300,7 +300,7 @@ class TauDEM(object):
                         commands.append(v)
         # append output parameters
         if out_files is not None:
-            for (pid, outfile) in out_files.items():
+            for (pid, outfile) in list(out_files.items()):
                 if outfile is None:
                     continue
                 if pid[0] != '-':

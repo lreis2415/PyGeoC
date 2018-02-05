@@ -11,8 +11,8 @@ def cal_model_performance(obsl, siml):
     rmse = MathClass.rmse(obsl, siml)
     pbias = MathClass.pbias(obsl, siml)
     rsr = MathClass.rsr(obsl, siml)
-    print ('NSE: %.2f, R$^2$: %.2f, PBIAS: %.2f%%, RMSE: %.2f, RSR: %.2f' %
-           (nse, r2, pbias, rmse, rsr))
+    print('NSE: %.2f, R-square: %.2f, PBIAS: %.2f%%, RMSE: %.2f, RSR: %.2f' %
+          (nse, r2, pbias, rmse, rsr))
 
 
 if __name__ == "__main__":

@@ -88,9 +88,8 @@ setup(
 
             # Specify the Python versions you support here. In particular, ensure
             # that you indicate whether you support Python 2, Python 3 or both.
-            'Programming Language :: Python :: 2',
-            'Programming Language :: Python :: 2.6',
             'Programming Language :: Python :: 2.7',
+            'Programming Language :: Python :: 3',
         ],
 
         # What does your project relate to?
@@ -109,9 +108,12 @@ setup(
         # requirements files see:
         # https://packaging.python.org/en/latest/requirements.html
         install_requires=[
-            # 'gdal>=1.9.0,<2.0',
-            #'numpy>=1.9.0',
-            #'configparser>=3.0'
+            # In case of incompatibility, users are encouraged to
+            #   install these required package by themselves.
+            # See requirements.txt and requirements_dev.txt for more details.
+            # 'gdal>=1.9.0',
+            # 'numpy>=1.9.0',
+            # 'configparser>=3.0'
         ],
 
         # List additional groups of dependencies here (e.g. development

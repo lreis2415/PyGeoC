@@ -15,7 +15,7 @@ rm -r dist
 rm -r build
 python -m pip install tox
 python -m pip install wheel
-python setup.py bdist_wheel --python-tag py2
+python setup.py bdist_wheel
 cd dist
 if python -c "import pygeoc" &> /dev/null; then
     echo 'PyGeoC has been installed, and will be uninstalled first.'

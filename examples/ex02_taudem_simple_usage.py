@@ -10,7 +10,7 @@ def pitremove_simple_usage():
     Workspace will be set as the base directory of input file.
     """
     dem = '../tests/data/Jamaica_dem.tif'
-    fel = 'dem_pitremoved.tif'
+    fel = '../tests/data/tmp_results/dem_pitremoved.tif'
     num_proc = 2
 
     TauDEM.pitremove(num_proc, dem, fel)

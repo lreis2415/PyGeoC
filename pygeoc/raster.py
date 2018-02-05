@@ -9,12 +9,14 @@
               17-06-25 lj - check by pylint and reformat by Google style.\n
               17-07-20 lj - add GDALDataType dict, and WhiteBox GAT D8 code.\n
               17-11-21 yw - add raster_binarization, raster_erosion,
-              raster_dilation, openning, closing functions. \n
+                            raster_dilation, openning, closing functions. \n
 """
+
 import os
 import subprocess
 
 import numpy
+import six
 from osgeo.gdal import GDT_CInt16, GDT_CInt32, GDT_CFloat32, GDT_CFloat64
 from osgeo.gdal import GDT_UInt32, GDT_Int32, GDT_Float32, GDT_Float64
 from osgeo.gdal import GDT_Unknown, GDT_Byte, GDT_UInt16, GDT_Int16
@@ -106,7 +108,7 @@ class Raster(object):
         >>> from pygeoc.raster import RasterUtilClass
         >>> rst_file = r'tests/data/Jamaica_dem.tif'
         >>> rst_obj = RasterUtilClass.read_raster(rst_file)
-        >>> print rst_obj
+        >>> print(rst_obj)
         <pygeoc.raster.Raster object at 0x...>
 
     See Also:
@@ -258,7 +260,7 @@ class RasterUtilClass(object):
 
         srs = osr_SpatialReference()
         srs.ImportFromWkt(ds.GetProjection())
-        # print srs.ExportToProj4()
+        # print(srs.ExportToProj4())
         if nodata_value is None:
             nodata_value = DEFAULT_NODATA
         band = None
@@ -299,7 +301,7 @@ class RasterUtilClass(object):
                         j_min = min(j, j_min)
                         j_max = max(j, j_max)
 
-            # print i_min, i_max, j_min, j_max
+            # print(i_min, i_max, j_min, j_max)
             y_size_mask = i_max - i_min + 1
             x_size_mask = j_max - j_min + 1
             x_min_mask = x_min + j_min * dx
@@ -311,7 +313,7 @@ class RasterUtilClass(object):
             y_max_mask = y_max
             i_min = 0
             j_min = 0
-        print ("%dx%d -> %dx%d" % (xsize, ysize, x_size_mask, y_size_mask))
+        print("%dx%d -> %dx%d" % (xsize, ysize, x_size_mask, y_size_mask))
 
         mask = numpy.zeros((y_size_mask, x_size_mask))
 
@@ -351,7 +353,7 @@ class RasterUtilClass(object):
                 v_dict[src_r.noDataValue] = new_no_data
                 no_data = new_no_data
 
-        for k, v in v_dict.iteritems():
+        for k, v in v_dict.items():
             dst_data[src_data == k] = v
         RasterUtilClass.write_gtiff_file(dstfile, src_r.nRows, src_r.nCols, dst_data,
                                          src_r.geotrans, src_r.srs, no_data, gdaltype)
@@ -516,7 +518,7 @@ class RasterUtilClass(object):
             out_raster: list or one raster
 
         """
-        if isinstance(in_raster, str) and isinstance(out_raster, str):
+        if isinstance(in_raster, six.text_type) and isinstance(out_raster, six.text_type):
             in_raster = [in_raster]
             out_raster = [out_raster]
         if len(in_raster) != len(out_raster):
@@ -568,7 +570,7 @@ class RasterUtilClass(object):
         return binary_raster
 
     @staticmethod
-    def raster_erosion(rasterfile):        
+    def raster_erosion(rasterfile):
         """Erode the raster image.
 
          Find the min pixel's value in 8-neighborhood. Then change the compute
@@ -581,7 +583,7 @@ class RasterUtilClass(object):
         Returns:
             erosion_raster: raster image after erosion, type is numpy.ndarray.
         """
-        if isinstance(rasterfile, str):
+        if isinstance(rasterfile, six.text_type):
             origin_raster = RasterUtilClass.read_raster(rasterfile)
         elif isinstance(rasterfile, Raster):
             origin_raster = rasterfile.data
@@ -591,20 +593,14 @@ class RasterUtilClass(object):
             return "Your rasterfile has a wrong type. Type must be string or " \
                    "numpy.array or class Raster in pygeoc."
         max_value_raster = origin_raster.max()
-        erosion_raster = numpy.zeros(
-            (origin_raster.shape[0], origin_raster.shape[1]))
+        erosion_raster = numpy.zeros((origin_raster.shape[0], origin_raster.shape[1]))
         # In order to compute the raster edges, we need to expand the original
         # raster's rows and cols. We need to add the edges whose pixels' value is
         # the max pixel's value in raster.
         add_row = numpy.full((1, origin_raster.shape[1]), max_value_raster)
-        temp_origin_raster = numpy.vstack((numpy.vstack((add_row,
-                                                         origin_raster)),
-                                           add_row))
-        add_col = numpy.full((origin_raster.shape[0] + 2, 1),
-                             max_value_raster)
-        expand_origin_raster = numpy.hstack((numpy.hstack((add_col,
-                                                           temp_origin_raster)),
-                                             add_col))
+        temp_origin_raster = numpy.vstack((numpy.vstack((add_row, origin_raster)), add_row))
+        add_col = numpy.full((origin_raster.shape[0] + 2, 1), max_value_raster)
+        expand_origin_raster = numpy.hstack((numpy.hstack((add_col, temp_origin_raster)), add_col))
         # Erode the raster.
         for i in range(origin_raster.shape[0]):
             for j in range(origin_raster.shape[1]):
@@ -612,10 +608,8 @@ class RasterUtilClass(object):
                 # Find the min pixel value in the 8-neighborhood.
                 for k in range(3):
                     for l in range(3):
-                        if expand_origin_raster[
-                                    i + k, j + l] <= min_pixel_value:
-                            min_pixel_value = expand_origin_raster[
-                                i + k, j + l]
+                        if expand_origin_raster[i + k, j + l] <= min_pixel_value:
+                            min_pixel_value = expand_origin_raster[i + k, j + l]
                             # After this loop, we get the min pixel's value of the
                             # 8-neighborhood. Then we change the compute pixel's value into
                             # the min pixel's value.
@@ -637,7 +631,7 @@ class RasterUtilClass(object):
         Returns:
             dilation_raster: raster image after dilation, type is numpy.ndarray.
         """
-        if isinstance(rasterfile, str):
+        if isinstance(rasterfile, six.text_type):
             origin_raster = RasterUtilClass.read_raster(rasterfile)
         elif isinstance(rasterfile, Raster):
             origin_raster = rasterfile.data
@@ -647,19 +641,14 @@ class RasterUtilClass(object):
             return "Your rasterfile has a wrong type. Type must be string or " \
                    "numpy.array or class Raster in pygeoc."
         min_value_raster = origin_raster.min()
-        dilation_raster = numpy.zeros(
-            (origin_raster.shape[0], origin_raster.shape[1]))
+        dilation_raster = numpy.zeros((origin_raster.shape[0], origin_raster.shape[1]))
         # In order to compute the raster edges, we need to expand the original
         # raster's rows and cols. We need to add the edges whose pixels' value is
         # the max pixel's value in raster.
         add_row = numpy.full((1, origin_raster.shape[1]), min_value_raster)
-        temp_origin_raster = numpy.vstack((numpy.vstack((add_row,
-                                                         origin_raster)),
-                                           add_row))
+        temp_origin_raster = numpy.vstack((numpy.vstack((add_row, origin_raster)), add_row))
         add_col = numpy.full((origin_raster.shape[0] + 2, 1), min_value_raster)
-        expand_origin_raster = numpy.hstack((numpy.hstack((add_col,
-                                                           temp_origin_raster)),
-                                             add_col))
+        expand_origin_raster = numpy.hstack((numpy.hstack((add_col, temp_origin_raster)), add_col))
         # Dilate the raster.
         for i in range(origin_raster.shape[0]):
             for j in range(origin_raster.shape[1]):
@@ -667,10 +656,8 @@ class RasterUtilClass(object):
                 # Find the max pixel value in the 8-neighborhood.
                 for k in range(3):
                     for l in range(3):
-                        if expand_origin_raster[
-                                    i + k, j + l] >= max_pixel_value:
-                            max_pixel_value = expand_origin_raster[
-                                i + k, j + l]
+                        if expand_origin_raster[i + k, j + l] >= max_pixel_value:
+                            max_pixel_value = expand_origin_raster[i + k, j + l]
                             # After this loop, we get the max pixel's value of the
                             # 8-neighborhood. Then we change the compute pixel's value into
                             # the max pixel's value.
@@ -719,6 +706,7 @@ class RasterUtilClass(object):
         for i in range(times):
             closing_raster = RasterUtilClass.raster_erosion(closing_raster)
         return closing_raster
+
 
 if __name__ == '__main__':
     # Run doctest in docstrings of Google code style
