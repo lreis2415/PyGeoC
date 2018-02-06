@@ -143,14 +143,16 @@ class MathClass(object):
             obsvalues = numpy.array(obsvalues)
         if not isinstance(simvalues, numpy.ndarray):
             simvalues = numpy.array(simvalues)
-        if log:
+        if log:  # Be care of zero values
+            obsvalues = numpy.where((obsvalues == 0.) | (simvalues == 0.), numpy.nan, obsvalues)
+            simvalues = numpy.where((obsvalues == 0.) | (simvalues == 0.), numpy.nan, simvalues)
             obsvalues = numpy.log(obsvalues)
             simvalues = numpy.log(simvalues)
         if expon > len(obsvalues) or expon < 1:
             return 0.
-        ave = numpy.mean(obsvalues)
-        a1 = numpy.sum(numpy.abs(obsvalues - simvalues) ** expon)
-        a2 = numpy.sum(numpy.abs(obsvalues - ave) ** expon)
+        ave = numpy.nanmean(obsvalues)
+        a1 = numpy.nansum(numpy.abs(obsvalues - simvalues) ** expon)
+        a2 = numpy.nansum(numpy.abs(obsvalues - ave) ** expon)
         if a2 == 0.:
             return 1.
         return 1. - a1 / a2
