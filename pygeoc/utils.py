@@ -10,7 +10,6 @@
 """
 from __future__ import division
 
-import six
 import argparse
 import glob
 import os
@@ -23,6 +22,9 @@ import time
 from datetime import datetime
 from math import sqrt
 from shutil import copy, rmtree
+
+import numpy
+import six
 
 try:
     from ConfigParser import ConfigParser  # py2
@@ -81,12 +83,55 @@ class MathClass(object):
         return abs(a - b) < DELTA
 
     @staticmethod
-    def nashcoef(obsvalues, simvalues):
-        """Calculate Nash coefficient.
+    def nashcoef(obsvalues, simvalues, log=False, expon=2):
+        """Calculate Nash-Sutcliffe coefficient(NSE) proposed by
+           Nash and Sutcliffe (1970) and its variants.
+           The following description is referred by Krause et al. (2005)
+             and Moriasi et al. (2007).
+           [1] The range of NSE lies between -inf and 1.0 (prefect fit).
+           [2] Since the differences between observed and simulated values
+               are calculated as squared values (`expon`=2), the larger values
+               in a time series are strongly overestimated whereas lower
+               values are neglected (Legates and McCabe, 1999). For the
+               quantification of runoff prediction, this leads to an overestimation
+               of the model performance during peak flows and an underestimation
+               during low flow conditions.
+           [3] Similar to R-square, NSE is not very sensitive to systematic
+               model over- or underestimation especially during low flow periods.
+           [4] To reduce the sensitivity of the original NSE to extreme values,
+               the NSE is often calculated with logarithmic values of obseravtion
+               and simulation values, which known as lnE. As a result, the
+               influence of the low flow values is increased in comparison to the
+               flood peaks resulting in an increase in sensitivity of lnE to
+               systematic model over- or underestimation.
+           [5] A more general form could be used for the same purpose as lnE, i.e.,
+               varying the exponent from 1 to N. With the increase of `expon`, the
+               sensitivity to high flows will increase and could be used when only
+               the high flows are of interest, e.g., for flood prediction.
 
         Args:
-            obsvalues: observe values array
-            simvalues: simulate values array
+            obsvalues: observation values array
+            simvalues: simulation values array
+            log: Do logarithmic transformation or not, False by default
+            expon: The exponent range from 1 to N, 2 by default
+
+        Examples:
+            >>> obs = [2.92, 2.75, 2.01, 1.09, 2.87, 1.43, 1.96,\
+                       4.00, 2.24, 29.28, 5.88, 0.86, 13.21]
+            >>> sim = [2.90, 2.87, 2.85, 2.83, 3.04, 2.81, 2.85,\
+                       2.78, 2.76, 13.40, 2.70, 2.09, 1.62]
+            >>> MathClass.nashcoef(obs, sim)  # doctest: +ELLIPSIS
+            0.451803966838596...
+            >>> MathClass.nashcoef(obs, sim, log=True)  # doctest: +ELLIPSIS
+            0.2841143016830745...
+            >>> MathClass.nashcoef(obs, sim, expon=1)  # doctest: +ELLIPSIS
+            0.3959646306103376...
+            >>> MathClass.nashcoef(obs, sim, expon=3)  # doctest: +ELLIPSIS
+            0.6122272075952075...
+            >>> MathClass.nashcoef(obs, sim, expon=14)  # doctest: +ELLIPSIS
+            0...
+            >>> MathClass.nashcoef(obs, sim, expon=0)  # doctest: +ELLIPSIS
+            0...
 
         Returns:
             NSE, or raise exception
@@ -94,13 +139,18 @@ class MathClass(object):
         if len(obsvalues) != len(simvalues):
             raise ValueError("The size of observed and simulated values must be"
                              " the same for NSE calculation!")
-        n = len(obsvalues)
-        ave = sum(obsvalues) / n
-        a1 = 0.
-        a2 = 0.
-        for i in range(n):
-            a1 += pow(float(obsvalues[i]) - float(simvalues[i]), 2.)
-            a2 += pow(float(obsvalues[i]) - ave, 2.)
+        if not isinstance(obsvalues, numpy.ndarray):
+            obsvalues = numpy.array(obsvalues)
+        if not isinstance(simvalues, numpy.ndarray):
+            simvalues = numpy.array(simvalues)
+        if log:
+            obsvalues = numpy.log(obsvalues)
+            simvalues = numpy.log(simvalues)
+        if expon > len(obsvalues) or expon < 1:
+            return 0.
+        ave = numpy.mean(obsvalues)
+        a1 = numpy.sum(numpy.abs(obsvalues - simvalues) ** expon)
+        a2 = numpy.sum(numpy.abs(obsvalues - ave) ** expon)
         if a2 == 0.:
             return 1.
         return 1. - a1 / a2
@@ -108,9 +158,18 @@ class MathClass(object):
     @staticmethod
     def rsquare(obsvalues, simvalues):
         """Calculate R-square.
+
         Args:
             obsvalues: observe values array
             simvalues: simulate values array
+
+        Examples:
+            >>> obs = [2.92, 2.75, 2.01, 1.09, 2.87, 1.43, 1.96,\
+                       4.00, 2.24, 29.28, 5.88, 0.86, 13.21]
+            >>> sim = [2.90, 2.87, 2.85, 2.83, 3.04, 2.81, 2.85,\
+                       2.78, 2.76, 13.40, 2.70, 2.09, 1.62]
+            >>> MathClass.rsquare(obs, sim)  # doctest: +ELLIPSIS
+            0.7528851650345053...
 
         Returns:
             R-square value, or raise exception
@@ -118,44 +177,64 @@ class MathClass(object):
         if len(obsvalues) != len(simvalues):
             raise ValueError("The size of observed and simulated values must be "
                              "the same for R-square calculation!")
-        n = len(obsvalues)
-        obs_avg = sum(obsvalues) / n
-        pred_avg = sum(simvalues) / n
-        obs_minus_avg_sq = 0.
-        pred_minus_avg_sq = 0.
-        obs_pred_minus_avgs = 0.
-        for i in range(n):
-            obs_minus_avg_sq += pow((obsvalues[i] - obs_avg), 2.)
-            pred_minus_avg_sq += pow((simvalues[i] - pred_avg), 2.)
-            obs_pred_minus_avgs += (obsvalues[i] - obs_avg) * (simvalues[i] - pred_avg)
+        if not isinstance(obsvalues, numpy.ndarray):
+            obsvalues = numpy.array(obsvalues)
+        if not isinstance(simvalues, numpy.ndarray):
+            simvalues = numpy.array(simvalues)
+        obs_avg = numpy.mean(obsvalues)
+        pred_avg = numpy.mean(simvalues)
+        obs_minus_avg_sq = numpy.sum((obsvalues - obs_avg) ** 2)
+        pred_minus_avg_sq = numpy.sum((simvalues - pred_avg) ** 2)
+        obs_pred_minus_avgs = numpy.sum((obsvalues - obs_avg) * (simvalues - pred_avg))
         # Calculate R-square
-        yy = (pow(obs_minus_avg_sq, 0.5) * pow(pred_minus_avg_sq, 0.5))
+        yy = obs_minus_avg_sq ** 0.5 * pred_minus_avg_sq ** 0.5
         if yy == 0.:
             return 1.
-        return pow((obs_pred_minus_avgs / yy), 2.)
+        return (obs_pred_minus_avgs / yy) ** 2.
 
     @staticmethod
-    def rmse(list1, list2):
+    def rmse(obsvalues, simvalues):
         """Calculate RMSE.
+
         Args:
-            list1: values list 1
-            list2: values list 2
+            obsvalues: observe values array
+            simvalues: simulate values array
+
+        Examples:
+            >>> obs = [2.92, 2.75, 2.01, 1.09, 2.87, 1.43, 1.96,\
+                       4.00, 2.24, 29.28, 5.88, 0.86, 13.21]
+            >>> sim = [2.90, 2.87, 2.85, 2.83, 3.04, 2.81, 2.85,\
+                       2.78, 2.76, 13.40, 2.70, 2.09, 1.62]
+            >>> MathClass.rmse(obs, sim)  # doctest: +ELLIPSIS
+            5.590926715533082...
 
         Returns:
             RMSE value
         """
-        n = len(list1)
-        s = 0.
-        for i in range(n):
-            s += pow(list1[i] - list2[i], 2.)
-        return sqrt(s / n)
+        if len(obsvalues) != len(simvalues):
+            raise ValueError("The size of observed and simulated values must be "
+                             "the same for R-square calculation!")
+        if not isinstance(obsvalues, numpy.ndarray):
+            obsvalues = numpy.array(obsvalues)
+        if not isinstance(simvalues, numpy.ndarray):
+            simvalues = numpy.array(simvalues)
+        return numpy.sqrt(numpy.mean((obsvalues - simvalues) ** 2.))
 
     @staticmethod
     def pbias(obsvalues, simvalues):
         """Calculate PBIAS.
+
         Args:
             obsvalues: observe values array
             simvalues: simulate values array
+
+        Examples:
+            >>> obs = [2.92, 2.75, 2.01, 1.09, 2.87, 1.43, 1.96,\
+                       4.00, 2.24, 29.28, 5.88, 0.86, 13.21]
+            >>> sim = [2.90, 2.87, 2.85, 2.83, 3.04, 2.81, 2.85,\
+                       2.78, 2.76, 13.40, 2.70, 2.09, 1.62]
+            >>> MathClass.pbias(obs, sim)  # doctest: +ELLIPSIS
+            35.46099290780142...
 
         Returns:
             PBIAS value (percentage), or raise exception
@@ -163,11 +242,7 @@ class MathClass(object):
         if len(obsvalues) != len(simvalues):
             raise ValueError("The size of observed and simulated values must be"
                              " the same for PBIAS calculation!")
-
-        def sub_pbias(x, y):
-            return (x - y) * 100
-
-        return sum(map(sub_pbias, obsvalues, simvalues)) / sum(obsvalues)
+        return sum(map(lambda x, y: (x - y) * 100, obsvalues, simvalues)) / sum(obsvalues)
 
     @staticmethod
     def rsr(obsvalues, simvalues):
@@ -176,20 +251,23 @@ class MathClass(object):
             obsvalues: observe values array
             simvalues: simulate values array
 
+        Examples:
+            >>> obs = [2.92, 2.75, 2.01, 1.09, 2.87, 1.43, 1.96,\
+                       4.00, 2.24, 29.28, 5.88, 0.86, 13.21]
+            >>> sim = [2.90, 2.87, 2.85, 2.83, 3.04, 2.81, 2.85,\
+                       2.78, 2.76, 13.40, 2.70, 2.09, 1.62]
+            >>> MathClass.rsr(obs, sim)  # doctest: +ELLIPSIS
+            0.7404026155824978...
+
         Returns:
             RSR value, or raise exception
         """
         if len(obsvalues) != len(simvalues):
             raise ValueError("The size of observed and simulated values must be"
                              " the same for RSR calculation!")
-
-        def sub_rsr(x, y):
-            return (x - y) * (x - y)
-
         mean_obs = sum(obsvalues) / len(obsvalues)
-        mobsl = [mean_obs] * len(obsvalues)
-        return sqrt(sum(map(sub_rsr, obsvalues, simvalues))) / \
-               sqrt(sum(map(sub_rsr, obsvalues, mobsl)))
+        return sqrt(sum(map(lambda x, y: (x - y) ** 2, obsvalues, simvalues))) / \
+               sqrt(sum(map(lambda x, y: (x - y) ** 2, obsvalues, [mean_obs] * len(obsvalues))))
 
 
 class StringClass(object):
