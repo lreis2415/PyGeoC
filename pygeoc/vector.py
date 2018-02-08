@@ -15,7 +15,10 @@ from osgeo.ogr import CreateGeometryFromJson as ogr_CreateGeometryFromJson
 from osgeo.ogr import Feature as ogr_Feature
 from osgeo.ogr import Geometry as ogr_Geometry
 from osgeo.ogr import GetDriverByName as ogr_GetDriverByName
-from osgeo.ogr import wkbLineString
+from osgeo.ogr import wkbLineString, OFTInteger
+from osgeo.osr import SpatialReference as osr_SpatialReference
+from osgeo.ogr import FieldDefn as ogr_FieldDefn
+import gdal
 
 from pygeoc.utils import FileClass, UtilClass, sysstr
 
@@ -27,17 +30,47 @@ class VectorUtilClass(object):
         pass
 
     @staticmethod
-    def raster2shp(rasterfile, vectorshp, layername=None, fieldname=None):
+    def raster2shp(rasterfile, vectorshp, layername=None, fieldname=None,
+                   band_num=1, mask='default'):
         """Convert raster to ESRI shapefile"""
         FileClass.remove_files(vectorshp)
         FileClass.check_file_exists(rasterfile)
-        # raster to polygon vector
-        exepath = FileClass.get_executable_fullpath("gdal_polygonize.py")
-        str_cmd = 'python %s -f "ESRI Shapefile" %s %s' % (exepath, rasterfile, vectorshp)
-        if layername is not None and fieldname is not None:
-            str_cmd += ' %s %s' % (layername, fieldname)
-        print(str_cmd)
-        print(UtilClass.run_command(str_cmd))
+        # this allows GDAL to throw Python Exceptions
+        gdal.UseExceptions()
+        src_ds = gdal.Open(rasterfile)
+        if src_ds is None:
+            print('Unable to open %s' % rasterfile)
+            sys.exit(1)
+        try:
+            srcband = src_ds.GetRasterBand(band_num)
+        except RuntimeError as e:
+            # for example, try GetRasterBand(10)
+            print('Band ( %i ) not found, %s' % (band_num, e))
+            sys.exit(1)
+        if mask is 'default':
+            maskband = srcband.GetMaskBand()
+        elif mask is 'none':
+            maskband = None
+        else:
+            mask_ds = gdal.Open(mask)
+            maskband = mask_ds.GetRasterBand(1)
+        #  create output datasource
+        if layername is None:
+            layername = FileClass.get_core_name_without_suffix(rasterfile)
+        drv = ogr_GetDriverByName("ESRI Shapefile")
+        dst_ds = drv.CreateDataSource(vectorshp)
+        srs = None
+        if src_ds.GetProjection() != '':
+            srs = osr_SpatialReference()
+            srs.ImportFromWkt(src_ds.GetProjection())
+        dst_layer = dst_ds.CreateLayer(layername, srs=srs)
+        if fieldname is None:
+            fieldname = 'DN'
+        fd = ogr_FieldDefn(fieldname, OFTInteger)
+        dst_layer.CreateField(fd)
+        dst_field = 0
+        result = gdal.Polygonize(srcband, maskband, dst_layer, dst_field, [], callback=None)
+        return result
 
     @staticmethod
     def convert2geojson(jsonfile, src_srs, dst_srs, src_file):
@@ -78,3 +111,9 @@ class VectorUtilClass(object):
             lyr.CreateFeature(feature)
             feature.Destroy()
         ds.Destroy()
+
+
+if __name__ == '__main__':
+    rst = r'C:\z_code\Hydro\SEIMS\data\dianbu2\workspace\spatial_raster\subbasin.tif'
+    shp = r'C:\z_code\Hydro\SEIMS\data\dianbu2\workspace\spatial_shp\subbasin.shp'
+    VectorUtilClass.raster2shp(rst, shp)
