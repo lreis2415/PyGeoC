@@ -8,7 +8,7 @@
                16-07-01 lj - reorganized for pygeoc.\n
                17-06-25 lj - check by pylint and reformat by Google style.\n
 """
-from __future__ import division
+from __future__ import division, unicode_literals
 
 import argparse
 import glob
@@ -30,6 +30,13 @@ try:
     from ConfigParser import ConfigParser  # py2
 except ImportError:
     from configparser import ConfigParser  # py3
+
+if sys.version_info < (3,):
+    text_type = six.text_type
+    binary_type = str
+else:
+    text_type = str
+    binary_type = bytes
 sysstr = platform.system()
 
 # Global constants
@@ -290,7 +297,7 @@ class StringClass(object):
             >>> StringClass.convert_unicode2str('normal_str')
             'normal_str'
         """
-        if isinstance(unicode_str, six.text_type):
+        if isinstance(unicode_str, text_type):
             return StringClass.convert_unicode2str_num(unicode_str)
         elif isinstance(unicode_str, tuple) or isinstance(unicode_str, list):
             return [StringClass.convert_unicode2str_num(v) for v in unicode_str]
@@ -300,7 +307,7 @@ class StringClass(object):
     @staticmethod
     def convert_unicode2str_num(unicode_str):
         """Convert unicode string to string, integer, or float."""
-        if isinstance(unicode_str, six.text_type):
+        if isinstance(unicode_str, text_type):
             unicode_str = str(unicode_str)
         if MathClass.isnumerical(unicode_str):
             unicode_str = float(unicode_str)
@@ -337,7 +344,7 @@ class StringClass(object):
                         temp_s = temp_s.strip()
                         if temp_s == '' and elim_empty:
                             continue
-                        if isinstance(temp_s, six.text_type):
+                        if isinstance(temp_s, text_type):
                             temp_s = str(temp_s)
                         dest_strs.append(temp_s)
                 src_strs = dest_strs[:]
@@ -402,8 +409,8 @@ class StringClass(object):
         time_fmts = ['%H:%M', '%H:%M:%S']
         fmts = date_fmts + ['%s %s' % (d, t) for d in date_fmts for t in time_fmts]
         if user_fmt is not None:
-            if isinstance(user_fmt, six.text_type):
-                fmts.insert(0, user_fmt)
+            if isinstance(user_fmt, text_type) or isinstance(user_fmt, str):
+                fmts.insert(0, str(user_fmt))
             elif isinstance(user_fmt, list):
                 fmts = user_fmt + fmts
             elif isinstance(user_fmt, tuple):
@@ -487,7 +494,7 @@ class FileClass(object):
         """get the full path of a given executable name"""
         if name is None:
             return None
-        if isinstance(name, six.text_type):
+        if isinstance(name, text_type) or isinstance(name, str):
             name = str(name)
         else:
             raise RuntimeError('The input function name or path must be string!')
@@ -514,7 +521,7 @@ class FileClass(object):
         """Return full path if available."""
         if name is None:
             return None
-        if isinstance(name, six.text_type):
+        if isinstance(name, text_type) or isinstance(name, str):
             name = str(name)
         else:
             raise RuntimeError('The input function name or path must be string!')
@@ -668,7 +675,7 @@ class UtilClass(object):
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             # not sure if node outputs on stderr or stdout so capture both
         else:  # for Linux/Unix OS, commands is better to be a list.
-            if isinstance(commands, six.text_type):
+            if isinstance(commands, text_type) or isinstance(commands, str):
                 use_shell = True
                 # https://docs.python.org/2/library/subprocess.html
                 #     Using shell=True can be a security hazard.

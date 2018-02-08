@@ -16,7 +16,6 @@ import os
 import subprocess
 
 import numpy
-import six
 from osgeo.gdal import GDT_CInt16, GDT_CInt32, GDT_CFloat32, GDT_CFloat64
 from osgeo.gdal import GDT_UInt32, GDT_Int32, GDT_Float32, GDT_Float64
 from osgeo.gdal import GDT_Unknown, GDT_Byte, GDT_UInt16, GDT_Int16
@@ -26,6 +25,7 @@ from osgeo.ogr import Open as ogr_Open
 from osgeo.osr import SpatialReference as osr_SpatialReference
 
 from pygeoc.utils import MathClass, UtilClass, DEFAULT_NODATA, DELTA
+from pygeoc.utils import text_type
 
 GDALDataType = {0: GDT_Unknown,  # Unknown or unspecified type
                 1: GDT_Byte,  # Eight bit unsigned integer
@@ -518,9 +518,9 @@ class RasterUtilClass(object):
             out_raster: list or one raster
 
         """
-        if isinstance(in_raster, six.text_type) and isinstance(out_raster, six.text_type):
-            in_raster = [in_raster]
-            out_raster = [out_raster]
+        if isinstance(in_raster, text_type) and isinstance(out_raster, text_type):
+            in_raster = [str(in_raster)]
+            out_raster = [str(out_raster)]
         if len(in_raster) != len(out_raster):
             raise RuntimeError('input rasters and output raster must have the same size.')
 
@@ -583,8 +583,8 @@ class RasterUtilClass(object):
         Returns:
             erosion_raster: raster image after erosion, type is numpy.ndarray.
         """
-        if isinstance(rasterfile, six.text_type):
-            origin_raster = RasterUtilClass.read_raster(rasterfile)
+        if isinstance(rasterfile, text_type):
+            origin_raster = RasterUtilClass.read_raster(str(rasterfile))
         elif isinstance(rasterfile, Raster):
             origin_raster = rasterfile.data
         elif isinstance(rasterfile, numpy.ndarray):
@@ -631,8 +631,8 @@ class RasterUtilClass(object):
         Returns:
             dilation_raster: raster image after dilation, type is numpy.ndarray.
         """
-        if isinstance(rasterfile, six.text_type):
-            origin_raster = RasterUtilClass.read_raster(rasterfile)
+        if isinstance(rasterfile, text_type):
+            origin_raster = RasterUtilClass.read_raster(str(rasterfile))
         elif isinstance(rasterfile, Raster):
             origin_raster = rasterfile.data
         elif isinstance(rasterfile, numpy.ndarray):
