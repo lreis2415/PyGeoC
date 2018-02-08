@@ -23,3 +23,4 @@ for /f "delims=" %%i in ('dir /s/b "*.whl"') do (
 echo installing %%~ni ...
 pip install %%i --upgrade
 )
+cd ..
