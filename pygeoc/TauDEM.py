@@ -100,7 +100,7 @@ class TauDEM(object):
         """Output log message."""
         err = False
         for line in lines:
-            print (line)
+            print(line)
             if log_file is not None:
                 UtilClass.writelog(log_file, line, 'append')
             if 'BAD TERMINATION' in line.upper():
@@ -682,7 +682,7 @@ class TauDEMWorkflow(object):
             drpf = open(drp_file, "r")
             temp_contents = drpf.read()
             (beg, thresh) = temp_contents.rsplit(' ', 1)
-            print (thresh)
+            print(thresh)
             drpf.close()
         UtilClass.writelog(logfile, "[Output] %d..., %s" % (80, "Generating stream raster..."), 'a')
         TauDEM.threshold(np, acc_with_weight, stream_raster, float(thresh),

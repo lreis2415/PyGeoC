@@ -220,7 +220,7 @@ class StreamnetUtil(object):
         id_map = {}
         for i, old_id in enumerate(old_id_list):
             id_map[old_id] = i + 1
-        # print id_map
+        # print(id_map)
         # change old ID to new ID
         layer_reach.ResetReading()
         ft = layer_reach.GetNextFeature()
@@ -239,7 +239,7 @@ class StreamnetUtil(object):
             if ds_id in id_map:
                 ft.SetField(FLD_DSLINKNO, id_map[ds_id])
             else:
-                # print ds_id
+                # print(ds_id)
                 ft.SetField(FLD_DSLINKNO, -1)
             layer_reach.SetFeature(ft)
             ft = layer_reach.GetNextFeature()
