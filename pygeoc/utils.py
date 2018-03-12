@@ -590,9 +590,9 @@ class FileClass(object):
         if len(core_names) > 1:
             core_names = core_names[:-1]
         if isinstance(core_names, list):
-            return '.'.join(core_names)
+            return str('.'.join(core_names))
         else:
-            return core_names
+            return str(core_names)
 
     @staticmethod
     def add_postfix(file_path, postfix):
@@ -702,6 +702,9 @@ class UtilClass(object):
         if recode is not None and recode != 0:
             raise subprocess.CalledProcessError(-1, commands,
                                                 "ERROR occurred when running subprocess!")
+        if '\n' in out:
+            return out.split('\n')
+
         return [out]
 
     @staticmethod
@@ -736,8 +739,8 @@ class UtilClass(object):
             for content in contentlist:
                 contentstr += '%s\n' % content
             return contentstr
-        else:
-            if contentlist[-1] != '\n':
+        else:  # strings
+            if len(contentlist) > 1 and contentlist[-1] != '\n':
                 contentlist += '\n'
             return contentlist
 
