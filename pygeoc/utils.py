@@ -708,13 +708,18 @@ class UtilClass(object):
         return [out]
 
     @staticmethod
-    def current_path():
-        """Get current path"""
-        path = sys.path[0]
-        if os.path.isdir(path):
-            return path
-        elif os.path.isfile(path):
-            return os.path.dirname(path)
+    def current_path(local_function):
+        """Get current path
+        Reference: https://stackoverflow.com/questions/2632199/how-do-i-get-the-path-of-the-current-executed-file-in-python/18489147#18489147
+        Examples:
+            from pygeoc.utils import UtilClass
+            curpath = UtilClass.current_path(lambda: 0)
+        """
+        from inspect import getsourcefile
+        fpath = getsourcefile(local_function)
+        if fpath is None:
+            return None
+        return os.path.dirname(os.path.abspath(fpath))
 
     @staticmethod
     def mkdir(dir_path):
