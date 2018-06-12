@@ -333,7 +333,7 @@ class StringClass(object):
         """
         if spliters is None or not spliters:
             spliters = [' ', '\t']
-        dest_strs = []
+        dest_strs = list()
         src_strs = [str_src]
         while True:
             old_dest_strs = src_strs[:]
@@ -348,7 +348,7 @@ class StringClass(object):
                             temp_s = str(temp_s)
                         dest_strs.append(temp_s)
                 src_strs = dest_strs[:]
-                dest_strs = []
+                dest_strs = list()
             if old_dest_strs == src_strs:
                 dest_strs = src_strs[:]
                 break
@@ -508,7 +508,7 @@ class FileClass(object):
             findout = UtilClass.run_command('where %s' % name)
         else:
             findout = UtilClass.run_command('which %s' % name)
-        if findout == [] or len(findout) == 0:
+        if not findout or len(findout) == 0:
             print("%s is not included in the env path" % name)
             exit(-1)
         first_path = findout[0].split('\n')[0]
@@ -539,13 +539,18 @@ class FileClass(object):
         """get file names with the given suffixes in the given directory
         Args:
             dir_src: directory path
-            suffixes: wanted suffixes
+            suffixes: wanted suffixes list, the suffix in suffixes can with or without '.'
 
         Returns:
             file names with the given suffixes as list
         """
         list_files = os.listdir(dir_src)
-        re_files = []
+        re_files = list()
+        if not isinstance(suffixes, list):
+            suffixes = [suffixes]
+        for i, suf in enumerate(suffixes):
+            if len(suf) >=1 and suf[0] != '.':
+                suffixes[i] = '.' + suf
         for f in list_files:
             name, ext = os.path.splitext(f)
             if StringClass.string_in_list(ext, suffixes):
@@ -562,7 +567,7 @@ class FileClass(object):
         Returns:
             full file names with the given suffixes as list
         """
-        full_paths = []
+        full_paths = list()
         for name in FileClass.get_filename_by_suffixes(dir_src, suffixes):
             full_paths.append(dir_src + os.sep + name)
         return full_paths
