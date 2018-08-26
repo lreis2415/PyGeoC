@@ -42,7 +42,7 @@ sysstr = platform.system()
 # Global constants
 SQ2 = 1.4142135623730951
 """approximate of square root of 2."""
-PI = 3.141592653589793
+PI = 3.14159265358979323846
 """approximate value of pi."""
 ZERO = 1e-12
 """approximate of zero."""

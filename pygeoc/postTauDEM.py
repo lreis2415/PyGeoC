@@ -33,24 +33,33 @@ class DinfUtil(object):
     @staticmethod
     def check_orthogonal(angle):
         """Check the given Dinf angle based on D8 flow direction encoding code by ArcGIS"""
+        flow_dir_taudem = -1
         flow_dir = -1
         if MathClass.floatequal(angle, FlowModelConst.e):
-            flow_dir = 1  # TauDEM: 1
+            flow_dir_taudem = FlowModelConst.e
+            flow_dir = 1
         elif MathClass.floatequal(angle, FlowModelConst.ne):
-            flow_dir = 128  # TauDEM: 2
+            flow_dir_taudem = FlowModelConst.ne
+            flow_dir = 128
         elif MathClass.floatequal(angle, FlowModelConst.n):
-            flow_dir = 64  # TauDEM: 3
+            flow_dir_taudem = FlowModelConst.n
+            flow_dir = 64
         elif MathClass.floatequal(angle, FlowModelConst.nw):
-            flow_dir = 32  # TauDEM: 4
+            flow_dir_taudem = FlowModelConst.nw
+            flow_dir = 32
         elif MathClass.floatequal(angle, FlowModelConst.w):
-            flow_dir = 16  # TauDEM: 5
+            flow_dir_taudem = FlowModelConst.w
+            flow_dir = 16
         elif MathClass.floatequal(angle, FlowModelConst.sw):
-            flow_dir = 8  # TauDEM: 6
+            flow_dir_taudem = FlowModelConst.sw
+            flow_dir = 8
         elif MathClass.floatequal(angle, FlowModelConst.s):
-            flow_dir = 4  # TauDEM: 7
+            flow_dir_taudem = FlowModelConst.s
+            flow_dir = 4
         elif MathClass.floatequal(angle, FlowModelConst.se):
-            flow_dir = 2  # TauDEM: 8
-        return flow_dir
+            flow_dir_taudem = FlowModelConst.se
+            flow_dir = 2
+        return flow_dir_taudem, flow_dir
 
     @staticmethod
     def compress_dinf(angle, nodata):
@@ -60,13 +69,15 @@ class DinfUtil(object):
             nodata: NoData value
 
         Returns:
-            Compressed flow direction follows ArcGIS D8 codes rule and weight of the first direction
+            1. Updated Dinf values
+            2. Compressed flow direction follows ArcGIS D8 codes rule
+            3. Weight of the first direction
         """
         if MathClass.floatequal(angle, nodata):
-            return DEFAULT_NODATA, DEFAULT_NODATA
-        d = DinfUtil.check_orthogonal(angle)
+            return DEFAULT_NODATA, DEFAULT_NODATA, DEFAULT_NODATA
+        taud, d = DinfUtil.check_orthogonal(angle)
         if d != -1:
-            return d, 1
+            return taud, d, 1
         if angle < FlowModelConst.ne:
             a1 = angle
             d = 129  # 1+128
@@ -91,7 +102,7 @@ class DinfUtil(object):
         else:
             a1 = angle - FlowModelConst.se
             d = 3  # 2+1
-        return d, a1 / PI * 4.0
+        return angle, d, a1 / PI * 4.0
 
     @staticmethod
     def output_compressed_dinf(dinfflowang, compdinffile, weightfile):
@@ -107,13 +118,15 @@ class DinfUtil(object):
         ysize = dinf_r.nRows
         nodata_value = dinf_r.noDataValue
 
-        cal_dir_code = frompyfunc(DinfUtil.compress_dinf, 2, 2)
-        dir_code, weight = cal_dir_code(data, nodata_value)
+        cal_dir_code = frompyfunc(DinfUtil.compress_dinf, 2, 3)
+        updated_angle, dir_code, weight = cal_dir_code(data, nodata_value)
 
+        RasterUtilClass.write_gtiff_file(dinfflowang, ysize, xsize, updated_angle,
+                                         dinf_r.geotrans, dinf_r.srs, DEFAULT_NODATA, GDT_Float32)
         RasterUtilClass.write_gtiff_file(compdinffile, ysize, xsize, dir_code,
                                          dinf_r.geotrans, dinf_r.srs, DEFAULT_NODATA, GDT_Int16)
-        RasterUtilClass.write_gtiff_file(weightfile, ysize, xsize, weight, dinf_r.geotrans,
-                                         dinf_r.srs, DEFAULT_NODATA, GDT_Float32)
+        RasterUtilClass.write_gtiff_file(weightfile, ysize, xsize, weight,
+                                         dinf_r.geotrans, dinf_r.srs, DEFAULT_NODATA, GDT_Float32)
 
     @staticmethod
     def dinf_downslope_direction(a):
@@ -124,7 +137,7 @@ class DinfUtil(object):
         Returns:
             downslope directions
         """
-        d = DinfUtil.check_orthogonal(a)
+        taud, d = DinfUtil.check_orthogonal(a)
         if d != -1:
             down = [d]
             return down
@@ -274,7 +287,8 @@ class StreamnetUtil(object):
 def main():
     """Test code"""
     import os
-    wp = r'C:\z_code\subrepos\PyGeoC\tests\data\tmp_results\wtsd_delineation'
+    #wp = r'C:\z_code\subrepos\PyGeoC\tests\data\tmp_results\wtsd_delineation'
+    wp = r'C:\z_data_m\SEIMS2018\zhongtianshe_100m\taudem_delineated'
     dinfflowang = wp + os.sep + 'flowDirDinfTau.tif'
     compdinffile = wp + os.sep + 'dirCodeDinfTau.tif'
     weightfile = wp + os.sep + 'weightDinfTau.tif'
