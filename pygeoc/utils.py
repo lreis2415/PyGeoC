@@ -166,7 +166,14 @@ class MathClass(object):
 
     @staticmethod
     def rsquare(obsvalues, simvalues):
-        """Calculate R-square.
+        """Calculate Coefficient of determination.
+
+        Same as the square of the Pearson correlation coefficient (r),
+        and, the same as the built-in Excel function RSQ().
+        Programmed according to equation (1) in
+        
+        Legates, D.R. and G.J. McCabe, 1999.  Evaluating the use of "goodness of fit" measures
+        in hydrologic and hydroclimatic model variation.  Water Resources Research 35:233-241.
 
         Args:
             obsvalues: observe values array
@@ -231,7 +238,7 @@ class MathClass(object):
 
     @staticmethod
     def pbias(obsvalues, simvalues):
-        """Calculate PBIAS.
+        """Calculate PBIAS, or percent model bias.
 
         Args:
             obsvalues: observe values array
@@ -255,7 +262,12 @@ class MathClass(object):
 
     @staticmethod
     def rsr(obsvalues, simvalues):
-        """Calculate RSR.
+        """Calculate RSR (RMSE-to-SD Ratio).
+
+        Programmed according to equation (3) in
+        Moriasi et al. 2007.  Model evalutaion guidelines for systematic quantification of accuracy 
+          in watershed simulations.  Transactions of the ASABE 50(3): 885-900.
+
         Args:
             obsvalues: observe values array
             simvalues: simulate values array
