@@ -15,8 +15,10 @@
    .. _QSWAT:
       http://swat.tamu.edu/software/qswat/
 """
+from future.utils import iteritems
 
 import os
+from io import open
 
 from pygeoc.postTauDEM import DinfUtil
 from pygeoc.raster import RasterUtilClass
@@ -227,7 +229,7 @@ class TauDEM(object):
             TauDEM.error('Input files parameter is required!')
         if not isinstance(in_files, dict):
             TauDEM.error('The input files parameter must be a dict!')
-        for (pid, infile) in list(in_files.items()):
+        for (pid, infile) in iteritems(in_files):
             if infile is None:
                 continue
             if isinstance(infile, list) or isinstance(infile, tuple):
@@ -281,7 +283,7 @@ class TauDEM(object):
         if out_files is not None:
             if not isinstance(out_files, dict):
                 TauDEM.error('The output files parameter must be a dict!')
-            for (pid, out_file) in list(out_files.items()):
+            for (pid, out_file) in iteritems(out_files):
                 if out_file is None:
                     continue
                 if isinstance(out_file, list) or isinstance(out_file, tuple):
@@ -321,7 +323,7 @@ class TauDEM(object):
         # append TauDEM function name, which can be full path or just one name
         commands.append(function_name)
         # append input files
-        for (pid, infile) in list(in_files.items()):
+        for (pid, infile) in iteritems(in_files):
             if infile is None:
                 continue
             if pid[0] != '-':
@@ -335,7 +337,7 @@ class TauDEM(object):
         if in_params is not None:
             if not isinstance(in_params, dict):
                 TauDEM.error('The input parameters must be a dict!')
-            for (pid, v) in list(in_params.items()):
+            for (pid, v) in iteritems(in_params):
                 if pid[0] != '-':
                     pid = '-' + pid
                 commands.append(pid)
@@ -347,7 +349,7 @@ class TauDEM(object):
                         commands.append(v)
         # append output parameters
         if out_files is not None:
-            for (pid, outfile) in list(out_files.items()):
+            for (pid, outfile) in iteritems(out_files):
                 if outfile is None:
                     continue
                 if pid[0] != '-':
@@ -736,11 +738,10 @@ class TauDEMWorkflow(object):
                                 log_file=logfile, runtime_file=runtime_file, hostfile=hostfile)
             if not FileClass.is_file_exists(drp_file):
                 raise RuntimeError("Dropanalysis failed and drp.txt was not created!")
-            drpf = open(drp_file, "r")
-            temp_contents = drpf.read()
-            (beg, thresh) = temp_contents.rsplit(' ', 1)
+            with open(drp_file, 'r', encoding='utf-8') as drpf:
+                temp_contents = drpf.read()
+                (beg, thresh) = temp_contents.rsplit(' ', 1)
             print(thresh)
-            drpf.close()
         UtilClass.writelog(logfile, "[Output] %d..., %s" % (80, "Generating stream raster..."), 'a')
         TauDEM.threshold(np, acc_with_weight, stream_raster, float(thresh),
                          workingdir, mpi_bin, bin_dir, log_file=logfile,

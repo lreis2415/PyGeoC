@@ -11,6 +11,10 @@
               17-11-21 yw - add raster_binarization, raster_erosion,
                             raster_dilation, openning, closing functions. \n
 """
+from __future__ import absolute_import
+
+from future.utils import iteritems
+from builtins import range
 
 import os
 import subprocess
@@ -25,7 +29,7 @@ from osgeo.ogr import Open as ogr_Open
 from osgeo.osr import SpatialReference as osr_SpatialReference
 
 from pygeoc.utils import MathClass, UtilClass, DEFAULT_NODATA, DELTA
-from pygeoc.utils import text_type
+from pygeoc.utils import is_string
 
 GDALDataType = {0: GDT_Unknown,  # Unknown or unspecified type
                 1: GDT_Byte,  # Eight bit unsigned integer
@@ -353,7 +357,7 @@ class RasterUtilClass(object):
                 v_dict[src_r.noDataValue] = new_no_data
                 no_data = new_no_data
 
-        for k, v in v_dict.items():
+        for (k, v) in iteritems(v_dict):
             dst_data[src_data == k] = v
         RasterUtilClass.write_gtiff_file(dstfile, src_r.nRows, src_r.nCols, dst_data,
                                          src_r.geotrans, src_r.srs, no_data, gdaltype)
@@ -518,11 +522,11 @@ class RasterUtilClass(object):
             out_raster: list or one raster
 
         """
-        if isinstance(in_raster, text_type) and isinstance(out_raster, text_type):
+        if is_string(in_raster) and is_string(out_raster):
             in_raster = [str(in_raster)]
             out_raster = [str(out_raster)]
         if len(in_raster) != len(out_raster):
-            raise RuntimeError('input rasters and output raster must have the same size.')
+            raise RuntimeError('input raster and output raster must have the same size.')
 
         maskr = RasterUtilClass.read_raster(mask)
         rows = maskr.nRows
@@ -583,7 +587,7 @@ class RasterUtilClass(object):
         Returns:
             erosion_raster: raster image after erosion, type is numpy.ndarray.
         """
-        if isinstance(rasterfile, text_type):
+        if is_string(rasterfile):
             origin_raster = RasterUtilClass.read_raster(str(rasterfile))
         elif isinstance(rasterfile, Raster):
             origin_raster = rasterfile.data
@@ -631,7 +635,7 @@ class RasterUtilClass(object):
         Returns:
             dilation_raster: raster image after dilation, type is numpy.ndarray.
         """
-        if isinstance(rasterfile, text_type):
+        if is_string(rasterfile):
             origin_raster = RasterUtilClass.read_raster(str(rasterfile))
         elif isinstance(rasterfile, Raster):
             origin_raster = rasterfile.data

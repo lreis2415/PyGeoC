@@ -6,7 +6,7 @@
                              Python for GeoComputation
                             ---------------------------
         author               : Liangjun Zhu
-        copyright            : (C) 2016-2017 by Lreis, IGSNRR, CAS
+        copyright            : (C) 2016-2018 by Lreis, IGSNRR, CAS
         email                : zlj@lreis.ac.cn
  ******************************************************************************
  *                                                                            *
@@ -22,4 +22,4 @@ __author__ = 'Liangjun Zhu'
 __email__ = 'zlj@lreis.ac.cn'
 __version__ = '0.3.0'
 __url__ = 'https://github.com/lreis2415/PyGeoC'
-__all__ = ['hydro', 'TauDEM', 'postTauDEM', 'raster', 'vector', 'utils']
+__all__ = ['utils']

@@ -8,7 +8,8 @@
                16-07-01 lj - reorganized for pygeoc.\n
                17-06-25 lj - check by pylint and reformat by Google style.\n
 """
-from __future__ import division, unicode_literals
+from __future__ import division
+from future.utils import iteritems
 
 import argparse
 import glob
@@ -17,26 +18,15 @@ import platform
 import re
 import socket
 import subprocess
-import sys
 import time
 from datetime import datetime
 from math import sqrt
 from shutil import copy, rmtree
 
 import numpy
-import six
 
-try:
-    from ConfigParser import ConfigParser  # py2
-except ImportError:
-    from configparser import ConfigParser  # py3
+from configparser import ConfigParser
 
-if sys.version_info < (3,):
-    text_type = six.text_type
-    binary_type = str
-else:
-    text_type = str
-    binary_type = bytes
 sysstr = platform.system()
 
 # Global constants
@@ -50,6 +40,48 @@ DELTA = 1e-6
 """Delta value to check two approximately equal floats."""
 DEFAULT_NODATA = -9999.
 """Default NoData value for raster dataset."""
+
+
+# Common used compatible functions on Python 2.7.x and Python 3.3+
+
+
+def is_integer(v):
+    """Test whether a value is an integer (of any kind).
+
+    Examples:
+        >>> is_integer(1)
+        True
+        >>> is_integer(-0.123)
+        False
+        >>> is_integer(3.)
+        False
+        >>> is_integer(9223372036854775808)
+        True
+    """
+    try:
+        from builtins import int
+        return isinstance(v, int)  # Match both int and long on Py2
+    except ImportError:
+        from past.builtins import long
+        return isinstance(v, (int, long))
+
+
+def is_string(in_str):
+    """Test Unicode (text) string literal.
+
+    Examples:
+        >>> is_string('abc')
+        True
+        >>> is_string(u'abc')
+        True
+        >>> is_string(u'北京')
+        True
+
+        # Python 3
+        # >>> is_string(b'avoid considering byte-strings as strings.')
+        # False
+    """
+    return isinstance(in_str, (str, u''.__class__))
 
 
 class MathClass(object):
@@ -91,6 +123,7 @@ class MathClass(object):
 
     @staticmethod
     def nashcoef(obsvalues, simvalues, log=False, expon=2):
+        # type: (list, list, bool, float) -> float
         """Calculate Nash-Sutcliffe coefficient(NSE) proposed by
            Nash and Sutcliffe (1970) and its variants.
            The following description is referred by Krause et al. (2005)
@@ -166,6 +199,7 @@ class MathClass(object):
 
     @staticmethod
     def rsquare(obsvalues, simvalues):
+        # type: (list, list) -> float
         """Calculate Coefficient of determination.
 
         Same as the square of the Pearson correlation coefficient (r),
@@ -210,6 +244,7 @@ class MathClass(object):
 
     @staticmethod
     def rmse(obsvalues, simvalues):
+        # type: (list, list) -> float
         """Calculate RMSE.
 
         Args:
@@ -238,6 +273,7 @@ class MathClass(object):
 
     @staticmethod
     def pbias(obsvalues, simvalues):
+        # type: (list, list) -> float
         """Calculate PBIAS, or percent model bias.
 
         Args:
@@ -262,6 +298,7 @@ class MathClass(object):
 
     @staticmethod
     def rsr(obsvalues, simvalues):
+        # type: (list, list) -> float
         """Calculate RSR (RMSE-to-SD Ratio).
 
         Programmed according to equation (3) in
@@ -309,7 +346,7 @@ class StringClass(object):
             >>> StringClass.convert_unicode2str('normal_str')
             'normal_str'
         """
-        if isinstance(unicode_str, text_type):
+        if is_string(unicode_str):
             return StringClass.convert_unicode2str_num(unicode_str)
         elif isinstance(unicode_str, tuple) or isinstance(unicode_str, list):
             return [StringClass.convert_unicode2str_num(v) for v in unicode_str]
@@ -319,7 +356,7 @@ class StringClass(object):
     @staticmethod
     def convert_unicode2str_num(unicode_str):
         """Convert unicode string to string, integer, or float."""
-        if isinstance(unicode_str, text_type):
+        if is_string(unicode_str):
             unicode_str = str(unicode_str)
         if MathClass.isnumerical(unicode_str):
             unicode_str = float(unicode_str)
@@ -356,7 +393,7 @@ class StringClass(object):
                         temp_s = temp_s.strip()
                         if temp_s == '' and elim_empty:
                             continue
-                        if isinstance(temp_s, text_type):
+                        if is_string(temp_s):
                             temp_s = str(temp_s)
                         dest_strs.append(temp_s)
                 src_strs = dest_strs[:]
@@ -421,7 +458,7 @@ class StringClass(object):
         time_fmts = ['%H:%M', '%H:%M:%S']
         fmts = date_fmts + ['%s %s' % (d, t) for d in date_fmts for t in time_fmts]
         if user_fmt is not None:
-            if isinstance(user_fmt, text_type) or isinstance(user_fmt, str):
+            if is_string(user_fmt):
                 fmts.insert(0, str(user_fmt))
             elif isinstance(user_fmt, list):
                 fmts = user_fmt + fmts
@@ -506,7 +543,7 @@ class FileClass(object):
         """get the full path of a given executable name"""
         if name is None:
             return None
-        if isinstance(name, text_type) or isinstance(name, str):
+        if is_string(name):
             name = str(name)
         else:
             raise RuntimeError('The input function name or path must be string!')
@@ -516,7 +553,7 @@ class FileClass(object):
             if os.path.isfile(fpth):
                 return fpth
         # If dirname is not specified, check the env then.
-        if sysstr == 'Windows':  # not test yet
+        if sysstr == 'Windows':
             findout = UtilClass.run_command('where %s' % name)
         else:
             findout = UtilClass.run_command('which %s' % name)
@@ -533,7 +570,7 @@ class FileClass(object):
         """Return full path if available."""
         if name is None:
             return None
-        if isinstance(name, text_type) or isinstance(name, str):
+        if is_string(name):
             name = str(name)
         else:
             raise RuntimeError('The input function name or path must be string!')
@@ -561,7 +598,7 @@ class FileClass(object):
         if not isinstance(suffixes, list):
             suffixes = [suffixes]
         for i, suf in enumerate(suffixes):
-            if len(suf) >=1 and suf[0] != '.':
+            if len(suf) >= 1 and suf[0] != '.':
                 suffixes[i] = '.' + suf
         for f in list_files:
             name, ext = os.path.splitext(f)
@@ -692,7 +729,7 @@ class UtilClass(object):
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             # not sure if node outputs on stderr or stdout so capture both
         else:  # for Linux/Unix OS, commands is better to be a list.
-            if isinstance(commands, text_type) or isinstance(commands, str):
+            if is_string(commands):
                 use_shell = True
                 # https://docs.python.org/2/library/subprocess.html
                 #     Using shell=True can be a security hazard.
@@ -704,7 +741,7 @@ class UtilClass(object):
                 for idx, v in enumerate(commands):
                     if isinstance(v, int) or isinstance(v, float):
                         # Fix :TypeError: execv() arg 2 must contain only strings
-                        commands[idx] = str(v)
+                        commands[idx] = repr(v)
         print(commands)
         process = subprocess.Popen(commands, shell=use_shell, stdout=subprocess.PIPE,
                                    stdin=open(os.devnull),
@@ -802,28 +839,22 @@ class UtilClass(object):
             decoded dict: {'name': 'zhulj', 'age': 26, 1: [1, 2, 3]}
         """
         unicode_dict = {StringClass.convert_unicode2str(k): StringClass.convert_unicode2str(v) for
-                        k, v in list(unicode_dict.items())}
-        for k, v in list(unicode_dict.items()):
+                        k, v in iteritems(unicode_dict)}
+        for k, v in iteritems(unicode_dict):
             if isinstance(v, dict):
                 unicode_dict[k] = UtilClass.decode_strs_in_dict(v)
         return unicode_dict
 
 
-class C(object):
-    """Empty"""
-    pass
-
-
 def get_config_file():
     """Get model configuration file name from argv"""
-    c = C()
     parser = argparse.ArgumentParser(description="Read configuration file.")
     parser.add_argument('-ini', help="Full path of configuration file")
-    args = parser.parse_args(namespace=c)
+    args = parser.parse_args()
     ini_file = args.ini
     if not FileClass.is_file_exists(ini_file):
         print("Usage: -ini <full path to the configuration file.>")
-        exit(0)
+        exit(-1)
     return ini_file
 
 
