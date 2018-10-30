@@ -7,7 +7,6 @@
               16-07-01 lj - reorganized for pygeoc
               17-06-25 lj - check by pylint and reformat by Google style
 """
-
 import os
 import sys
 
@@ -47,9 +46,9 @@ class VectorUtilClass(object):
             # for example, try GetRasterBand(10)
             print('Band ( %i ) not found, %s' % (band_num, e))
             sys.exit(1)
-        if mask is 'default':
+        if mask == 'default':
             maskband = srcband.GetMaskBand()
-        elif mask is 'none':
+        elif mask is None or mask.upper() == 'NONE':
             maskband = None
         else:
             mask_ds = gdal.Open(mask)
@@ -57,16 +56,16 @@ class VectorUtilClass(object):
         #  create output datasource
         if layername is None:
             layername = FileClass.get_core_name_without_suffix(rasterfile)
-        drv = ogr_GetDriverByName("ESRI Shapefile")
+        drv = ogr_GetDriverByName(str('ESRI Shapefile'))
         dst_ds = drv.CreateDataSource(vectorshp)
         srs = None
         if src_ds.GetProjection() != '':
             srs = osr_SpatialReference()
             srs.ImportFromWkt(src_ds.GetProjection())
-        dst_layer = dst_ds.CreateLayer(layername, srs=srs)
+        dst_layer = dst_ds.CreateLayer(str(layername), srs=srs)
         if fieldname is None:
             fieldname = 'DN'
-        fd = ogr_FieldDefn(fieldname, OFTInteger)
+        fd = ogr_FieldDefn(str(fieldname), OFTInteger)
         dst_layer.CreateField(fd)
         dst_field = 0
         result = gdal.Polygonize(srcband, maskband, dst_layer, dst_field, [], callback=None)
@@ -80,7 +79,7 @@ class VectorUtilClass(object):
         if sysstr == 'Windows':
             exepath = '"%s/Lib/site-packages/osgeo/ogr2ogr"' % sys.exec_prefix
         else:
-            exepath = FileClass.get_executable_fullpath("ogr2ogr")
+            exepath = FileClass.get_executable_fullpath('ogr2ogr')
         # os.system(s)
         s = '%s -f GeoJSON -s_srs "%s" -t_srs %s %s %s' % (
             exepath, src_srs, dst_srs, jsonfile, src_file)
@@ -89,18 +88,18 @@ class VectorUtilClass(object):
     @staticmethod
     def write_line_shp(line_list, out_shp):
         """Export ESRI Shapefile -- Line feature"""
-        print("Write line shapefile: %s" % out_shp)
-        driver = ogr_GetDriverByName("ESRI Shapefile")
+        print('Write line shapefile: %s' % out_shp)
+        driver = ogr_GetDriverByName(str('ESRI Shapefile'))
         if driver is None:
-            print("ESRI Shapefile driver not available.")
+            print('ESRI Shapefile driver not available.')
             sys.exit(1)
         if os.path.exists(out_shp):
             driver.DeleteDataSource(out_shp)
         ds = driver.CreateDataSource(out_shp.rpartition(os.sep)[0])
         if ds is None:
-            print("ERROR Output: Creation of output file failed.")
+            print('ERROR Output: Creation of output file failed.')
             sys.exit(1)
-        lyr = ds.CreateLayer(out_shp.rpartition(os.sep)[2].split('.')[0], None, wkbLineString)
+        lyr = ds.CreateLayer(str(out_shp.rpartition(os.sep)[2].split('.')[0]), None, wkbLineString)
         for l in line_list:
             line = ogr_Geometry(wkbLineString)
             for i in l:

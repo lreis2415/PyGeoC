@@ -8,7 +8,7 @@
                16-07-01 lj - reorganized for pygeoc.\n
                17-06-25 lj - check by pylint and reformat by Google style.\n
 """
-from __future__ import division
+from __future__ import division, unicode_literals
 from future.utils import iteritems
 
 import argparse
