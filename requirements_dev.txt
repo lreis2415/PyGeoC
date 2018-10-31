@@ -10,7 +10,7 @@ pytest-cov>=2.2.0
 sphinx
 sphinx-rtd-theme
 recommonmark
-
+typing
 # For py2 and py3 compatible
 future
 builtins

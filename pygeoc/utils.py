@@ -12,6 +12,7 @@ from __future__ import division, unicode_literals
 from future.utils import iteritems
 
 import argparse
+from configparser import ConfigParser
 import glob
 import os
 import platform
@@ -24,8 +25,7 @@ from math import sqrt
 from shutil import copy, rmtree
 
 import numpy
-
-from configparser import ConfigParser
+from typing import Optional, List, Union, Tuple, Dict
 
 sysstr = platform.system()
 
@@ -46,6 +46,7 @@ DEFAULT_NODATA = -9999.
 
 
 def is_integer(v):
+    # type: (...) -> bool
     """Test whether a value is an integer (of any kind).
 
     Examples:
@@ -57,6 +58,12 @@ def is_integer(v):
         False
         >>> is_integer(9223372036854775808)
         True
+        >>> is_integer('1')
+        False
+        >>> is_integer(None)
+        False
+        >>> is_integer(numpy.int(3))
+        True
     """
     try:
         from builtins import int
@@ -67,6 +74,7 @@ def is_integer(v):
 
 
 def is_string(in_str):
+    # type: (...) -> bool
     """Test Unicode (text) string literal.
 
     Examples:
@@ -76,6 +84,12 @@ def is_string(in_str):
         True
         >>> is_string(u'北京')
         True
+        >>> is_string(123)
+        False
+        >>> is_string(None)
+        False
+        >>> is_string(['a', 'b'])
+        False
 
         # Python 3
         # >>> is_string(b'avoid considering byte-strings as strings.')
@@ -92,6 +106,7 @@ class MathClass(object):
 
     @staticmethod
     def isnumerical(x):
+        # type: (...) -> bool
         """Check the input x is numerical or not.
 
         Examples:
@@ -103,6 +118,10 @@ class MathClass(object):
             False
             >>> MathClass.isnumerical('a1.2')
             False
+            >>> MathClass.isnumerical(['1.2'])
+            False
+            >>> MathClass.isnumerical(numpy.float64(1.2))
+            True
 
         """
         try:
@@ -118,12 +137,28 @@ class MathClass(object):
 
     @staticmethod
     def floatequal(a, b):
-        """If float a is equal to float b."""
+        # type: (Union[int, float, numpy.ScalarType], Union[int, float, numpy.ScalarType]) -> bool
+        """If float a is equal to float b.
+
+        Examples:
+            >>> MathClass.floatequal(1, 1.000001)  # result likes -9.999999999177334e-07
+            True
+            >>> MathClass.floatequal(1, 1.0000001)
+            True
+            >>> MathClass.floatequal(2, 2.)
+            True
+            >>> MathClass.floatequal(1, 1.00001)
+            False
+        """
         return abs(a - b) < DELTA
 
     @staticmethod
-    def nashcoef(obsvalues, simvalues, log=False, expon=2):
-        # type: (list, list, bool, float) -> float
+    def nashcoef(obsvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
+                 simvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
+                 log=False,  # type: bool
+                 expon=2  # type: Union[float, int, numpy.ScalarType]
+                 ):
+        # type: (...) -> float
         """Calculate Nash-Sutcliffe coefficient(NSE) proposed by
            Nash and Sutcliffe (1970) and its variants.
            The following description is referred by Krause et al. (2005)
@@ -198,8 +233,10 @@ class MathClass(object):
         return 1. - a1 / a2
 
     @staticmethod
-    def rsquare(obsvalues, simvalues):
-        # type: (list, list) -> float
+    def rsquare(obsvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
+                simvalues  # type: Union[numpy.ndarray, List[Union[float, int]]]
+                ):
+        # type: (...) -> Union[float, numpy.ScalarType]
         """Calculate Coefficient of determination.
 
         Same as the square of the Pearson correlation coefficient (r),
@@ -238,13 +275,15 @@ class MathClass(object):
         obs_pred_minus_avgs = numpy.sum((obsvalues - obs_avg) * (simvalues - pred_avg))
         # Calculate R-square
         yy = obs_minus_avg_sq ** 0.5 * pred_minus_avg_sq ** 0.5
-        if yy == 0.:
+        if MathClass.floatequal(yy, 0.):
             return 1.
         return (obs_pred_minus_avgs / yy) ** 2.
 
     @staticmethod
-    def rmse(obsvalues, simvalues):
-        # type: (list, list) -> float
+    def rmse(obsvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
+             simvalues  # type: Union[numpy.ndarray, List[Union[float, int]]]
+             ):
+        # type: (...) -> Union[float, numpy.ScalarType]
         """Calculate RMSE.
 
         Args:
@@ -272,8 +311,10 @@ class MathClass(object):
         return numpy.sqrt(numpy.mean((obsvalues - simvalues) ** 2.))
 
     @staticmethod
-    def pbias(obsvalues, simvalues):
-        # type: (list, list) -> float
+    def pbias(obsvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
+              simvalues  # type: Union[numpy.ndarray, List[Union[float, int]]]
+              ):
+        # type: (...) -> Union[float, numpy.ScalarType]
         """Calculate PBIAS, or percent model bias.
 
         Args:
@@ -297,8 +338,10 @@ class MathClass(object):
         return sum(map(lambda x, y: (x - y) * 100, obsvalues, simvalues)) / sum(obsvalues)
 
     @staticmethod
-    def rsr(obsvalues, simvalues):
-        # type: (list, list) -> float
+    def rsr(obsvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
+            simvalues  # type: Union[numpy.ndarray, List[Union[float, int]]]
+            ):
+        # type: (...) -> Union[float, numpy.ScalarType]
         """Calculate RSR (RMSE-to-SD Ratio).
 
         Programmed according to equation (3) in
@@ -337,40 +380,48 @@ class StringClass(object):
         pass
 
     @staticmethod
-    def convert_unicode2str(unicode_str):
-        """convert the input string or string list which is unicode to string.
+    def convert_str2num(unicode_str  # type: Union[str, int, float, List[Union[str, float, int]], Tuple[Union[str, float, int]]]
+                        ):
+        # type: (...) -> Union[str, int, float, List[Union[str, float, int]], Tuple[Union[str, float, int]]]
+        """Convert string to string, integer, or float. Support tuple or list.
 
         Examples:
-            >>> StringClass.convert_unicode2str(u'unicode_str')
-            'unicode_str'
-            >>> StringClass.convert_unicode2str('normal_str')
-            'normal_str'
+            >>> StringClass.convert_str2num('1.23')
+            1.23
+            >>> StringClass.convert_str2num(u'1.23')
+            1.23
+            >>> StringClass.convert_str2num(u'21.')
+            21
+            >>> StringClass.convert_str2num('abc123')
+            'abc123'
+            >>> StringClass.convert_str2num((123, u'2.3', 3., 'abc', u'edf'))
+            (123, 2.3, 3, 'abc', 'edf')
+            >>> StringClass.convert_str2num([123, u'2.3', 3., 'abc', u'edf'])
+            [123, 2.3, 3, 'abc', 'edf']
         """
-        if is_string(unicode_str):
-            return StringClass.convert_unicode2str_num(unicode_str)
-        elif isinstance(unicode_str, tuple) or isinstance(unicode_str, list):
-            return [StringClass.convert_unicode2str_num(v) for v in unicode_str]
-        else:  # if not supported, return what it is
-            return unicode_str
-
-    @staticmethod
-    def convert_unicode2str_num(unicode_str):
-        """Convert unicode string to string, integer, or float."""
-        if is_string(unicode_str):
-            unicode_str = str(unicode_str)
         if MathClass.isnumerical(unicode_str):
             unicode_str = float(unicode_str)
             if unicode_str % 1. == 0.:
                 unicode_str = int(unicode_str)
-        return unicode_str
+            return unicode_str
+        elif is_string(unicode_str):
+            return str(unicode_str)
+        elif isinstance(unicode_str, tuple):
+            return tuple(StringClass.convert_str2num(v) for v in unicode_str)
+        elif isinstance(unicode_str, list):
+            return list(StringClass.convert_str2num(v) for v in unicode_str)
+        else:
+            return unicode_str
 
     @staticmethod
     def string_match(str1, str2):
+        # type: (str, str) -> bool
         """Compare two string regardless capital or not"""
         return str1.lower() == str2.lower()
 
     @staticmethod
     def split_string(str_src, spliters=None, elim_empty=False):
+        # type: (str, Optional[List[str]], bool) -> List[str]
         """Split string by split character space(' ') and indent('\t') as default
         Args:
             str_src: source string
@@ -405,11 +456,13 @@ class StringClass(object):
 
     @staticmethod
     def is_substring(substr, str_src):
+        # type: (str, str) -> bool
         """Is substr part of str_src, case insensitive."""
         return substr.lower() in str_src.lower()
 
     @staticmethod
     def string_in_list(tmp_str, strlist):
+        # type: (str, List[str]) -> bool
         """Is tmp_str in strlist, case insensitive."""
         new_str_list = strlist[:]
         for i, str_in_list in enumerate(new_str_list):
@@ -418,6 +471,7 @@ class StringClass(object):
 
     @staticmethod
     def is_valid_ip_addr(address):
+        # type: (str) -> bool
         """Check the validation of IP address"""
         try:
             socket.inet_aton(address)
@@ -427,14 +481,22 @@ class StringClass(object):
 
     @staticmethod
     def extract_numeric_values_from_string(str_contains_values):
+        # type: (str) -> Optional[List[Union[int, float]]]
         """
         Find numeric values from string, e.g., 1, .7, 1.2, 4e2, 3e-3, -9, etc.
         reference: https://stackoverflow.com/questions/4703390/
                            how-to-extract-a-floating-number-from-a-string-in-python/4703508#4703508
         Examples:
-            ".1 .12 9.1 98.1 1. 12. 1 12" ==> [0.1, 0.12, 9.1, 98.1, 1.0, 12.0, 1.0, 12.0]
-            "-1 +1 2e9 +2E+09 -2e-9" ==> [-1.0, 1.0, 2000000000.0, 2000000000.0, -2e-09]
-            "current level: -2.03e+99db" ==> [-2.03e+99]
+            >>> input_str = '.1 .12 9.1 98.1 1. 12. 1 12'
+            >>> StringClass.extract_numeric_values_from_string(input_str)
+            [0.1, 0.12, 9.1, 98.1, 1, 12, 1, 12]
+            >>> input_str = '-1 +1 2e9 +2E+09 -2e-9'
+            >>> StringClass.extract_numeric_values_from_string(input_str)
+            [-1, 1, 2000000000, 2000000000, -2e-09]
+            >>> input_str = 'current level: -2.03e+2db'
+            >>> StringClass.extract_numeric_values_from_string(input_str)
+            [-203]
+
         Args:
             str_contains_values: string which may contains numeric values
 
@@ -447,11 +509,31 @@ class StringClass(object):
         if len(value_strs) == 0:
             return None
         else:
-            return [float(v) for v in value_strs]
+            return [int(float(v)) if float(v) % 1. == 0 else float(v) for v in value_strs]
 
     @staticmethod
     def get_datetime(formatted_str, user_fmt=None):
-        """get datetime() object from string formatted %Y-%m-%d %H:%M:%S"""
+        # type: (str, Optional[str]) -> datetime
+        """get datetime() object from string formatted %Y-%m-%d %H:%M:%S
+
+        Examples:
+            >>> StringClass.get_datetime('2008-11-9')
+            datetime.datetime(2008, 11, 9, 0, 0)
+            >>> StringClass.get_datetime('2008/11/9')
+            datetime.datetime(2008, 11, 9, 0, 0)
+            >>> StringClass.get_datetime('20081109')
+            datetime.datetime(2008, 11, 9, 0, 0)
+            >>> StringClass.get_datetime('11/9/2008')
+            datetime.datetime(2008, 11, 9, 0, 0)
+            >>> StringClass.get_datetime('11-9-2008')
+            datetime.datetime(2008, 11, 9, 0, 0)
+            >>> StringClass.get_datetime('11/09/08')
+            datetime.datetime(2008, 11, 9, 0, 0)
+            >>> StringClass.get_datetime('2008-11-9 11:09')
+            datetime.datetime(2008, 11, 9, 11, 9)
+            >>> StringClass.get_datetime('2008-11-9 11:09:52')
+            datetime.datetime(2008, 11, 9, 11, 9, 52)
+        """
         date_fmts = ['%m-%d-%Y', '%Y-%m-%d', '%m-%d-%y', '%y-%m-%d']
         date_fmts += [d.replace('-', '/') for d in date_fmts]
         date_fmts += [d.replace('-', '') for d in date_fmts]
@@ -489,6 +571,7 @@ class FileClass(object):
 
     @staticmethod
     def is_file_exists(filename):
+        # type: (str) -> bool
         """Check the existence of file path."""
         if filename is None or not os.path.exists(filename) or not os.path.isfile(filename):
             return False
@@ -497,6 +580,7 @@ class FileClass(object):
 
     @staticmethod
     def is_dir_exists(dirpath):
+        # type: (str) -> bool
         """Check the existence of folder path."""
         if dirpath is None or not os.path.exists(dirpath) or not os.path.isdir(dirpath):
             return False
@@ -505,12 +589,14 @@ class FileClass(object):
 
     @staticmethod
     def check_file_exists(filename):
+        # type: (str) -> None
         """Throw exception if the file not existed"""
         if not FileClass.is_file_exists(filename):
             UtilClass.error("Input files path %s is None or not existed!\n" % filename)
 
     @staticmethod
     def copy_files(filename, dstfilename):
+        # type: (str, str) -> None
         """Copy files with the same name and different suffixes, such as ESRI Shapefile."""
         FileClass.remove_files(dstfilename)
         dst_prefix = os.path.splitext(dstfilename)[0]
@@ -522,6 +608,7 @@ class FileClass(object):
 
     @staticmethod
     def remove_files(filename):
+        # type: (str) -> None
         """
         Delete all files with same root as fileName,
         i.e. regardless of suffix, such as ESRI shapefile
@@ -532,6 +619,7 @@ class FileClass(object):
 
     @staticmethod
     def is_up_to_date(outfile, basedatetime):
+        # type: (str, datetime) -> bool
         """Return true if outfile exists and is no older than base datetime."""
         if os.path.exists(outfile):
             if os.path.getmtime(outfile) >= basedatetime:
@@ -540,6 +628,7 @@ class FileClass(object):
 
     @staticmethod
     def get_executable_fullpath(name, dirname=None):
+        # type: (str, Optional[str]) -> Optional[str]
         """get the full path of a given executable name"""
         if name is None:
             return None
@@ -567,6 +656,7 @@ class FileClass(object):
 
     @staticmethod
     def get_file_fullpath(name, dirname=None):
+        # type: (str, Optional[str]) -> Optional[str]
         """Return full path if available."""
         if name is None:
             return None
@@ -585,6 +675,7 @@ class FileClass(object):
 
     @staticmethod
     def get_filename_by_suffixes(dir_src, suffixes):
+        # type: (str, Union[str, List[str]]) -> Optional[List[str]]
         """get file names with the given suffixes in the given directory
         Args:
             dir_src: directory path
@@ -595,8 +686,10 @@ class FileClass(object):
         """
         list_files = os.listdir(dir_src)
         re_files = list()
-        if not isinstance(suffixes, list):
+        if is_string(suffixes):
             suffixes = [suffixes]
+        if not isinstance(suffixes, list):
+            return None
         for i, suf in enumerate(suffixes):
             if len(suf) >= 1 and suf[0] != '.':
                 suffixes[i] = '.' + suf
@@ -608,6 +701,7 @@ class FileClass(object):
 
     @staticmethod
     def get_full_filename_by_suffixes(dir_src, suffixes):
+        # type: (str, Union[str, List[str]]) -> Optional[List[str]]
         """get full file names with the given suffixes in the given directory
         Args:
             dir_src: directory path
@@ -616,19 +710,24 @@ class FileClass(object):
         Returns:
             full file names with the given suffixes as list
         """
-        full_paths = list()
-        for name in FileClass.get_filename_by_suffixes(dir_src, suffixes):
-            full_paths.append(dir_src + os.sep + name)
-        return full_paths
+        file_names = FileClass.get_filename_by_suffixes(dir_src, suffixes)
+        if file_names is None:
+            return None
+        return list(dir_src + os.sep + name for name in file_names)
 
     @staticmethod
     def get_core_name_without_suffix(file_path):
+        # type: (str) -> str
         """Return core file name without suffix.
 
         Examples:
             >>> FileClass.get_core_name_without_suffix(r'/home/zhulj/1990.01.30/test.01.tif')
             'test.01'
             >>> FileClass.get_core_name_without_suffix(r'C:\zhulj\igsnrr\lreis.txt')
+            'lreis'
+            >>> FileClass.get_core_name_without_suffix(r'C:\\zhulj\\igsnrr\\lreis.txt')
+            'lreis'
+            >>> FileClass.get_core_name_without_suffix(r'C:/zhulj/igsnrr/lreis.txt')
             'lreis'
             >>> FileClass.get_core_name_without_suffix(r'/home/zhulj/dta/taudem/aread8')
             'aread8'
@@ -650,15 +749,31 @@ class FileClass(object):
 
     @staticmethod
     def add_postfix(file_path, postfix):
+        # type: (str, str) -> str
         """Add postfix for a full file path.
 
         Examples:
-            input: '/home/zhulj/dem.tif', 'filled'
-            output: '/home/zhulj/dem_filled.tif'
+            >>> FileClass.add_postfix('/home/zhulj/dem.tif', 'filled')
+            '/home/zhulj/dem_filled.tif'
+            >>> FileClass.add_postfix('dem.tif', 'filled')
+            'dem_filled.tif'
+            >>> FileClass.add_postfix('dem', 'filled')
+            'dem_filled'
         """
+        cur_sep = ''
+        for sep in ['\\', '/', os.sep]:
+            if sep in file_path:
+                cur_sep = sep
+                break
         corename = FileClass.get_core_name_without_suffix(file_path)
-        suffix = os.path.basename(file_path).split('.')[-1]
-        return os.path.dirname(file_path) + os.sep + corename + '_' + postfix + '.' + suffix
+        tmpspliter = os.path.basename(file_path).split('.')
+        suffix = ''
+        if len(tmpspliter) > 1:
+            suffix = tmpspliter[-1]
+        newname = os.path.dirname(file_path) + cur_sep + corename + '_' + postfix
+        if suffix != '':
+            newname += '.' + suffix
+        return str(newname)
 
 
 class DateClass(object):
@@ -670,11 +785,24 @@ class DateClass(object):
 
     @staticmethod
     def is_leapyear(year):
-        """Is leap year?"""
+        # type: (int) -> bool
+        """Is leap year?
+
+        Examples:
+            >>> DateClass.is_leapyear(2000)
+            True
+            >>> DateClass.is_leapyear(2010)
+            False
+            >>> DateClass.is_leapyear(2004)
+            True
+            >>> DateClass.is_leapyear(2018)
+            False
+        """
         return (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)
 
     @staticmethod
     def day_of_month(year, month):
+        # type: (int, int) -> int
         """Day number of month"""
         if month in [1, 3, 5, 7, 8, 10, 12]:
             return 31
@@ -687,6 +815,7 @@ class DateClass(object):
 
     @staticmethod
     def day_of_year(dt):
+        # type: (int) -> int
         """Day index of year from 1 to 365 or 366"""
         sec = time.mktime(dt.timetuple())
         t = time.localtime(sec)
@@ -702,6 +831,7 @@ class UtilClass(object):
 
     @staticmethod
     def run_command(commands):
+        # type: (Union[str, List[str]]) -> List[str]
         """Execute external command, and return the output lines list
         17-07-04 lj - Handling subprocess crash in Windows, refers to
             https://stackoverflow.com/questions/5069224/handling-subprocess-crash-in-windows
@@ -711,7 +841,7 @@ class UtilClass(object):
         Returns:
             output lines
         """
-        commands = StringClass.convert_unicode2str(commands)
+        # commands = StringClass.convert_unicode2str(commands)
         # print(commands)
 
         use_shell = False
@@ -777,12 +907,14 @@ class UtilClass(object):
 
     @staticmethod
     def mkdir(dir_path):
+        # type: (str) -> None
         """Make directory if not existed"""
         if not os.path.isdir(dir_path) or not os.path.exists(dir_path):
             os.makedirs(dir_path)
 
     @staticmethod
     def rmmkdir(dir_path):
+        # type: (str) -> None
         """If directory existed, then remove and make; else make it."""
         if not os.path.isdir(dir_path) or not os.path.exists(dir_path):
             os.makedirs(dir_path)
@@ -792,12 +924,10 @@ class UtilClass(object):
 
     @staticmethod
     def print_msg(contentlist):
-        """concatenate message list as single string"""
+        # type: (Union[str, List[str], Tuple[str]]) -> str
+        """concatenate message list as single string with line feed."""
         if isinstance(contentlist, list) or isinstance(contentlist, tuple):
-            contentstr = ''
-            for content in contentlist:
-                contentstr += '%s\n' % content
-            return contentstr
+            return '\n'.join(contentlist)
         else:  # strings
             if len(contentlist) > 1 and contentlist[-1] != '\n':
                 contentlist += '\n'
@@ -810,6 +940,7 @@ class UtilClass(object):
 
     @staticmethod
     def writelog(logfile, contentlist, mode='replace'):
+        # type: (str, Union[str, List[str], Tuple[str]], str) -> None
         """write log"""
         if logfile is None:  # If logfile is not assigned, just print msg.
             print(UtilClass.print_msg(contentlist))
@@ -827,18 +958,23 @@ class UtilClass(object):
             log_status.close()
 
     @staticmethod
-    def decode_strs_in_dict(unicode_dict):
+    def decode_strs_in_dict(unicode_dict  # type: Dict[Union[str, int], Union[int, float, str, List[Union[int, float, str]]]]
+                            ):
+        # type: (...) -> Dict[Union[str, int], Union[int, float, str, List[Union[int, float, str]]]]
         """
-        Decode strings in dictionary which may contains unicode.
-        1. integer could be key, float cannot;\n
-        2. the function is called recursively
-        Args:
-            unicode_dict: {u'name': u'zhulj', u'age': u'26', u'1': [1, 2, 3]}
+        Decode strings in dictionary which may contains unicode strings or numeric values.
+         - 1. integer could be key, float cannot;
+         - 2. the function is called recursively
 
-        Returns:
-            decoded dict: {'name': 'zhulj', 'age': 26, 1: [1, 2, 3]}
+        Examples:
+            input: {u'name': u'zhulj', u'age': u'28', u'1': ['1', 2, 3]}
+            output: {'name': 'zhulj', 'age': 28, 1: [1, 2, 3]}
+
+            input: {u'name': u'zhulj', 'edu': {'nwsuaf': 2007, u'bnu': '2011', 'igsnrr': 2014}}
+            output: {'name': 'zhulj', 'edu': {'nwsuaf': 2007, 'bnu': 2011, 'igsnrr': 2014}}
+
         """
-        unicode_dict = {StringClass.convert_unicode2str(k): StringClass.convert_unicode2str(v) for
+        unicode_dict = {StringClass.convert_str2num(k): StringClass.convert_str2num(v) for
                         k, v in iteritems(unicode_dict)}
         for k, v in iteritems(unicode_dict):
             if isinstance(v, dict):
@@ -847,6 +983,7 @@ class UtilClass(object):
 
 
 def get_config_file():
+    # type: () -> str
     """Get model configuration file name from argv"""
     parser = argparse.ArgumentParser(description="Read configuration file.")
     parser.add_argument('-ini', help="Full path of configuration file")
@@ -859,6 +996,7 @@ def get_config_file():
 
 
 def get_config_parser():
+    # type: () -> ConfigParser
     """Get config parser."""
     cf = ConfigParser()
     ini_file = get_config_file()
