@@ -31,34 +31,36 @@ before_install:
   - pip install tox
   - pip install wheel
   - pip install coveralls>=1.1 --upgrade
-  - . docs/travis_gdal_install.sh
-  - export PATH=$GDALINST/gdal-$GDALVERSION/bin:$PATH
-  - export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION/lib:$LD_LIBRARY_PATH
-  - export GDAL_DATA=$GDALINST/gdal-$GDALVERSION/share/gdal
-  - gdal-config --version
+  # - . docs/travis_gdal_install.sh
+  # - export PATH=$GDALINST/gdal-$GDALVERSION/bin:$PATH
+  # - export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION/lib:$LD_LIBRARY_PATH
+  # - export GDAL_DATA=$GDALINST/gdal-$GDALVERSION/share/gdal
+  # - gdal-config --version
 install:
-  - if [ $(gdal-config --version) == "$GDALVERSION" ]; then echo "Using gdal $GDALVERSION"; else echo "NOT using gdal $GDALVERSION as expected; aborting"; exit 1; fi
+  # - if [ $(gdal-config --version) == "$GDALVERSION" ]; then echo "Using gdal $GDALVERSION"; else echo "NOT using gdal $GDALVERSION as expected; aborting"; exit 1; fi
   - pip install -r requirements_dev.txt
-  - GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config
-  - pip install --upgrade --force-reinstall gdal==$GDALVERSION
+  # - GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config
+  # - pip install --upgrade --force-reinstall gdal==$GDALVERSION
 script:
-  - python setup.py bdist_wheel
-  - cd dist
-  - for i in `find . -name *.whl`; do python -m pip install $i --upgrade; done
-  - cd ..
+  # - python setup.py bdist_wheel
+  # - cd dist
+  # - for i in `find . -name *.whl`; do python -m pip install $i --upgrade; done
+  # - cd ..
   # doctest
-  - python -m pytest --doctest-module pygeoc -v
+  # - python -m pytest --doctest-module pygeoc -v
   # code coverage
-  - python -m pytest --cov pygeoc --cov-report term-missing
-  # update docs
+  # - python -m pytest --cov pygeoc --cov-report term-missing
+  # update docs, only on py3.6 & GDAL 2.2.3 matrix
   - openssl aes-256-cbc -K $encrypted_945a11aa95b5_key -iv $encrypted_945a11aa95b5_iv
     -in docs/travisci_rsa.enc -out docs/travisci_rsa -d
   - chmod 0600 docs/travisci_rsa
   - cp docs/travisci_rsa ~/.ssh/id_rsa
-  - chmod 700 docs/publish-docs
+  - if [ "$GDALVERSION=="2.2.3" ] && [ $TRAVIS_PYTHON_VERSION == '3.6' ]; then echo "Update docs by Doxygen"; fi
+  - if [ "$GDALVERSION=="2.2.3" ] && [ $TRAVIS_PYTHON_VERSION == '3.6' ]; then chmod 700 docs/publish-docs; fi
   - if [ "$GDALVERSION=="2.2.3" ] && [ $TRAVIS_PYTHON_VERSION == '3.6' ]; then ./docs/publish-docs; fi
   # - ./docs/publish-docs
 after_success:
-  - coveralls || echo "!! intermittent coveralls failure"
+  # - if [ "$GDALVERSION=="2.2.3" ] && [ $TRAVIS_PYTHON_VERSION == '3.6' ]; then coveralls || echo "!! intermittent coveralls failure"; fi
+  # - coveralls || echo "!! intermittent coveralls failure"
 notifications:
   email: false
