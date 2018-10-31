@@ -1,2 +1,0 @@
-# PyGeoC
-Python for GeoComputation
