@@ -19,8 +19,7 @@ git add .
 git config user.name "${COMMIT_USER}"
 git config user.email "${COMMIT_EMAIL}"
 
-git commit -m "Clean repo."
-git push origin gh-pages
+git diff-index --quiet HEAD -- || git commit -m "Clean repo." || git push origin gh-pages
 cd -
 
 # Generate the HTML documentation.
@@ -33,6 +32,5 @@ cp .nojekyll ${HTML_PATH}
 # Create and commit the documentation repo.
 cd ${HTML_PATH}
 git add .
-git commit -m "Automated docs for changeset ${CHANGESET}."
-git push origin gh-pages
+git diff-index --quiet HEAD -- || git commit -m "Automated docs for changeset ${CHANGESET}." || git push origin gh-pages
 cd -
