@@ -2,6 +2,10 @@
 numpy >= 1.10
 configparser >= 3.0
 matplotlib >= 1.5
+typing
+# For py2 and py3 compatible
+future
+six
 
 # development specific requirements
 wheel
@@ -10,9 +14,3 @@ pytest-cov>=2.2.0
 sphinx
 sphinx-rtd-theme
 recommonmark
-typing
-# For py2 and py3 compatible
-future
-builtins
-past
-six

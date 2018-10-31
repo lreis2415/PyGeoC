@@ -113,7 +113,10 @@ setup(
             # See requirements.txt and requirements_dev.txt for more details.
             # 'gdal>=1.9.0',
             # 'numpy>=1.9.0',
-            # 'configparser>=3.0'
+            'configparser',
+            'typing',
+            'future',
+            'six'
         ],
 
         # List additional groups of dependencies here (e.g. development

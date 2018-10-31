@@ -5,6 +5,4 @@ matplotlib >= 1.5
 typing
 # For py2 and py3 compatible
 future
-builtins
-past
 six
