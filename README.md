@@ -8,8 +8,6 @@
 ## 依赖
 + Python >= 2.7 (compatible with Python 3)
 + GDAL >=1.9
-
-  详细安装配置请参考[GDAL for Python](docs/python_gdal_install.rst)。
 + Numpy >=1.9
 + [TauDEM 5.3.7+](http://hydrology.usu.edu/taudem/taudem5/)
 

@@ -4,8 +4,10 @@
 
     author: Liangjun Zhu
 
-    changlog: 17-06-25 lj - check by pylint and reformat by Google style.\n
-              18-02-05 lj - compatible with Python3\n
+    changlog:
+
+     - 17-06-25 lj - check by pylint and reformat by Google style.\n
+     - 18-02-05 lj - compatible with Python3\n
 """
 from pygeoc.raster import RasterUtilClass, GDALDataType
 from pygeoc.utils import FileClass, PI, SQ2

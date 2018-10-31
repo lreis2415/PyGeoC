@@ -3,9 +3,12 @@
 """Vector related Classes and Functions
 
     author: Liangjun Zhu
-    changlog: 12-04-12 jz - origin version
-              16-07-01 lj - reorganized for pygeoc
-              17-06-25 lj - check by pylint and reformat by Google style
+
+    changlog:
+
+     - 12-04-12 jz - origin version
+     - 16-07-01 lj - reorganized for pygeoc
+     - 17-06-25 lj - check by pylint and reformat by Google style
 """
 import os
 import sys

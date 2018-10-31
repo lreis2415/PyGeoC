@@ -6,9 +6,11 @@
 
    @author: Liangjun Zhu
 
-   @changlog: 12-04-12 jz - origin version.\n
-              16-07-01 lj - reorganized for pygeoc.\n
-              17-06-25 lj - check by pylint and reformat by Google style.\n
+   @changlog:
+
+    - 12-04-12 jz - origin version.
+    - 16-07-01 lj - reorganized for pygeoc.
+    - 17-06-25 lj - check by pylint and reformat by Google style.
 
    .. _TauDEM:
       https://github.com/dtarb/TauDEM
@@ -182,9 +184,9 @@ class TauDEM(object):
         """
         Run TauDEM function.
 
-           1. The command will not execute if any input file does not exist.
-           2. An error will be detected after running the TauDEM command if
-           any output file does not exist;
+         - 1. The command will not execute if any input file does not exist.
+         - 2. An error will be detected after running the TauDEM command if
+              any output file does not exist;
 
         Args:
             function_name (str): Full path of TauDEM function.

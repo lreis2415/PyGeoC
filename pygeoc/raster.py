@@ -1,15 +1,17 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Raster Utility Class. 用于创建栅格数据对象并进行简单操作，如另存为ASC格式栅格、栅格重分类等。
+"""Raster Utility Class.
+用于创建栅格数据对象并进行简单操作，如另存为ASCII格式栅格、栅格重分类等。
 
     author: Liangjun Zhu
 
-    changlog: 12-04-12 jz - origin version.\n
-              16-07-01 lj - reorganized for pygeoc.\n
-              17-06-25 lj - check by pylint and reformat by Google style.\n
-              17-07-20 lj - add GDALDataType dict, and WhiteBox GAT D8 code.\n
-              17-11-21 yw - add raster_binarization, raster_erosion,
-                            raster_dilation, openning, closing functions. \n
+    changlog:
+
+     - 12-04-12 jz - origin version.
+     - 16-07-01 lj - reorganized for pygeoc.
+     - 17-06-25 lj - check by pylint and reformat by Google style.
+     - 17-07-20 lj - add GDALDataType dict, and WhiteBox GAT D8 code.
+     - 17-11-21 yw - add raster_binarization, raster_erosion, raster_dilation, openning, closing.
 """
 from __future__ import absolute_import
 

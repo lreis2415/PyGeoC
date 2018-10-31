@@ -4,9 +4,12 @@
 
     @author: Liangjun Zhu
 
-    @changlog: 12-04-12 jz - origin version.\n
-               16-07-01 lj - reorganized for pygeoc.\n
-               17-06-25 lj - check by pylint and reformat by Google style.\n
+    @changlog:
+
+     - 12-04-12 jz - origin version.
+     - 16-07-01 lj - reorganized for pygeoc.
+     - 17-06-25 lj - check by pylint and reformat by Google style.
+     - 18-10-31 lj - add type hints according to typing package.
 """
 from __future__ import division, unicode_literals
 from future.utils import iteritems
@@ -159,27 +162,28 @@ class MathClass(object):
                  expon=2  # type: Union[float, int, numpy.ScalarType]
                  ):
         # type: (...) -> float
-        """Calculate Nash-Sutcliffe coefficient(NSE) proposed by
-           Nash and Sutcliffe (1970) and its variants.
-           The following description is referred by Krause et al. (2005)
-             and Moriasi et al. (2007).
-           [1] The range of NSE lies between -inf and 1.0 (prefect fit).
-           [2] Since the differences between observed and simulated values
-               are calculated as squared values (`expon`=2), the larger values
+        """Calculate Nash-Sutcliffe coefficient(NSE) proposed by Nash and Sutcliffe (1970)
+        and its variants.
+
+           The following description is referred by Krause et al. (2005) and Moriasi et al. (2007).
+
+             - The range of NSE lies between -inf and 1.0 (prefect fit).
+             - Since the differences between observed and simulated values
+               are calculated as squared values (expon=2), the larger values
                in a time series are strongly overestimated whereas lower
                values are neglected (Legates and McCabe, 1999). For the
                quantification of runoff prediction, this leads to an overestimation
                of the model performance during peak flows and an underestimation
                during low flow conditions.
-           [3] Similar to R-square, NSE is not very sensitive to systematic
+             - Similar to R-square, NSE is not very sensitive to systematic
                model over- or underestimation especially during low flow periods.
-           [4] To reduce the sensitivity of the original NSE to extreme values,
+             - To reduce the sensitivity of the original NSE to extreme values,
                the NSE is often calculated with logarithmic values of obseravtion
                and simulation values, which known as lnE. As a result, the
                influence of the low flow values is increased in comparison to the
                flood peaks resulting in an increase in sensitivity of lnE to
                systematic model over- or underestimation.
-           [5] A more general form could be used for the same purpose as lnE, i.e.,
+             - A more general form could be used for the same purpose as lnE, i.e.,
                varying the exponent from 1 to N. With the increase of `expon`, the
                sensitivity to high flows will increase and could be used when only
                the high flows are of interest, e.g., for flood prediction.
@@ -346,7 +350,7 @@ class MathClass(object):
 
         Programmed according to equation (3) in
         Moriasi et al. 2007.  Model evalutaion guidelines for systematic quantification of accuracy 
-          in watershed simulations.  Transactions of the ASABE 50(3): 885-900.
+        in watershed simulations. Transactions of the ASABE 50(3): 885-900.
 
         Args:
             obsvalues: observe values array
@@ -421,16 +425,23 @@ class StringClass(object):
 
     @staticmethod
     def split_string(str_src, spliters=None, elim_empty=False):
-        # type: (str, Optional[List[str]], bool) -> List[str]
+        # type: (str, Union[str, List[str], None], bool) -> List[str]
         """Split string by split character space(' ') and indent('\t') as default
+
+        Examples:
+            >>> StringClass.split_string('exec -ini test.ini', ' ')
+            ['exec', '-ini', 'test.ini']
+
         Args:
             str_src: source string
-            spliters: e.g. [' ', '\t'], []
+            spliters: e.g. [' ', '\t'], [], ' ', None
             elim_empty: Eliminate empty (i.e., '') or not.
 
         Returns:
             split sub-strings as list
         """
+        if is_string(spliters):
+            spliters = [spliters]
         if spliters is None or not spliters:
             spliters = [' ', '\t']
         dest_strs = list()
@@ -484,8 +495,8 @@ class StringClass(object):
         # type: (str) -> Optional[List[Union[int, float]]]
         """
         Find numeric values from string, e.g., 1, .7, 1.2, 4e2, 3e-3, -9, etc.
-        reference: https://stackoverflow.com/questions/4703390/
-                           how-to-extract-a-floating-number-from-a-string-in-python/4703508#4703508
+        reference: https://stackoverflow.com/questions/4703390/how-to-extract-a-floating-number-from-a-string-in-python/4703508#4703508
+
         Examples:
             >>> input_str = '.1 .12 9.1 98.1 1. 12. 1 12'
             >>> StringClass.extract_numeric_values_from_string(input_str)
@@ -677,6 +688,7 @@ class FileClass(object):
     def get_filename_by_suffixes(dir_src, suffixes):
         # type: (str, Union[str, List[str]]) -> Optional[List[str]]
         """get file names with the given suffixes in the given directory
+
         Args:
             dir_src: directory path
             suffixes: wanted suffixes list, the suffix in suffixes can with or without '.'
@@ -703,6 +715,7 @@ class FileClass(object):
     def get_full_filename_by_suffixes(dir_src, suffixes):
         # type: (str, Union[str, List[str]]) -> Optional[List[str]]
         """get full file names with the given suffixes in the given directory
+
         Args:
             dir_src: directory path
             suffixes: wanted suffixes
@@ -832,14 +845,17 @@ class UtilClass(object):
     @staticmethod
     def run_command(commands):
         # type: (Union[str, List[str]]) -> List[str]
-        """Execute external command, and return the output lines list
-        17-07-04 lj - Handling subprocess crash in Windows, refers to
-            https://stackoverflow.com/questions/5069224/handling-subprocess-crash-in-windows
+        """Execute external command, and return the output lines list. In windows, refers to
+        `handling-subprocess-crash-in-windows`_.
+
         Args:
             commands: string or list
 
         Returns:
             output lines
+
+        .. _handling-subprocess-crash-in-windows:
+            https://stackoverflow.com/questions/5069224/handling-subprocess-crash-in-windows
         """
         # commands = StringClass.convert_unicode2str(commands)
         # print(commands)
@@ -893,11 +909,17 @@ class UtilClass(object):
 
     @staticmethod
     def current_path(local_function):
-        """Get current path
-        Reference: https://stackoverflow.com/questions/2632199/how-do-i-get-the-path-of-the-current-executed-file-in-python/18489147#18489147
+        """Get current path, refers to `how-do-i-get-the-path-of-the-current-executed-file-in-python`_
+
         Examples:
-            from pygeoc.utils import UtilClass
-            curpath = UtilClass.current_path(lambda: 0)
+
+            .. code-block:: Python
+
+               from pygeoc.utils import UtilClass
+               curpath = UtilClass.current_path(lambda: 0)
+
+        .. _how-do-i-get-the-path-of-the-current-executed-file-in-python:
+            https://stackoverflow.com/questions/2632199/how-do-i-get-the-path-of-the-current-executed-file-in-python/18489147#18489147
         """
         from inspect import getsourcefile
         fpath = getsourcefile(local_function)
@@ -961,17 +983,19 @@ class UtilClass(object):
     def decode_strs_in_dict(unicode_dict  # type: Dict[Union[str, int], Union[int, float, str, List[Union[int, float, str]]]]
                             ):
         # type: (...) -> Dict[Union[str, int], Union[int, float, str, List[Union[int, float, str]]]]
-        """
-        Decode strings in dictionary which may contains unicode strings or numeric values.
-         - 1. integer could be key, float cannot;
-         - 2. the function is called recursively
+        """Decode strings in dictionary which may contains unicode strings or numeric values.
+
+        - 1. integer could be key, float cannot;
+        - 2. the function is called recursively
 
         Examples:
-            input: {u'name': u'zhulj', u'age': u'28', u'1': ['1', 2, 3]}
-            output: {'name': 'zhulj', 'age': 28, 1: [1, 2, 3]}
 
-            input: {u'name': u'zhulj', 'edu': {'nwsuaf': 2007, u'bnu': '2011', 'igsnrr': 2014}}
-            output: {'name': 'zhulj', 'edu': {'nwsuaf': 2007, 'bnu': 2011, 'igsnrr': 2014}}
+            .. code-block:: python
+
+               input = {u'name': u'zhulj', u'age': u'28', u'1': ['1', 2, 3]}
+               output = {'name': 'zhulj', 'age': 28, 1: [1, 2, 3]}
+               input = {u'name': u'zhulj', 'edu': {'nwsuaf': 2007, u'bnu': '2011', 'igsnrr': 2014}}
+               output = {'name': 'zhulj', 'edu': {'nwsuaf': 2007, 'bnu': 2011, 'igsnrr': 2014}}
 
         """
         unicode_dict = {StringClass.convert_str2num(k): StringClass.convert_str2num(v) for
