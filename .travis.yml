@@ -55,12 +55,12 @@ script:
     -in docs/travisci_rsa.enc -out docs/travisci_rsa -d
   - chmod 0600 docs/travisci_rsa
   - cp docs/travisci_rsa ~/.ssh/id_rsa
-  - if [ $GDALVERSION=="2.2.3" ] && [ $TRAVIS_PYTHON_VERSION == '3.6' ]; then echo "Update docs by Doxygen"; fi
-  - if [ $GDALVERSION=="2.2.3" ] && [ $TRAVIS_PYTHON_VERSION == '3.6' ]; then chmod 700 docs/publish-docs; fi
-  - if [ $GDALVERSION=="2.2.3" ] && [ $TRAVIS_PYTHON_VERSION == '3.6' ]; then ./docs/publish-docs; fi
+  - if [ $GDALVERSION == 2.2.3 ] && [ $TRAVIS_PYTHON_VERSION == 3.6 ]; then echo "Update docs by Doxygen"; fi
+  - if [ $GDALVERSION == 2.2.3 ] && [ $TRAVIS_PYTHON_VERSION == 3.6 ]; then chmod 700 docs/publish-docs; fi
+  - if [ $GDALVERSION == 2.2.3 ] && [ $TRAVIS_PYTHON_VERSION == 3.6 ]; then ./docs/publish-docs; fi
   # - ./docs/publish-docs
 after_success:
-  # - if [ $GDALVERSION=="2.2.3" ] && [ $TRAVIS_PYTHON_VERSION == '3.6' ]; then coveralls || echo "!! intermittent coveralls failure"; fi
+  # - if [ $GDALVERSION == 2.2.3 ] && [ $TRAVIS_PYTHON_VERSION == 3.6 ]; then coveralls || echo "!! intermittent coveralls failure"; fi
   # - coveralls || echo "!! intermittent coveralls failure"
 notifications:
   email: false

@@ -14,7 +14,7 @@ git clone -b gh-pages "${REPO_PATH}" --single-branch ${HTML_PATH}
 
 # rm all the files through git to prevent stale files.
 cd ${HTML_PATH}
-git rm -rf .
+git rm -rf . --ignore-unmatch
 git add .
 git config user.name "${COMMIT_USER}"
 git config user.email "${COMMIT_EMAIL}"
