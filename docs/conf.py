@@ -48,7 +48,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'PyGeoC'
-copyright = u'2016-2017, Liangjun Zhu'
+copyright = u'2016-2018, Liangjun Zhu'
 author = u'Liangjun Zhu'
 # Parse the version from the pygeoc module.
 with open('../pygeoc/__init__.py') as f:
