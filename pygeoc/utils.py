@@ -28,7 +28,7 @@ from math import sqrt
 from shutil import copy, rmtree
 
 import numpy
-from typing import Optional, List, Union, Tuple, Dict
+from typing import Optional, List, Union, Tuple, Dict, Any
 
 sysstr = platform.system()
 
@@ -495,7 +495,8 @@ class StringClass(object):
         # type: (str) -> Optional[List[Union[int, float]]]
         """
         Find numeric values from string, e.g., 1, .7, 1.2, 4e2, 3e-3, -9, etc.
-        reference: https://stackoverflow.com/questions/4703390/how-to-extract-a-floating-number-from-a-string-in-python/4703508#4703508
+        
+        Reference: `how-to-extract-a-floating-number-from-a-string-in-python`_
 
         Examples:
             >>> input_str = '.1 .12 9.1 98.1 1. 12. 1 12'
@@ -513,6 +514,9 @@ class StringClass(object):
 
         Returns:
             list of numeric values
+
+        .. _how-to-extract-a-floating-number-from-a-string-in-python:
+            https://stackoverflow.com/questions/4703390/how-to-extract-a-floating-number-from-a-string-in-python/4703508#4703508
         """
         numeric_const_pattern = r'[-+]?(?:(?:\d*\.\d+)|(?:\d+\.?))(?:[Ee][+-]?\d+)?'
         rx = re.compile(numeric_const_pattern, re.VERBOSE)
@@ -982,7 +986,7 @@ class UtilClass(object):
     @staticmethod
     def decode_strs_in_dict(unicode_dict  # type: Dict[Union[str, int], Union[int, float, str, List[Union[int, float, str]]]]
                             ):
-        # type: (...) -> Dict[Union[str, int], Union[int, float, str, List[Union[int, float, str]]]]
+        # type: (...) -> Dict[Union[str, int], Any]
         """Decode strings in dictionary which may contains unicode strings or numeric values.
 
         - 1. integer could be key, float cannot;

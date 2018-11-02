@@ -49,7 +49,7 @@ GDALDataType = {0: GDT_Unknown,  # Unknown or unspecified type
 """dict: GDAL DataType
 
     +--------------+----------------+---------------------------------+
-    | GDAL数据类型 | GDAL数据类型   | 描述                            |
+    | Type         | GDAL Datatype  | Description                     |
     +==============+================+=================================+
     | 0            | GDT_Unknown    | Unknown or unspecified type     |
     +--------------+----------------+---------------------------------+
