@@ -30,7 +30,7 @@ from osgeo.gdal import Open as gdal_Open
 from osgeo.ogr import Open as ogr_Open
 from osgeo.osr import SpatialReference as osr_SpatialReference
 
-from pygeoc.utils import MathClass, UtilClass, DEFAULT_NODATA, DELTA
+from pygeoc.utils import MathClass, UtilClass, FileClass, DEFAULT_NODATA, DELTA
 from pygeoc.utils import is_string
 
 GDALDataType = {0: GDT_Unknown,  # Unknown or unspecified type
@@ -380,8 +380,13 @@ class RasterUtilClass(object):
             gdal_type (:obj:`pygeoc.raster.GDALDataType`): output raster data type,
                                                                   GDT_Float32 as default.
         """
+        UtilClass.mkdir(os.path.dirname(FileClass.get_file_fullpath(f_name)))
         driver = gdal_GetDriverByName("GTiff")
-        ds = driver.Create(f_name, n_cols, n_rows, 1, gdal_type)
+        try:
+            ds = driver.Create(f_name, n_cols, n_rows, 1, gdal_type)
+        except Exception:
+            print('Cannot create output file %s' % f_name)
+            return
         ds.SetGeoTransform(geotransform)
         try:
             ds.SetProjection(srs.ExportToWkt())
@@ -407,6 +412,7 @@ class RasterUtilClass(object):
             geotransform: geographic transformation.
             nodata_value: nodata_flow value.
         """
+        UtilClass.mkdir(os.path.dirname(FileClass.get_file_fullpath(filename)))
         header = """NCOLS %d
     NROWS %d
     XLLCENTER %f
