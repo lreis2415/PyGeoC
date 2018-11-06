@@ -67,11 +67,12 @@ class VectorUtilClass(object):
             srs.ImportFromWkt(src_ds.GetProjection())
         dst_layer = dst_ds.CreateLayer(str(layername), srs=srs)
         if fieldname is None:
-            fieldname = 'DN'
+            fieldname = layername.upper()
         fd = ogr_FieldDefn(str(fieldname), OFTInteger)
         dst_layer.CreateField(fd)
         dst_field = 0
-        result = gdal.Polygonize(srcband, maskband, dst_layer, dst_field, [], callback=None)
+        result = gdal.Polygonize(srcband, maskband, dst_layer, dst_field,
+                                 ['8CONNECTED=8'], callback=None)
         return result
 
     @staticmethod
@@ -116,6 +117,6 @@ class VectorUtilClass(object):
 
 
 if __name__ == '__main__':
-    rst = r'C:\z_code\Hydro\SEIMS\data\dianbu2\workspace\spatial_raster\subbasin.tif'
-    shp = r'C:\z_code\Hydro\SEIMS\data\dianbu2\workspace\spatial_shp\subbasin.shp'
-    VectorUtilClass.raster2shp(rst, shp)
+    rst = r'D:\data_m\SEIMS2018\demo_wap_90m\spatial_raster\mask.tif'
+    shp = r'D:\data_m\SEIMS2018\demo_wap_90m\spatial_shp\basin.shp'
+    VectorUtilClass.raster2shp(rst, shp, 'basin', 'BASIN')
