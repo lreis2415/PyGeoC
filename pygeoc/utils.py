@@ -28,7 +28,7 @@ from math import sqrt
 from shutil import copy, rmtree
 
 import numpy
-from typing import Optional, List, Union, Tuple, Dict, Any
+from typing import Optional, List, Union, Tuple, Dict, Any, AnyStr
 
 sysstr = platform.system()
 
@@ -384,9 +384,9 @@ class StringClass(object):
         pass
 
     @staticmethod
-    def convert_str2num(unicode_str  # type: Union[str, int, float, List[Union[str, float, int]], Tuple[Union[str, float, int]]]
+    def convert_str2num(unicode_str  # type: Union[AnyStr, int, float, List[Union[AnyStr, float, int]], Tuple[Union[AnyStr, float, int]]]
                         ):
-        # type: (...) -> Union[str, int, float, List[Union[str, float, int]], Tuple[Union[str, float, int]]]
+        # type: (...) -> Union[AnyStr, int, float, List[Union[AnyStr, float, int]], Tuple[Union[AnyStr, float, int]]]
         """Convert string to string, integer, or float. Support tuple or list.
 
         Examples:
@@ -419,13 +419,13 @@ class StringClass(object):
 
     @staticmethod
     def string_match(str1, str2):
-        # type: (str, str) -> bool
+        # type: (AnyStr, AnyStr) -> bool
         """Compare two string regardless capital or not"""
         return str1.lower() == str2.lower()
 
     @staticmethod
     def split_string(str_src, spliters=None, elim_empty=False):
-        # type: (str, Union[str, List[str], None], bool) -> List[str]
+        # type: (AnyStr, Union[AnyStr, List[AnyStr], None], bool) -> List[AnyStr]
         """Split string by split character space(' ') and indent('\t') as default
 
         Examples:
@@ -467,13 +467,13 @@ class StringClass(object):
 
     @staticmethod
     def is_substring(substr, str_src):
-        # type: (str, str) -> bool
+        # type: (AnyStr, AnyStr) -> bool
         """Is substr part of str_src, case insensitive."""
         return substr.lower() in str_src.lower()
 
     @staticmethod
     def string_in_list(tmp_str, strlist):
-        # type: (str, List[str]) -> bool
+        # type: (AnyStr, List[str]) -> bool
         """Is tmp_str in strlist, case insensitive."""
         new_str_list = strlist[:]
         for i, str_in_list in enumerate(new_str_list):
@@ -482,7 +482,7 @@ class StringClass(object):
 
     @staticmethod
     def is_valid_ip_addr(address):
-        # type: (str) -> bool
+        # type: (AnyStr) -> bool
         """Check the validation of IP address"""
         try:
             socket.inet_aton(address)
@@ -492,7 +492,7 @@ class StringClass(object):
 
     @staticmethod
     def extract_numeric_values_from_string(str_contains_values):
-        # type: (str) -> Optional[List[Union[int, float]]]
+        # type: (AnyStr) -> Optional[List[Union[int, float]]]
         """
         Find numeric values from string, e.g., 1, .7, 1.2, 4e2, 3e-3, -9, etc.
         
@@ -528,7 +528,7 @@ class StringClass(object):
 
     @staticmethod
     def get_datetime(formatted_str, user_fmt=None):
-        # type: (str, Optional[str]) -> datetime
+        # type: (AnyStr, Optional[AnyStr]) -> datetime
         """get datetime() object from string formatted %Y-%m-%d %H:%M:%S
 
         Examples:
@@ -586,7 +586,7 @@ class FileClass(object):
 
     @staticmethod
     def is_file_exists(filename):
-        # type: (str) -> bool
+        # type: (AnyStr) -> bool
         """Check the existence of file path."""
         if filename is None or not os.path.exists(filename) or not os.path.isfile(filename):
             return False
@@ -595,7 +595,7 @@ class FileClass(object):
 
     @staticmethod
     def is_dir_exists(dirpath):
-        # type: (str) -> bool
+        # type: (AnyStr) -> bool
         """Check the existence of folder path."""
         if dirpath is None or not os.path.exists(dirpath) or not os.path.isdir(dirpath):
             return False
@@ -604,14 +604,14 @@ class FileClass(object):
 
     @staticmethod
     def check_file_exists(filename):
-        # type: (str) -> None
+        # type: (AnyStr) -> None
         """Throw exception if the file not existed"""
         if not FileClass.is_file_exists(filename):
             UtilClass.error("Input files path %s is None or not existed!\n" % filename)
 
     @staticmethod
     def copy_files(filename, dstfilename):
-        # type: (str, str) -> None
+        # type: (AnyStr, AnyStr) -> None
         """Copy files with the same name and different suffixes, such as ESRI Shapefile."""
         FileClass.remove_files(dstfilename)
         dst_prefix = os.path.splitext(dstfilename)[0]
@@ -623,7 +623,7 @@ class FileClass(object):
 
     @staticmethod
     def remove_files(filename):
-        # type: (str) -> None
+        # type: (AnyStr) -> None
         """
         Delete all files with same root as fileName,
         i.e. regardless of suffix, such as ESRI shapefile
@@ -634,7 +634,7 @@ class FileClass(object):
 
     @staticmethod
     def is_up_to_date(outfile, basedatetime):
-        # type: (str, datetime) -> bool
+        # type: (AnyStr, datetime) -> bool
         """Return true if outfile exists and is no older than base datetime."""
         if os.path.exists(outfile):
             if os.path.getmtime(outfile) >= basedatetime:
@@ -643,7 +643,7 @@ class FileClass(object):
 
     @staticmethod
     def get_executable_fullpath(name, dirname=None):
-        # type: (str, Optional[str]) -> Optional[str]
+        # type: (AnyStr, Optional[AnyStr]) -> Optional[AnyStr]
         """get the full path of a given executable name"""
         if name is None:
             return None
@@ -671,7 +671,7 @@ class FileClass(object):
 
     @staticmethod
     def get_file_fullpath(name, dirname=None):
-        # type: (str, Optional[str]) -> Optional[str]
+        # type: (AnyStr, Optional[AnyStr]) -> Optional[AnyStr]
         """Return full path if available."""
         if name is None:
             return None
@@ -690,7 +690,7 @@ class FileClass(object):
 
     @staticmethod
     def get_filename_by_suffixes(dir_src, suffixes):
-        # type: (str, Union[str, List[str]]) -> Optional[List[str]]
+        # type: (AnyStr, Union[AnyStr, List[AnyStr]]) -> Optional[List[AnyStr]]
         """get file names with the given suffixes in the given directory
 
         Args:
@@ -717,7 +717,7 @@ class FileClass(object):
 
     @staticmethod
     def get_full_filename_by_suffixes(dir_src, suffixes):
-        # type: (str, Union[str, List[str]]) -> Optional[List[str]]
+        # type: (AnyStr, Union[AnyStr, List[AnyStr]]) -> Optional[List[AnyStr]]
         """get full file names with the given suffixes in the given directory
 
         Args:
@@ -734,7 +734,7 @@ class FileClass(object):
 
     @staticmethod
     def get_core_name_without_suffix(file_path):
-        # type: (str) -> str
+        # type: (AnyStr) -> AnyStr
         """Return core file name without suffix.
 
         Examples:
@@ -766,7 +766,7 @@ class FileClass(object):
 
     @staticmethod
     def add_postfix(file_path, postfix):
-        # type: (str, str) -> str
+        # type: (AnyStr, AnyStr) -> AnyStr
         """Add postfix for a full file path.
 
         Examples:
@@ -848,7 +848,7 @@ class UtilClass(object):
 
     @staticmethod
     def run_command(commands):
-        # type: (Union[str, List[str]]) -> List[str]
+        # type: (Union[AnyStr, List[AnyStr]]) -> List[AnyStr]
         """Execute external command, and return the output lines list. In windows, refers to
         `handling-subprocess-crash-in-windows`_.
 
@@ -933,14 +933,14 @@ class UtilClass(object):
 
     @staticmethod
     def mkdir(dir_path):
-        # type: (str) -> None
+        # type: (AnyStr) -> None
         """Make directory if not existed"""
         if not os.path.isdir(dir_path) or not os.path.exists(dir_path):
             os.makedirs(dir_path)
 
     @staticmethod
     def rmmkdir(dir_path):
-        # type: (str) -> None
+        # type: (AnyStr) -> None
         """If directory existed, then remove and make; else make it."""
         if not os.path.isdir(dir_path) or not os.path.exists(dir_path):
             os.makedirs(dir_path)
@@ -950,7 +950,7 @@ class UtilClass(object):
 
     @staticmethod
     def print_msg(contentlist):
-        # type: (Union[str, List[str], Tuple[str]]) -> str
+        # type: (Union[AnyStr, List[AnyStr], Tuple[AnyStr]]) -> AnyStr
         """concatenate message list as single string with line feed."""
         if isinstance(contentlist, list) or isinstance(contentlist, tuple):
             return '\n'.join(contentlist)
@@ -966,7 +966,7 @@ class UtilClass(object):
 
     @staticmethod
     def writelog(logfile, contentlist, mode='replace'):
-        # type: (str, Union[str, List[str], Tuple[str]], str) -> None
+        # type: (AnyStr, Union[AnyStr, List[AnyStr], Tuple[AnyStr]], AnyStr) -> None
         """write log"""
         if logfile is None:  # If logfile is not assigned, just print msg.
             print(UtilClass.print_msg(contentlist))
@@ -984,9 +984,9 @@ class UtilClass(object):
             log_status.close()
 
     @staticmethod
-    def decode_strs_in_dict(unicode_dict  # type: Dict[Union[str, int], Union[int, float, str, List[Union[int, float, str]]]]
+    def decode_strs_in_dict(unicode_dict  # type: Dict[Union[AnyStr, int], Union[int, float, AnyStr, List[Union[int, float, AnyStr]]]]
                             ):
-        # type: (...) -> Dict[Union[str, int], Any]
+        # type: (...) -> Dict[Union[AnyStr, int], Any]
         """Decode strings in dictionary which may contains unicode strings or numeric values.
 
         - 1. integer could be key, float cannot;
@@ -1011,7 +1011,7 @@ class UtilClass(object):
 
 
 def get_config_file():
-    # type: () -> str
+    # type: () -> AnyStr
     """Get model configuration file name from argv"""
     parser = argparse.ArgumentParser(description="Read configuration file.")
     parser.add_argument('-ini', help="Full path of configuration file")
