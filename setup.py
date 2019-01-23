@@ -113,7 +113,7 @@ setup(
             # See requirements.txt and requirements_dev.txt for more details.
             # 'gdal>=1.9.0',
             # 'numpy>=1.9.0',
-            'matplotlib',
+            # 'matplotlib',
             'typing',
             'future',
             'six'

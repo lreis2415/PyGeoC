@@ -6,7 +6,7 @@
                              Python for GeoComputation
                             ---------------------------
         author               : Liangjun Zhu
-        copyright            : (C) 2016-2018 by Lreis, IGSNRR, CAS
+        copyright            : (C) 2016-2019 Lreis, IGSNRR, CAS
         email                : zlj@lreis.ac.cn
  ******************************************************************************
  *                                                                            *
@@ -20,6 +20,5 @@
 """
 __author__ = 'Liangjun Zhu'
 __email__ = 'zlj@lreis.ac.cn'
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 __url__ = 'https://github.com/lreis2415/PyGeoC'
-__all__ = ['utils']

@@ -2,8 +2,9 @@
 #   from https://www.lfd.uci.edu/~gohlke/pythonlibs/
 # numpy >= 1.10
 # gdal >=1.9.0
+# matplotlib >=1.5.0
 
-# matplotlib, typing, future, and six are set in setup.py
+# typing, future, and six are set in setup.py
 
 # development specific requirements
 wheel
