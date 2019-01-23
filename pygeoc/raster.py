@@ -13,13 +13,14 @@
      - 17-07-20 lj - add GDALDataType dict, and WhiteBox GAT D8 code.
      - 17-11-21 yw - add raster_binarization, raster_erosion, raster_dilation, openning, closing.
 """
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 
 from future.utils import iteritems
 from builtins import range
 
 import os
 import subprocess
+from io import open
 
 import numpy
 from osgeo.gdal import GDT_CInt16, GDT_CInt32, GDT_CFloat32, GDT_CFloat64
@@ -319,7 +320,7 @@ class RasterUtilClass(object):
             y_max_mask = y_max
             i_min = 0
             j_min = 0
-        print("%dx%d -> %dx%d" % (xsize, ysize, x_size_mask, y_size_mask))
+        print('%dx%d -> %dx%d' % (xsize, ysize, x_size_mask, y_size_mask))
 
         mask = numpy.zeros((y_size_mask, x_size_mask))
 
@@ -381,7 +382,7 @@ class RasterUtilClass(object):
                                                                   GDT_Float32 as default.
         """
         UtilClass.mkdir(os.path.dirname(FileClass.get_file_fullpath(f_name)))
-        driver = gdal_GetDriverByName("GTiff")
+        driver = gdal_GetDriverByName(str('GTiff'))
         try:
             ds = driver.Create(f_name, n_cols, n_rows, 1, gdal_type)
         except Exception:
@@ -413,22 +414,21 @@ class RasterUtilClass(object):
             nodata_value: nodata_flow value.
         """
         UtilClass.mkdir(os.path.dirname(FileClass.get_file_fullpath(filename)))
-        header = """NCOLS %d
-    NROWS %d
-    XLLCENTER %f
-    YLLCENTER %f
-    CELLSIZE %f
-    NODATA_VALUE %f
-    """ % (xsize, ysize, geotransform[0] + 0.5 * geotransform[1],
-           geotransform[3] - (ysize - 0.5) * geotransform[1],
-           geotransform[1], nodata_value)
+        header = 'NCOLS %d\n' \
+                 'NROWS %d\n' \
+                 'XLLCENTER %f\n' \
+                 'YLLCENTER %f\n' \
+                 'CELLSIZE %f\n' \
+                 'NODATA_VALUE %f' % (xsize, ysize, geotransform[0] + 0.5 * geotransform[1],
+                                      geotransform[3] - (ysize - 0.5) * geotransform[1],
+                                      geotransform[1], nodata_value)
 
-        f = open(filename, 'w')
-        f.write(header)
-        for i in range(0, ysize):
-            for j in range(0, xsize):
-                f.write(str(data[i][j]) + "\t")
-            f.write("\n")
+        with open(filename, 'w', encoding='utf-8') as f:
+            f.write(header)
+            for i in range(0, ysize):
+                for j in range(0, xsize):
+                    f.write('%s\t' % repr(data[i][j]))
+                f.write('\n')
         f.close()
 
     @staticmethod
@@ -440,6 +440,7 @@ class RasterUtilClass(object):
             geotif: output raster file path.
             change_nodata: change NoDataValue to -9999 or not.
             gdal_type (:obj:`pygeoc.raster.GDALDataType`): GDT_Float32 as default.
+            change_gdal_type: If True, output the Float32 data type.
         """
         rst_file = RasterUtilClass.read_raster(tif)
         nodata = rst_file.noDataValue
@@ -650,8 +651,8 @@ class RasterUtilClass(object):
         elif isinstance(rasterfile, numpy.ndarray):
             origin_raster = rasterfile
         else:
-            return "Your rasterfile has a wrong type. Type must be string or " \
-                   "numpy.array or class Raster in pygeoc."
+            return 'Your rasterfile has a wrong type. Type must be string or ' \
+                   'numpy.array or class Raster in pygeoc.'
         min_value_raster = origin_raster.min()
         dilation_raster = numpy.zeros((origin_raster.shape[0], origin_raster.shape[1]))
         # In order to compute the raster edges, we need to expand the original

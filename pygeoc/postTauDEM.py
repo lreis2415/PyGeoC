@@ -2,14 +2,15 @@
 # -*- coding: utf-8 -*-
 """post process of TauDEM.
 
-    author: Liangjun Zhu
+    @author: Liangjun Zhu
 
-    changlog:
-
-     - 12-04-12 jz - origin version.
-     - 16-07-01 lj - reorganized for pygeoc.
-     - 17-06-25 lj - check by pylint and reformat by Google style.
+    @changlog:
+    - 12-04-12 jz - origin version.
+    - 16-07-01 lj - reorganized for pygeoc.
+    - 17-06-25 lj - check by pylint and reformat by Google style.
 """
+from __future__ import absolute_import, unicode_literals
+
 from numpy import frompyfunc, ones, where
 from osgeo.gdal import GDT_Int16, GDT_Float32
 from osgeo.ogr import Open as ogr_Open
@@ -19,11 +20,11 @@ from pygeoc.raster import RasterUtilClass
 from pygeoc.utils import MathClass, FileClass, DEFAULT_NODATA, PI, DELTA
 
 # Field name of stream ESRI shapefile of TauDEM
-FLD_LINKNO = "LINKNO"
-FLD_DSLINKNO = "DSLINKNO"
-REACH_WIDTH = "WIDTH"
-REACH_LENGTH = "LENGTH"
-REACH_DEPTH = "DEPTH"
+FLD_LINKNO = 'LINKNO'
+FLD_DSLINKNO = 'DSLINKNO'
+REACH_WIDTH = 'WIDTH'
+REACH_LENGTH = 'LENGTH'
+REACH_DEPTH = 'DEPTH'
 
 
 class DinfUtil(object):
@@ -258,7 +259,7 @@ class StreamnetUtil(object):
                 ft.SetField(FLD_DSLINKNO, -1)
             layer_reach.SetFeature(ft)
             ft = layer_reach.GetNextFeature()
-        ds_reach.ExecuteSQL("REPACK reach")
+        ds_reach.ExecuteSQL('REPACK reach')
         layer_reach.SyncToDisk()
         ds_reach.Destroy()
         del ds_reach
@@ -289,7 +290,7 @@ class StreamnetUtil(object):
 def main():
     """Test code"""
     import os
-    #wp = r'C:\z_code\subrepos\PyGeoC\tests\data\tmp_results\wtsd_delineation'
+    # wp = r'C:\z_code\subrepos\PyGeoC\tests\data\tmp_results\wtsd_delineation'
     wp = r'C:\z_data_m\SEIMS2018\zhongtianshe_100m\taudem_delineated'
     dinfflowang = wp + os.sep + 'flowDirDinfTau.tif'
     compdinffile = wp + os.sep + 'dirCodeDinfTau.tif'

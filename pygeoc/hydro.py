@@ -2,13 +2,14 @@
 # -*- coding: utf-8 -*-
 """Hydrology relation functions, e.g. FlowDirectionCode
 
-    author: Liangjun Zhu
+    @author: Liangjun Zhu
 
-    changlog:
-
-     - 17-06-25 lj - check by pylint and reformat by Google style.\n
-     - 18-02-05 lj - compatible with Python3\n
+    @changlog:
+    - 17-06-25 lj - check by pylint and reformat by Google style.
+    - 18-02-05 lj - compatible with Python3
 """
+from __future__ import absolute_import, unicode_literals
+
 from pygeoc.raster import RasterUtilClass, GDALDataType
 from pygeoc.utils import FileClass, PI, SQ2
 
@@ -85,18 +86,18 @@ class FlowModelConst(object):
     ccw_dcol = [1, 1, 0, -1, -1, -1, 0, 1]  # col
 
     # available D8 flow direction algorithms
-    d8_dirs = {"taudem": d8dir_td,
-               "arcgis": d8dir_ag,
-               "whitebox": d8dir_wb}
-    d8_lens = {"taudem": d8len_td,
-               "arcgis": d8len_ag,
-               "whitebox": d8len_wb}
-    d8_deltas = {"taudem": d8delta_td,
-                 "arcgis": d8delta_ag,
-                 "whitebox": d8delta_wb}
-    d8_inflows = {"taudem": d8_inflow_td,
-                  "arcgis": d8_inflow_ag,
-                  "whitebox": d8_inflow_wb}
+    d8_dirs = {'taudem': d8dir_td,
+               'arcgis': d8dir_ag,
+               'whitebox': d8dir_wb}
+    d8_lens = {'taudem': d8len_td,
+               'arcgis': d8len_ag,
+               'whitebox': d8len_wb}
+    d8_deltas = {'taudem': d8delta_td,
+                 'arcgis': d8delta_ag,
+                 'whitebox': d8delta_wb}
+    d8_inflows = {'taudem': d8_inflow_td,
+                  'arcgis': d8_inflow_ag,
+                  'whitebox': d8_inflow_wb}
 
     @staticmethod
     def get_cell_length(flow_model):
@@ -126,7 +127,7 @@ class D8Util(object):
         pass
 
     @staticmethod
-    def downstream_index(dir_value, i, j, alg="taudem"):
+    def downstream_index(dir_value, i, j, alg='taudem'):
         """find downslope coordinate for D8 direction."""
         assert alg.lower() in FlowModelConst.d8_deltas
         delta = FlowModelConst.d8_deltas.get(alg.lower())
@@ -134,7 +135,7 @@ class D8Util(object):
         return i + drow, j + dcol
 
     @staticmethod
-    def convert_code(in_file, out_file, in_alg="taudem", out_alg="arcgis", datatype=None):
+    def convert_code(in_file, out_file, in_alg='taudem', out_alg='arcgis', datatype=None):
         """
         convert D8 flow direction code from one algorithm to another.
         Args:
@@ -148,7 +149,7 @@ class D8Util(object):
         in_alg = in_alg.lower()
         out_alg = out_alg.lower()
         if in_alg not in FlowModelConst.d8_dirs or out_alg not in FlowModelConst.d8_dirs:
-            raise RuntimeError("The input algorithm name should one of %s" %
+            raise RuntimeError('The input algorithm name should one of %s' %
                                ', '.join(list(FlowModelConst.d8_dirs.keys())))
         convert_dict = dict()
         in_code = FlowModelConst.d8_dirs.get(in_alg)

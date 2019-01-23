@@ -4,7 +4,8 @@
 
     @author: Liangjun Zhu
 
-    @changlog: 17-09-16 lj - origin version.\n
+    @changlog:
+    - 17-09-16 lj - origin version.
 """
 from pygeoc.utils import MathClass
 import pytest

@@ -10,6 +10,7 @@
      - 16-07-01 lj - reorganized for pygeoc
      - 17-06-25 lj - check by pylint and reformat by Google style
 """
+from __future__ import absolute_import, unicode_literals
 import os
 import sys
 
