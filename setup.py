@@ -116,7 +116,8 @@ setup(
             # 'matplotlib',
             'typing',
             'future',
-            'six'
+            'six',
+            'configparser;python_version<"3"'
         ],
 
         # List additional groups of dependencies here (e.g. development
