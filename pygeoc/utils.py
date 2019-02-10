@@ -473,7 +473,7 @@ class StringClass(object):
 
     @staticmethod
     def string_in_list(tmp_str, strlist):
-        # type: (AnyStr, List[str]) -> bool
+        # type: (AnyStr, List[AnyStr]) -> bool
         """Is tmp_str in strlist, case insensitive."""
         new_str_list = strlist[:]
         for i, str_in_list in enumerate(new_str_list):
