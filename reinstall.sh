@@ -10,17 +10,23 @@
 #
 #    See the GNU General Public License for more details.
 #
+
+# This script accepts one optional argument, i.e., the executable of python
+
+# Set default executable of python
+pythonexec=${1:-python}
+
 cd $PWD
 rm -r dist
 rm -r build
-python -m pip install tox
-python -m pip install wheel
-python setup.py bdist_wheel
+$pythonexec -m pip install tox
+$pythonexec -m pip install wheel
+$pythonexec setup.py bdist_wheel
 cd dist
-if python -c "import pygeoc" &> /dev/null; then
+if $pythonexec -c "import pygeoc" &> /dev/null; then
     echo 'PyGeoC has been installed, and will be uninstalled first.'
-    python -m pip uninstall PyGeoC
+    $pythonexec -m pip install PyGeoC
 else
     echo 'PyGeoC will be firstly installed.'
 fi
-for i in `find . -name *.whl`; do python -m pip install $i --upgrade; done
+for i in `find . -name *.whl`; do $pythonexec -m pip install $i --upgrade; done
