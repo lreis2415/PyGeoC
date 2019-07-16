@@ -447,7 +447,10 @@ class RasterUtilClass(object):
         if change_nodata:
             if not MathClass.floatequal(rst_file.noDataValue, DEFAULT_NODATA):
                 nodata = DEFAULT_NODATA
-                rst_file.data[rst_file.data == rst_file.noDataValue] = DEFAULT_NODATA
+                nodata_array = numpy.ones((rst_file.nRows, rst_file.nCols)) * rst_file.noDataValue
+                nodata_check = numpy.isclose(rst_file.data, nodata_array)
+                rst_file.data[nodata_check] = DEFAULT_NODATA
+                # rst_file.data[rst_file.data == rst_file.noDataValue] = DEFAULT_NODATA
         gdal_type = rst_file.dataType
         if change_gdal_type:
             gdal_type = GDT_Float32
