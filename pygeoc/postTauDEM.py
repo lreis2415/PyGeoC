@@ -8,6 +8,7 @@
     - 12-04-12 jz - origin version.
     - 16-07-01 lj - reorganized for pygeoc.
     - 17-06-25 lj - check by pylint and reformat by Google style.
+    - 19-11-07 lj - fixed "TypeError: ... type 'char const *'" bugs caused by the import of unicode_literals
 """
 from __future__ import absolute_import, unicode_literals
 
@@ -20,11 +21,11 @@ from pygeoc.raster import RasterUtilClass
 from pygeoc.utils import MathClass, FileClass, DEFAULT_NODATA, PI, DELTA
 
 # Field name of stream ESRI shapefile of TauDEM
-FLD_LINKNO = 'LINKNO'
-FLD_DSLINKNO = 'DSLINKNO'
-REACH_WIDTH = 'WIDTH'
-REACH_LENGTH = 'LENGTH'
-REACH_DEPTH = 'DEPTH'
+FLD_LINKNO = str('LINKNO')
+FLD_DSLINKNO = str('DSLINKNO')
+REACH_WIDTH = str('WIDTH')
+REACH_LENGTH = str('LENGTH')
+REACH_DEPTH = str('DEPTH')
 
 
 class DinfUtil(object):

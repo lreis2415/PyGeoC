@@ -446,7 +446,8 @@ class TauDEM(object):
                           {'logfile': log_file, 'runtimefile': runtime_file})
 
     @staticmethod
-    def connectdown(np, p, acc, outlet, wtsd=None, workingdir=None, mpiexedir=None,
+    def connectdown(np, p, acc, outlet, modifiedOutlet, wtsd=None, maxdist=50,
+                    workingdir=None, mpiexedir=None,
                     exedir=None, log_file=None, runtime_file=None, hostfile=None):
         """Reads an ad8 contributing area file,
         identifies the location of the largest ad8 value as the outlet of the largest watershed"""
@@ -459,8 +460,8 @@ class TauDEM(object):
         return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
                           {'-p': p, '-ad8': acc, '-w': wtsd},
                           workingdir,
-                          None,
-                          {'-o': outlet},
+                          {'-d': maxdist},
+                          {'-o': outlet, '-od': modifiedOutlet},
                           {'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
                           {'logfile': log_file, 'runtimefile': runtime_file})
 
@@ -504,15 +505,20 @@ class TauDEM(object):
                           {'logfile': log_file, 'runtimefile': runtime_file})
 
     @staticmethod
-    def moveoutletstostrm(np, flowdir, streamRaster, outlet, modifiedOutlet,
+    def moveoutletstostrm(np, flowdir, streamRaster, outlet, modifiedOutlet, maxdist=50,
                           workingdir=None, mpiexedir=None,
                           exedir=None, log_file=None, runtime_file=None, hostfile=None):
         """Run move the given outlets to stream"""
         fname = TauDEM.func_name('moveoutletstostrm')
+        legacy_names = [TauDEM.func_name('moveoutletstostreams')]  # name in old TauDEM version
+        for lname in legacy_names:
+            if FileClass.get_executable_fullpath(lname, exedir, raise_exception=False) is not None:
+                fname = lname
+                break
         return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
                           {'-p': flowdir, '-src': streamRaster, '-o': outlet},
                           workingdir,
-                          None,
+                          {'-md': maxdist},
                           {'-om': modifiedOutlet},
                           {'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
                           {'logfile': log_file, 'runtimefile': runtime_file})
@@ -648,7 +654,7 @@ class TauDEMWorkflow(object):
         if not os.path.exists(dem):
             TauDEM.error('DEM: %s is not existed!' % dem)
         dem = os.path.abspath(dem)
-        if workingdir is None:
+        if workingdir is None or workingdir is '':
             workingdir = os.path.dirname(dem)
         namecfg = TauDEMFilesUtils(workingdir)
         workingdir = namecfg.workspace
@@ -702,11 +708,12 @@ class TauDEMWorkflow(object):
         UtilClass.writelog(logfile, '[Output] %d..., %s' % (50, 'Moving outlet to stream...'), 'a')
         if outlet_file is None:
             outlet_file = default_outlet
-            TauDEM.connectdown(np, flow_dir, acc, outlet_file, wtsd=None,
+            TauDEM.connectdown(np, flow_dir, acc, outlet_file, modified_outlet, wtsd=None,
                                workingdir=workingdir, mpiexedir=mpi_bin, exedir=bin_dir,
                                log_file=logfile, runtime_file=runtime_file, hostfile=hostfile)
         TauDEM.moveoutletstostrm(np, flow_dir, stream_raster, outlet_file,
-                                 modified_outlet, workingdir, mpi_bin, bin_dir,
+                                 modified_outlet, workingdir=workingdir,
+                                 mpiexedir=mpi_bin, exedir=bin_dir,
                                  log_file=logfile, runtime_file=runtime_file, hostfile=hostfile)
         UtilClass.writelog(logfile, '[Output] %d..., %s' %
                            (60, 'Generating stream skeleton...'), 'a')

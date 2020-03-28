@@ -642,8 +642,8 @@ class FileClass(object):
         return False
 
     @staticmethod
-    def get_executable_fullpath(name, dirname=None):
-        # type: (AnyStr, Optional[AnyStr]) -> Optional[AnyStr]
+    def get_executable_fullpath(name, dirname=None, raise_exception=True):
+        # type: (AnyStr, Optional[AnyStr], Optional[bool]) -> Optional[None, List[AnyStr]]
         """get the full path of a given executable name"""
         if name is None:
             return None
@@ -658,15 +658,21 @@ class FileClass(object):
                 return fpth
         # If dirname is not specified, check the env then.
         if sysstr == 'Windows':
-            findout = UtilClass.run_command('where %s' % name)
+            findout = UtilClass.run_command('where %s' % name, raise_exception)
         else:
-            findout = UtilClass.run_command('which %s' % name)
+            findout = UtilClass.run_command('which %s' % name, raise_exception)
         if not findout or len(findout) == 0:
-            print("%s is not included in the env path" % name)
-            exit(-1)
+            if raise_exception:
+                print("%s is not included in the env path" % name)
+                exit(-1)
+            else:
+                return None
         first_path = findout[0].split('\n')[0]
         if os.path.exists(first_path):
-            return first_path
+            if ' ' in first_path:
+                return '\"%s\"' % first_path  # in case of blanks in the path
+            else:
+                return first_path
         return None
 
     @staticmethod
@@ -847,8 +853,8 @@ class UtilClass(object):
         pass
 
     @staticmethod
-    def run_command(commands):
-        # type: (Union[AnyStr, List[AnyStr]]) -> List[AnyStr]
+    def run_command(commands, raise_exception=True):
+        # type: (Union[AnyStr, List[AnyStr]], Optional[bool]) -> Optional[None, List[AnyStr]]
         """Execute external command, and return the output lines list. In windows, refers to
         `handling-subprocess-crash-in-windows`_.
 
@@ -904,8 +910,11 @@ class UtilClass(object):
         if out is None:
             return ['']
         if recode is not None and recode != 0:
-            raise subprocess.CalledProcessError(-1, commands,
-                                                "ERROR occurred when running subprocess!")
+            if raise_exception:
+                raise subprocess.CalledProcessError(-1, commands,
+                                                    "ERROR occurred when running subprocess!")
+            else:
+                return None
         if '\n' in out:
             return out.split('\n')
 
