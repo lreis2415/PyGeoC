@@ -16,17 +16,17 @@
 # Set default executable of python
 pythonexec=${1:-python}
 
-cd $PWD
+cd "$PWD" || exit
 rm -r dist
 rm -r build
 $pythonexec -m pip install tox
 $pythonexec -m pip install wheel
 $pythonexec setup.py bdist_wheel
-cd dist
+cd dist || { echo "Cannot find dist directory! Reinstall PyGeoC failed!"; exit 1; }
 if $pythonexec -c "import pygeoc" &> /dev/null; then
     echo 'PyGeoC has been installed, and will be uninstalled first.'
     $pythonexec -m pip install PyGeoC
 else
     echo 'PyGeoC will be firstly installed.'
 fi
-for i in `find . -name *.whl`; do $pythonexec -m pip install $i --upgrade; done
+for i in $(find . -name '*.whl'); do $pythonexec -m pip install "$i" --upgrade; done
