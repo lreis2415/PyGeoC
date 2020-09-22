@@ -26,9 +26,11 @@ import time
 from datetime import datetime
 from math import sqrt
 from shutil import copy, rmtree
-
-import numpy
 from typing import Optional, List, Union, Tuple, Dict, Any, AnyStr
+try:
+    import numpy
+except ImportError:
+    print('numpy is not installed, some functions cannot be used!')
 
 sysstr = platform.system()
 
@@ -1002,13 +1004,15 @@ class UtilClass(object):
         - 2. the function is called recursively
 
         Examples:
-
-            .. code-block:: python
-
-               input = {u'name': u'zhulj', u'age': u'28', u'1': ['1', 2, 3]}
-               output = {'name': 'zhulj', 'age': 28, 1: [1, 2, 3]}
-               input = {u'name': u'zhulj', 'edu': {'nwsuaf': 2007, u'bnu': '2011', 'igsnrr': 2014}}
-               output = {'name': 'zhulj', 'edu': {'nwsuaf': 2007, 'bnu': 2011, 'igsnrr': 2014}}
+            >>> UtilClass.decode_strs_in_dict({u'1': ['1', 2, 3], u'age': u'28', u'name': u'zhulj'})
+            {1: [1, 2, 3], 'age': 28, 'name': 'zhulj'}
+            >>> UtilClass.decode_strs_in_dict({u'name': u'zhulj',\
+                                               'edu': {'nwsuaf': 2007,\
+                                                u'bnu': '2011', 'igsnrr': 2014}})
+            {'name': 'zhulj', 'edu': {'nwsuaf': 2007, 'bnu': 2011, 'igsnrr': 2014}}
+            >>> UtilClass.decode_strs_in_dict({u'a': ['b', {1: {u'c': 2}}],\
+                                               u'd': ('e', {3: {u'f': 4}})})
+            {'a': ['b', {1: {'c': 2}}], 'd': ('e', {3: {'f': 4}})}
 
         """
         unicode_dict = {StringClass.convert_str2num(k): StringClass.convert_str2num(v) for
@@ -1016,6 +1020,14 @@ class UtilClass(object):
         for k, v in iteritems(unicode_dict):
             if isinstance(v, dict):
                 unicode_dict[k] = UtilClass.decode_strs_in_dict(v)
+            elif isinstance(v, list):
+                unicode_dict[k] = [UtilClass.decode_strs_in_dict(vv) if vv is dict else vv
+                                   for vv in v]
+            elif isinstance(v, tuple):
+                unicode_dict[k] = tuple(UtilClass.decode_strs_in_dict(vvv) if vvv is dict else vvv
+                                        for vvv in v)
+            else:
+                pass
         return unicode_dict
 
 
@@ -1032,10 +1044,16 @@ def get_config_file():
     return ini_file
 
 
-def get_config_parser():
-    # type: () -> ConfigParser
-    """Get config parser."""
+def get_config_parser(case_sensitive=False):  # type: (bool) -> ConfigParser
+    """Get config parser.
+
+    Args:
+        case_sensitive: True means preserve case-sensitive in ConfigParser.
+                        https://stackoverflow.com/a/1611877/4837280
+    """
     cf = ConfigParser()
+    if case_sensitive:
+        cf.optionxform = str
     ini_file = get_config_file()
     cf.read(ini_file)
     return cf
