@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+
 # -*- coding: utf-8 -*-
 """TauDEM Utility Class.
 
@@ -648,7 +648,8 @@ class TauDEMWorkflow(object):
     @staticmethod
     def watershed_delineation(np, dem, outlet_file=None, thresh=0, singlebasin=False,
                               workingdir=None, mpi_bin=None, bin_dir=None,
-                              logfile=None, runtime_file=None, hostfile=None):
+                              logfile=None, runtime_file=None, hostfile=None,
+                              avoid_redo=False):
         """Watershed Delineation."""
         # 1. Check directories
         if not os.path.exists(dem):
@@ -685,20 +686,25 @@ class TauDEMWorkflow(object):
 
         # 4. perform calculation
         UtilClass.writelog(logfile, '[Output] %d..., %s' % (10, 'pitremove DEM...'), 'a')
-        TauDEM.pitremove(np, dem, filled_dem, workingdir, mpi_bin, bin_dir,
-                         log_file=logfile, runtime_file=runtime_file, hostfile=hostfile)
+        if not (avoid_redo and FileClass.is_file_exists(filled_dem)):
+            TauDEM.pitremove(np, dem, filled_dem, workingdir, mpi_bin, bin_dir,
+                             log_file=logfile, runtime_file=runtime_file, hostfile=hostfile)
         UtilClass.writelog(logfile, '[Output] %d..., %s' %
                            (20, 'Calculating D8 and Dinf flow direction...'), 'a')
-        TauDEM.d8flowdir(np, filled_dem, flow_dir, slope, workingdir,
-                         mpi_bin, bin_dir, log_file=logfile,
-                         runtime_file=runtime_file, hostfile=hostfile)
-        TauDEM.dinfflowdir(np, filled_dem, flow_dir_dinf, slope_dinf, workingdir,
-                           mpi_bin, bin_dir, log_file=logfile,
-                           runtime_file=runtime_file, hostfile=hostfile)
-        DinfUtil.output_compressed_dinf(flow_dir_dinf, dir_code_dinf, weight_dinf)
+        if not (avoid_redo and FileClass.is_file_exists(flow_dir)):
+            TauDEM.d8flowdir(np, filled_dem, flow_dir, slope, workingdir,
+                             mpi_bin, bin_dir, log_file=logfile,
+                             runtime_file=runtime_file, hostfile=hostfile)
+        if not (avoid_redo and FileClass.is_file_exists(flow_dir_dinf) and
+                FileClass.is_file_exists(dir_code_dinf)):
+            TauDEM.dinfflowdir(np, filled_dem, flow_dir_dinf, slope_dinf, workingdir,
+                               mpi_bin, bin_dir, log_file=logfile,
+                               runtime_file=runtime_file, hostfile=hostfile)
+            DinfUtil.output_compressed_dinf(flow_dir_dinf, dir_code_dinf, weight_dinf)
         UtilClass.writelog(logfile, '[Output] %d..., %s' % (30, 'D8 flow accumulation...'), 'a')
-        TauDEM.aread8(np, flow_dir, acc, None, None, False, workingdir, mpi_bin, bin_dir,
-                      log_file=logfile, runtime_file=runtime_file, hostfile=hostfile)
+        if not (avoid_redo and FileClass.is_file_exists(acc)):
+            TauDEM.aread8(np, flow_dir, acc, None, None, False, workingdir, mpi_bin, bin_dir,
+                          log_file=logfile, runtime_file=runtime_file, hostfile=hostfile)
         UtilClass.writelog(logfile, '[Output] %d..., %s' %
                            (40, 'Generating stream raster initially...'), 'a')
         min_accum, max_accum, mean_accum, std_accum = RasterUtilClass.raster_statistics(acc)

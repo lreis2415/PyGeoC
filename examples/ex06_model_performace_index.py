@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 # Exercise 6: Calculate model performance indexes with PyGeoC
 from pygeoc.utils import MathClass

@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 # Exercise 4: Delineate watershed based on TauDEM functions with PyGeoC
 

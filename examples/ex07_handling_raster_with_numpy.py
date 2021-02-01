@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 # Exercise 7: Handling raster data with numpy, e.g., log transformation.
 

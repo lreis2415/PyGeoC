@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+
 # -*- coding: utf-8 -*-
 """Utility Classes and Functions
 
@@ -906,8 +906,12 @@ class UtilClass(object):
                                    stderr=subprocess.STDOUT, universal_newlines=True,
                                    startupinfo=startupinfo,
                                    creationflags=subprocess_flags)
-        out, err = process.communicate()
-        recode = process.returncode
+        try:
+            out, err = process.communicate()
+            recode = process.returncode
+        except UnicodeDecodeError as unidecodeerr:
+            print(unidecodeerr)
+            return []
 
         if out is None:
             return ['']

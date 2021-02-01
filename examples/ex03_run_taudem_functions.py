@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 # Exercise 3: Run TauDEM functions with PyGeoC
 import os

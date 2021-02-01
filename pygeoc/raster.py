@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+
 # -*- coding: utf-8 -*-
 """Raster Utility Class.
 用于创建栅格数据对象并进行简单操作，如另存为ASCII格式栅格、栅格重分类等。

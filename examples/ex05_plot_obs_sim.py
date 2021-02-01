@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 # Exercise 5: Calculate and plot model performance indexes with PyGeoC
 import os
