@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 """post process of TauDEM.
 
@@ -9,6 +8,7 @@
     - 16-07-01 lj - reorganized for pygeoc.
     - 17-06-25 lj - check by pylint and reformat by Google style.
     - 19-11-07 lj - fixed "TypeError: ... type 'char const *'" bugs caused by the import of unicode_literals
+    - 21-04-01 lj - ignore very tiny flow fraction and bug fixed in updating dinf flow direction
 """
 from __future__ import absolute_import, unicode_literals
 
@@ -35,53 +35,56 @@ class DinfUtil(object):
         pass
 
     @staticmethod
-    def check_orthogonal(angle):
+    def check_orthogonal(angle, minfrac=0.):
         """Check the given Dinf angle based on D8 flow direction encoding code by ArcGIS"""
-        flow_dir_taudem = -1
         flow_dir = -1
-        if MathClass.floatequal(angle, FlowModelConst.e):
+        frac_to_rad = minfrac * PI / 4. + DELTA
+        if angle <= FlowModelConst.e + frac_to_rad or angle >= 2 * PI - frac_to_rad:
             flow_dir_taudem = FlowModelConst.e
             flow_dir = 1
-        elif MathClass.floatequal(angle, FlowModelConst.ne):
+        elif FlowModelConst.ne - frac_to_rad <= angle <= FlowModelConst.ne + frac_to_rad:
             flow_dir_taudem = FlowModelConst.ne
             flow_dir = 128
-        elif MathClass.floatequal(angle, FlowModelConst.n):
+        elif FlowModelConst.n - frac_to_rad <= angle <= FlowModelConst.n + frac_to_rad:
             flow_dir_taudem = FlowModelConst.n
             flow_dir = 64
-        elif MathClass.floatequal(angle, FlowModelConst.nw):
+        elif FlowModelConst.nw - frac_to_rad <= angle <= FlowModelConst.nw + frac_to_rad:
             flow_dir_taudem = FlowModelConst.nw
             flow_dir = 32
-        elif MathClass.floatequal(angle, FlowModelConst.w):
+        elif FlowModelConst.w - frac_to_rad <= angle <= FlowModelConst.w + frac_to_rad:
             flow_dir_taudem = FlowModelConst.w
             flow_dir = 16
-        elif MathClass.floatequal(angle, FlowModelConst.sw):
+        elif FlowModelConst.sw - frac_to_rad <= angle <= FlowModelConst.sw + frac_to_rad:
             flow_dir_taudem = FlowModelConst.sw
             flow_dir = 8
-        elif MathClass.floatequal(angle, FlowModelConst.s):
+        elif FlowModelConst.s - frac_to_rad <= angle <= FlowModelConst.s + frac_to_rad:
             flow_dir_taudem = FlowModelConst.s
             flow_dir = 4
-        elif MathClass.floatequal(angle, FlowModelConst.se):
+        elif FlowModelConst.se - frac_to_rad <= angle <= FlowModelConst.se + frac_to_rad:
             flow_dir_taudem = FlowModelConst.se
             flow_dir = 2
+        else:
+            flow_dir_taudem = angle
         return flow_dir_taudem, flow_dir
 
     @staticmethod
-    def compress_dinf(angle, nodata):
+    def compress_dinf(angle, nodata, minfrac=0.):
         """Compress dinf flow direction to D8 direction with weight follows ArcGIS D8 codes.
         Args:
             angle: D-inf flow direction angle
             nodata: NoData value
+            minfrac: Minimum flow fraction that accounted, percent, e.g., 0.01
 
         Returns:
             1. Updated Dinf values
             2. Compressed flow direction follows ArcGIS D8 codes rule
-            3. Weight of the first direction
+            3. Weight of the first direction by counter-clockwise
         """
         if MathClass.floatequal(angle, nodata):
             return DEFAULT_NODATA, DEFAULT_NODATA, DEFAULT_NODATA
-        taud, d = DinfUtil.check_orthogonal(angle)
+        angle, d = DinfUtil.check_orthogonal(angle, minfrac=minfrac)
         if d != -1:
-            return taud, d, 1
+            return angle, d, 1
         if angle < FlowModelConst.ne:
             a1 = angle
             d = 129  # 1+128
@@ -106,15 +109,18 @@ class DinfUtil(object):
         else:
             a1 = angle - FlowModelConst.se
             d = 3  # 2+1
-        return angle, d, a1 / PI * 4.0
+        return angle, d, 1. - a1 / PI * 4.0
 
     @staticmethod
-    def output_compressed_dinf(dinfflowang, compdinffile, weightfile):
-        """Output compressed Dinf flow direction and weight to raster file
+    def output_compressed_dinf(dinfflowang, compdinffile, weightfile,
+                               minfraction=0., upddinffile=None):
+        """Output updated Dinf, compressed flow directions, and flow fractions to raster files
         Args:
             dinfflowang: Dinf flow direction raster file
             compdinffile: Compressed D8 flow code
             weightfile: The correspond weight
+            minfraction: Minimum flow fraction that accounted, percent, e.g., 0.01
+            upddinffile: Updated Dinf flow direction raster file
         """
         dinf_r = RasterUtilClass.read_raster(dinfflowang)
         data = dinf_r.data
@@ -122,10 +128,12 @@ class DinfUtil(object):
         ysize = dinf_r.nRows
         nodata_value = dinf_r.noDataValue
 
-        cal_dir_code = frompyfunc(DinfUtil.compress_dinf, 2, 3)
-        updated_angle, dir_code, weight = cal_dir_code(data, nodata_value)
+        cal_dir_code = frompyfunc(DinfUtil.compress_dinf, 3, 3)
+        updated_angle, dir_code, weight = cal_dir_code(data, nodata_value, minfraction)
 
-        RasterUtilClass.write_gtiff_file(dinfflowang, ysize, xsize, updated_angle,
+        if upddinffile is None:
+            upddinffile = dinfflowang
+        RasterUtilClass.write_gtiff_file(upddinffile, ysize, xsize, updated_angle,
                                          dinf_r.geotrans, dinf_r.srs, DEFAULT_NODATA, GDT_Float32)
         RasterUtilClass.write_gtiff_file(compdinffile, ysize, xsize, dir_code,
                                          dinf_r.geotrans, dinf_r.srs, DEFAULT_NODATA, GDT_Int16)
@@ -143,26 +151,24 @@ class DinfUtil(object):
         """
         taud, d = DinfUtil.check_orthogonal(a)
         if d != -1:
-            down = [d]
-            return down
+            return [d]
         else:
             if a < FlowModelConst.ne:  # 129 = 1+128
-                down = [1, 2]
+                return [1, 2]
             elif a < FlowModelConst.n:  # 192 = 128+64
-                down = [2, 3]
+                return [2, 3]
             elif a < FlowModelConst.nw:  # 96 = 64+32
-                down = [3, 4]
+                return [3, 4]
             elif a < FlowModelConst.w:  # 48 = 32+16
-                down = [4, 5]
+                return [4, 5]
             elif a < FlowModelConst.sw:  # 24 = 16+8
-                down = [5, 6]
+                return [5, 6]
             elif a < FlowModelConst.s:  # 12 = 8+4
-                down = [6, 7]
+                return [6, 7]
             elif a < FlowModelConst.se:  # 6 = 4+2
-                down = [7, 8]
+                return [7, 8]
             else:  # 3 = 2+1
-                down = [8, 1]
-            return down
+                return [8, 1]
 
     @staticmethod
     def downstream_index_dinf(dinfdir_value, i, j):
@@ -176,7 +182,7 @@ class DinfUtil(object):
             downstream (row, col)s
         """
         down_dirs = DinfUtil.dinf_downslope_direction(dinfdir_value)
-        down_coors = []
+        down_coors = list()
         for dir_code in down_dirs:
             row, col = D8Util.downstream_index(dir_code, i, j)
             down_coors.append([row, col])
@@ -291,12 +297,13 @@ class StreamnetUtil(object):
 def main():
     """Test code"""
     import os
-    # wp = r'C:\z_code\subrepos\PyGeoC\tests\data\tmp_results\wtsd_delineation'
-    wp = r'C:\z_data_m\SEIMS2018\zhongtianshe_100m\taudem_delineated'
+    wp = r'D:\code\WatershedModels\SEIMS\data\youwuzhen\workspace\taudem_delineated'
     dinfflowang = wp + os.sep + 'flowDirDinfTau.tif'
     compdinffile = wp + os.sep + 'dirCodeDinfTau.tif'
     weightfile = wp + os.sep + 'weightDinfTau.tif'
-    DinfUtil.output_compressed_dinf(dinfflowang, compdinffile, weightfile)
+    updflowdinffile = wp + os.sep + 'updatedFlowDirDinf.tif'
+    DinfUtil.output_compressed_dinf(dinfflowang, compdinffile, weightfile,
+                                    minfraction=0.01, upddinffile=updflowdinffile)
 
 
 if __name__ == '__main__':
