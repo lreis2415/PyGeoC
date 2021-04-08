@@ -855,13 +855,15 @@ class UtilClass(object):
         pass
 
     @staticmethod
-    def run_command(commands, raise_exception=True):
-        # type: (Union[AnyStr, List[AnyStr]], Optional[bool]) -> Optional[None, List[AnyStr]]
+    def run_command(commands, raise_exception=True, prior_envpath=None):
+        # type: (Union[AnyStr, List[AnyStr]], Optional[bool], Optional[AnyStr, List[AnyStr], Dict[AnyStr, AnyStr]]) -> Optional[None, List[AnyStr]]
         """Execute external command, and return the output lines list. In windows, refers to
         `handling-subprocess-crash-in-windows`_.
 
         Args:
             commands: string or list
+            raise_exception: raise exception or not
+            prior_envpath: prior search paths, string, list, or dict
 
         Returns:
             output lines
@@ -901,10 +903,24 @@ class UtilClass(object):
                         # Fix :TypeError: execv() arg 2 must contain only strings
                         commands[idx] = repr(v)
         print(commands)
+
+        # insert prior search paths for executables if specified, otherwise use the default PATH
+        envpaths = os.environ.copy()
+        if prior_envpath is not None:
+            if type(prior_envpath) is dict:
+                envpaths.update(prior_envpath)
+            elif type(prior_envpath) is list:
+                for ipath in reversed(prior_envpath):
+                    envpaths['PATH'] = ipath + os.pathsep + envpaths['PATH']
+            elif type(prior_envpath) is str:
+                envpaths['PATH'] = prior_envpath + os.pathsep + envpaths['PATH']
+            else:
+                print('prior_envpath for run_command should be string, list, or dict!')
+
         process = subprocess.Popen(commands, shell=use_shell, stdout=subprocess.PIPE,
                                    stdin=open(os.devnull),
                                    stderr=subprocess.STDOUT, universal_newlines=True,
-                                   startupinfo=startupinfo,
+                                   startupinfo=startupinfo, env=envpaths,
                                    creationflags=subprocess_flags)
         try:
             out, err = process.communicate()
