@@ -11,6 +11,7 @@
     - 12-04-12 jz - origin version.
     - 16-07-01 lj - reorganized for pygeoc.
     - 17-06-25 lj - check by pylint and reformat by Google style.
+    - 21-04-07 lj - add MFD-md algorithm: flowmfdmd
 
    .. _TauDEM:
       https://github.com/dtarb/TauDEM
@@ -41,6 +42,8 @@ class TauDEMFilesUtils(object):
     _DIRCODEDINF = 'dirCodeDinfTau.tif'
     _WEIGHTDINF = 'weightDinfTau.tif'
     _SLOPEDINF = 'slopeDinfTau.tif'
+    _DIRCODEMFDMD = 'dirCodeMFDmd.tif'
+    _FLOWFRACTIONMFDMD = 'fractionsMFDmd.tif'
     _DEFAULTOUTLET = 'outlet_pre.shp'
     _MODIFIEDOUTLET = 'outletM.shp'
     _STREAMSKELETON = 'streamSkeleton.tif'
@@ -70,6 +73,8 @@ class TauDEMFilesUtils(object):
         self.dinf_d8dir = tau_dir + os.sep + self._DIRCODEDINF
         self.dinf_weight = tau_dir + os.sep + self._WEIGHTDINF
         self.dinf_slp = tau_dir + os.sep + self._SLOPEDINF
+        self.mfdmd_dir = tau_dir + os.sep + self._DIRCODEMFDMD
+        self.mfdmd_frac = tau_dir + os.sep + self._FLOWFRACTIONMFDMD
         self.outlet_pre = tau_dir + os.sep + self._DEFAULTOUTLET
         self.outlet_m = tau_dir + os.sep + self._MODIFIEDOUTLET
         self.stream_pd = tau_dir + os.sep + self._STREAMSKELETON
@@ -181,7 +186,7 @@ class TauDEM(object):
 
     @staticmethod
     def run(function_name, in_files, wp=None, in_params=None, out_files=None, mpi_params=None,
-            log_params=None):
+            log_params=None, ignore_err=False):
         """
         Run TauDEM function.
 
@@ -223,6 +228,8 @@ class TauDEM(object):
 
                     {'logfile': '/home/user/log.txt',
                      'runtimefile': '/home/user/runtime.txt'}
+
+            ignore_err (bool, optional): Ignore errors of verify the existence of output files
 
         Returns:
             True if TauDEM run successfully, otherwise False.
@@ -322,7 +329,7 @@ class TauDEM(object):
                 commands.append('-n')
                 commands.append(str(mpi_params['n']))
             else:  # If number of processor is less equal than 1, then do not call mpiexec.
-                commands = []
+                commands = list()
         # append TauDEM function name, which can be full path or just one name
         commands.append(function_name)
         # append input files
@@ -368,7 +375,7 @@ class TauDEM(object):
         TauDEM.output_runtime_to_log(function_name, runmsg, runtime_file)
         # Check out_files, raise RuntimeError if not exist.
         for of in new_out_files:
-            if not os.path.exists(of):
+            if not os.path.exists(of) and not ignore_err:
                 TauDEM.error('%s failed, and the %s was not generated!' % (function_name, of))
                 return False
         return True
@@ -396,6 +403,23 @@ class TauDEM(object):
                           {'-p': flowdir, '-sd8': slope},
                           {'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
                           {'logfile': log_file, 'runtimefile': runtime_file})
+
+    @staticmethod
+    def mfdmdflowdir(np, filleddem, flowdir, portion, min_portion=0.01,
+                     p0=1.1, rng=8.9, lb=0., ub=1.,
+                     workingdir=None, mpiexedir=None, exedir=None,
+                     log_file=None, runtime_file=None, hostfile=None):
+        """Run MFD-md flow direction (Qin et al., 2007)"""
+        fname = TauDEM.func_name('flowmfdmd')
+        return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
+                          {'-dem': filleddem}, workingdir,
+                          {'-min_portion': min_portion,
+                           '-p0': p0, '-range': rng, '-tanb_lb': lb, '-tanb_ub': ub},
+                          {'-mfd': flowdir, '-portion': portion},
+                          {'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
+                          {'logfile': log_file, 'runtimefile': runtime_file},
+                          ignore_err=True)
+        # The output flow fraction files are not the same with the argument 'portion'
 
     @staticmethod
     def dinfflowdir(np, filleddem, flowangle, slope, workingdir=None, mpiexedir=None, exedir=None,
@@ -786,6 +810,9 @@ def run_test():
     TauDEM.pitremove(1, dem, td_names.filldem, workingspace, log_file=log, runtime_file=runtime)
     TauDEM.d8flowdir(4, td_names.filldem, td_names.d8flow, td_names.slp, workingspace,
                      log_file=log, runtime_file=runtime)
+    TauDEM.mfdmdflowdir(4, td_names.filldem, td_names.mfdmd_dir, td_names.mfdmd_frac,
+                        min_portion=0.02, workingdir=workingspace,
+                        log_file=log, runtime_file=runtime)
 
 
 if __name__ == "__main__":
