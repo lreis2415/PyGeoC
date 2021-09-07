@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 """TauDEM Utility Class.
 
@@ -12,6 +11,7 @@
     - 16-07-01 lj - reorganized for pygeoc.
     - 17-06-25 lj - check by pylint and reformat by Google style.
     - 21-04-07 lj - add MFD-md algorithm: flowmfdmd
+    - 21-09-07 lj - remove unnecessary functions of watershed_delineation
 
    .. _TauDEM:
       https://github.com/dtarb/TauDEM
@@ -52,7 +52,6 @@ class TauDEMFilesUtils(object):
     _CHNETWORK = 'chNetwork.txt'
     _CHCOORD = 'chCoord.txt'
     _STREAMNET = 'streamNet.shp'
-    _DIST2STREAMD8 = 'dist2StreamD8Org.tif'
     _SUBBASIN = 'subbasinTau.tif'
     # masked file names
     _SUBBASINM = 'subbasinTauM.tif'
@@ -82,7 +81,6 @@ class TauDEMFilesUtils(object):
         self.channel_net = tau_dir + os.sep + self._CHNETWORK
         self.channel_coord = tau_dir + os.sep + self._CHCOORD
         self.streamnet_shp = tau_dir + os.sep + self._STREAMNET
-        self.dist2stream_d8 = tau_dir + os.sep + self._DIST2STREAMD8
         self.subbsn = tau_dir + os.sep + self._SUBBASIN
         self.subbsn_m = tau_dir + os.sep + self._SUBBASINM
         self.d8flow_m = tau_dir + os.sep + self._D8FLOWDIRM
@@ -598,10 +596,10 @@ class TauDEM(object):
         """Run D8 distance down to stream by different method for distance.
         This function is extended from d8hdisttostrm by Liangjun.
 
-        Please clone `TauDEM by lreis2415`_ and compile for this program.
+        Please clone `TauDEM_ext by lreis2415`_ and compile for this program.
 
-        .. _TauDEM by lreis2415:
-           https://github.com/lreis2415/TauDEM
+        .. _TauDEM_ext by lreis2415:
+           https://github.com/lreis2415/TauDEM_ext
         """
         fname = TauDEM.func_name('d8distdowntostream')
         return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
@@ -674,130 +672,122 @@ class TauDEMWorkflow(object):
                               workingdir=None, mpi_bin=None, bin_dir=None,
                               logfile=None, runtime_file=None, hostfile=None,
                               avoid_redo=False):
-        """Watershed Delineation."""
+        """Watershed Delineation based on D8 flow direction.
+
+        Args:
+            np: process number for MPI
+            dem: DEM path
+            outlet_file: predefined outlet shapefile path
+            thresh: predefined threshold for extracting stream from accumulated flow direction
+            singlebasin: when set True, only extract subbasins that drains into predefined outlets
+            workingdir: directory that store outputs
+            mpi_bin: directory of MPI executable binary, e.g., mpiexec, mpirun
+            bin_dir: directory of TauDEM and other executable binaries
+            logfile: log file path
+            runtime_file: runtime file path
+            hostfile: host list file path for MPI
+            avoid_redo: avoid executing some functions that do not depend on input arguments
+                        when repeatedly invoke this function
+        """
         # 1. Check directories
         if not os.path.exists(dem):
             TauDEM.error('DEM: %s is not existed!' % dem)
         dem = os.path.abspath(dem)
         if workingdir is None or workingdir is '':
             workingdir = os.path.dirname(dem)
-        namecfg = TauDEMFilesUtils(workingdir)
-        workingdir = namecfg.workspace
+        nc = TauDEMFilesUtils(workingdir)  # predefined names
+        workingdir = nc.workspace
         UtilClass.mkdir(workingdir)
         # 2. Check log file
         if logfile is not None and FileClass.is_file_exists(logfile):
             os.remove(logfile)
-        # 3. Get predefined intermediate file names
-        filled_dem = namecfg.filldem
-        flow_dir = namecfg.d8flow
-        slope = namecfg.slp
-        flow_dir_dinf = namecfg.dinf
-        slope_dinf = namecfg.dinf_slp
-        dir_code_dinf = namecfg.dinf_d8dir
-        weight_dinf = namecfg.dinf_weight
-        acc = namecfg.d8acc
-        stream_raster = namecfg.stream_raster
-        default_outlet = namecfg.outlet_pre
-        modified_outlet = namecfg.outlet_m
-        stream_skeleton = namecfg.stream_pd
-        acc_with_weight = namecfg.d8acc_weight
-        stream_order = namecfg.stream_order
-        ch_network = namecfg.channel_net
-        ch_coord = namecfg.channel_coord
-        stream_net = namecfg.streamnet_shp
-        subbasin = namecfg.subbsn
-        dist2_stream_d8 = namecfg.dist2stream_d8
-
-        # 4. perform calculation
-        UtilClass.writelog(logfile, '[Output] %d..., %s' % (10, 'pitremove DEM...'), 'a')
-        if not (avoid_redo and FileClass.is_file_exists(filled_dem)):
-            TauDEM.pitremove(np, dem, filled_dem, workingdir, mpi_bin, bin_dir,
+        # 3. perform calculation
+        # Filling DEM
+        if not (avoid_redo and FileClass.is_file_exists(nc.filldem)):
+            UtilClass.writelog(logfile, '[Output] %s' % 'remove pit...', 'a')
+            TauDEM.pitremove(np, dem, nc.filldem, workingdir, mpi_bin, bin_dir,
                              log_file=logfile, runtime_file=runtime_file, hostfile=hostfile)
-        UtilClass.writelog(logfile, '[Output] %d..., %s' %
-                           (20, 'Calculating D8 and Dinf flow direction...'), 'a')
-        if not (avoid_redo and FileClass.is_file_exists(flow_dir)):
-            TauDEM.d8flowdir(np, filled_dem, flow_dir, slope, workingdir,
+        # Flow direction based on D8 algorithm
+        if not (avoid_redo and FileClass.is_file_exists(nc.d8flow)):
+            UtilClass.writelog(logfile, '[Output] %s' % 'D8 flow direction...', 'a')
+            TauDEM.d8flowdir(np, nc.filldem, nc.d8flow, nc.slp, workingdir,
                              mpi_bin, bin_dir, log_file=logfile,
                              runtime_file=runtime_file, hostfile=hostfile)
-        if not (avoid_redo and FileClass.is_file_exists(flow_dir_dinf) and
-                FileClass.is_file_exists(dir_code_dinf)):
-            TauDEM.dinfflowdir(np, filled_dem, flow_dir_dinf, slope_dinf, workingdir,
-                               mpi_bin, bin_dir, log_file=logfile,
-                               runtime_file=runtime_file, hostfile=hostfile)
-            DinfUtil.output_compressed_dinf(flow_dir_dinf, dir_code_dinf, weight_dinf)
-        UtilClass.writelog(logfile, '[Output] %d..., %s' % (30, 'D8 flow accumulation...'), 'a')
-        if not (avoid_redo and FileClass.is_file_exists(acc)):
-            TauDEM.aread8(np, flow_dir, acc, None, None, False, workingdir, mpi_bin, bin_dir,
+        # Flow accumulation without stream skeleton as weight
+        if not (avoid_redo and FileClass.is_file_exists(nc.d8acc)):
+            UtilClass.writelog(logfile, '[Output] %s' % 'D8 flow accumulation...', 'a')
+            TauDEM.aread8(np, nc.d8flow, nc.d8acc, None, None, False, workingdir, mpi_bin, bin_dir,
                           log_file=logfile, runtime_file=runtime_file, hostfile=hostfile)
-        UtilClass.writelog(logfile, '[Output] %d..., %s' %
-                           (40, 'Generating stream raster initially...'), 'a')
-        min_accum, max_accum, mean_accum, std_accum = RasterUtilClass.raster_statistics(acc)
-        TauDEM.threshold(np, acc, stream_raster, mean_accum, workingdir,
+        # Initial stream network using mean accumulation as threshold
+        UtilClass.writelog(logfile, '[Output] %s' % 'Generating stream raster initially...', 'a')
+        min_accum, max_accum, mean_accum, std_accum = RasterUtilClass.raster_statistics(nc.d8acc)
+        TauDEM.threshold(np, nc.d8acc, nc.stream_raster, mean_accum, workingdir,
                          mpi_bin, bin_dir, log_file=logfile,
                          runtime_file=runtime_file, hostfile=hostfile)
-        UtilClass.writelog(logfile, '[Output] %d..., %s' % (50, 'Moving outlet to stream...'), 'a')
-        if outlet_file is None:
-            outlet_file = default_outlet
-            TauDEM.connectdown(np, flow_dir, acc, outlet_file, modified_outlet, wtsd=None,
+        # Outlets position initialization and adjustment
+        UtilClass.writelog(logfile, '[Output] %s' % 'Moving outlet to stream...', 'a')
+        if outlet_file is None:  # if not given, take cell with maximum accumulation as outlet
+            outlet_file = nc.outlet_pre
+            TauDEM.connectdown(np, nc.d8flow, nc.d8acc, outlet_file, nc.outlet_m, wtsd=None,
                                workingdir=workingdir, mpiexedir=mpi_bin, exedir=bin_dir,
                                log_file=logfile, runtime_file=runtime_file, hostfile=hostfile)
-        TauDEM.moveoutletstostrm(np, flow_dir, stream_raster, outlet_file,
-                                 modified_outlet, workingdir=workingdir,
+        TauDEM.moveoutletstostrm(np, nc.d8flow, nc.stream_raster, outlet_file,
+                                 nc.outlet_m, workingdir=workingdir,
                                  mpiexedir=mpi_bin, exedir=bin_dir,
                                  log_file=logfile, runtime_file=runtime_file, hostfile=hostfile)
-        UtilClass.writelog(logfile, '[Output] %d..., %s' %
-                           (60, 'Generating stream skeleton...'), 'a')
-        TauDEM.peukerdouglas(np, filled_dem, stream_skeleton, workingdir,
+        # Stream skeleton by peuker-douglas algorithm
+        UtilClass.writelog(logfile, '[Output] %s' % 'Generating stream skeleton ...', 'a')
+        TauDEM.peukerdouglas(np, nc.filldem, nc.stream_pd, workingdir,
                              mpi_bin, bin_dir, log_file=logfile,
                              runtime_file=runtime_file, hostfile=hostfile)
-        UtilClass.writelog(logfile, '[Output] %d..., %s' %
-                           (70, 'Flow accumulation with outlet...'), 'a')
+        # Weighted flow acculation with outlet
+        UtilClass.writelog(logfile, '[Output] %s' % 'Flow accumulation with outlet...', 'a')
         tmp_outlet = None
         if singlebasin:
-            tmp_outlet = modified_outlet
-        TauDEM.aread8(np, flow_dir, acc_with_weight, tmp_outlet, stream_skeleton, False,
+            tmp_outlet = nc.outlet_m
+        TauDEM.aread8(np, nc.d8flow, nc.d8acc_weight, tmp_outlet, nc.stream_pd, False,
                       workingdir, mpi_bin, bin_dir, log_file=logfile,
                       runtime_file=runtime_file, hostfile=hostfile)
-
+        # Determine threshold by input argument or dropanalysis function
         if thresh <= 0:  # find the optimal threshold using dropanalysis function
-            UtilClass.writelog(logfile, '[Output] %d..., %s' %
-                               (75, 'Drop analysis to select optimal threshold...'), 'a')
+            UtilClass.writelog(logfile, '[Output] %s' %
+                               'Drop analysis to select optimal threshold...', 'a')
             min_accum, max_accum, mean_accum, std_accum = \
-                RasterUtilClass.raster_statistics(acc_with_weight)
+                RasterUtilClass.raster_statistics(nc.d8acc_weight)
             if mean_accum - std_accum < 0:
                 minthresh = mean_accum
             else:
                 minthresh = mean_accum - std_accum
             maxthresh = mean_accum + std_accum
-            numthresh = 20
-            logspace = 'true'
-            drp_file = namecfg.drptxt
-            TauDEM.dropanalysis(np, filled_dem, flow_dir, acc_with_weight,
-                                acc_with_weight, modified_outlet, minthresh, maxthresh,
-                                numthresh, logspace, drp_file, workingdir, mpi_bin, bin_dir,
+            TauDEM.dropanalysis(np, nc.filldem, nc.d8flow, nc.d8acc_weight,
+                                nc.d8acc_weight, nc.outlet_m, minthresh, maxthresh,
+                                20, 'true', nc.drptxt, workingdir, mpi_bin, bin_dir,
                                 log_file=logfile, runtime_file=runtime_file, hostfile=hostfile)
-            if not FileClass.is_file_exists(drp_file):
-                raise RuntimeError('Dropanalysis failed and drp.txt was not created!')
-            with open(drp_file, 'r', encoding='utf-8') as drpf:
-                temp_contents = drpf.read()
-                (beg, thresh) = temp_contents.rsplit(' ', 1)
-            print(thresh)
-        UtilClass.writelog(logfile, '[Output] %d..., %s' % (80, 'Generating stream raster...'), 'a')
-        TauDEM.threshold(np, acc_with_weight, stream_raster, float(thresh),
+            if not FileClass.is_file_exists(nc.drptxt):
+                # raise RuntimeError('Dropanalysis failed and drp.txt was not created!')
+                UtilClass.writelog(logfile, '[Output] %s' %
+                                   'dropanalysis failed!', 'a')
+                thresh = 0.5 * (maxthresh - minthresh) + minthresh
+            else:
+                with open(nc.drptxt, 'r', encoding='utf-8') as drpf:
+                    temp_contents = drpf.read()
+                    (beg, thresh) = temp_contents.rsplit(' ', 1)
+            thresh = float(thresh)
+            UtilClass.writelog(logfile, '[Output] %s: %f' %
+                               ('Selected optimal threshold: ', thresh), 'a')
+        # Final stream network
+        UtilClass.writelog(logfile, '[Output] %s' % 'Generating stream raster...', 'a')
+        TauDEM.threshold(np, nc.d8acc_weight, nc.stream_raster, thresh,
                          workingdir, mpi_bin, bin_dir, log_file=logfile,
                          runtime_file=runtime_file, hostfile=hostfile)
-        UtilClass.writelog(logfile, '[Output] %d..., %s' % (90, 'Generating stream net...'), 'a')
-        TauDEM.streamnet(np, filled_dem, flow_dir, acc_with_weight, stream_raster,
-                         modified_outlet, stream_order, ch_network,
-                         ch_coord, stream_net, subbasin, workingdir, mpi_bin, bin_dir,
+        UtilClass.writelog(logfile, '[Output] %s' % 'Generating stream net...', 'a')
+        TauDEM.streamnet(np, nc.filldem, nc.d8flow, nc.d8acc_weight, nc.stream_raster,
+                         nc.outlet_m, nc.stream_order, nc.channel_net,
+                         nc.channel_coord, nc.streamnet_shp, nc.subbsn,
+                         workingdir, mpi_bin, bin_dir,
                          log_file=logfile, runtime_file=runtime_file, hostfile=hostfile)
-        UtilClass.writelog(logfile, '[Output] %d..., %s' %
-                           (95, 'Calculating distance to stream (D8)...'), 'a')
-        TauDEM.d8hdisttostrm(np, flow_dir, stream_raster, dist2_stream_d8, 1,
-                             workingdir, mpi_bin, bin_dir, log_file=logfile,
-                             runtime_file=runtime_file, hostfile=hostfile)
-        UtilClass.writelog(logfile, '[Output] %d.., %s' %
-                           (100, 'Original subbasin delineation is finished!'), 'a')
+        UtilClass.writelog(logfile, '[Output] %s' %
+                           'Original subbasin delineation is finished!', 'a')
 
 
 def run_test():
@@ -807,12 +797,13 @@ def run_test():
     runtime = 'runtime.log'
     td_names = TauDEMFilesUtils(workingspace)
 
-    TauDEM.pitremove(1, dem, td_names.filldem, workingspace, log_file=log, runtime_file=runtime)
-    TauDEM.d8flowdir(4, td_names.filldem, td_names.d8flow, td_names.slp, workingspace,
-                     log_file=log, runtime_file=runtime)
-    TauDEM.mfdmdflowdir(4, td_names.filldem, td_names.mfdmd_dir, td_names.mfdmd_frac,
-                        min_portion=0.02, workingdir=workingspace,
-                        log_file=log, runtime_file=runtime)
+    # TauDEM.pitremove(1, dem, td_names.filldem, workingspace, log_file=log, runtime_file=runtime)
+    # TauDEM.d8flowdir(4, td_names.filldem, td_names.d8flow, td_names.slp, workingspace,
+    #                  log_file=log, runtime_file=runtime)
+    # TauDEM.mfdmdflowdir(4, td_names.filldem, td_names.mfdmd_dir, td_names.mfdmd_frac,
+    #                     min_portion=0.02, workingdir=workingspace,
+    #                     log_file=log, runtime_file=runtime)
+    TauDEMWorkflow.watershed_delineation(4, dem)
 
 
 if __name__ == "__main__":
