@@ -1083,7 +1083,7 @@ if __name__ == '__main__':
     # Run doctest in docstrings of Google code style
     # python -m doctest utils.py (only when doctest.ELLIPSIS is not specified)
     # or python utils.py -v
-    # or py.test --doctest-module utils.py
+    # or py.test --doctest-modules utils.py
     import doctest
 
     doctest.testmod()

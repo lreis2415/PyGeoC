@@ -728,7 +728,7 @@ if __name__ == '__main__':
     # Run doctest in docstrings of Google code style
     # python -m doctest raster.py (only when doctest.ELLIPSIS is not specified)
     # or python raster.py -v
-    # or py.test --doctest-module raster.py
+    # or py.test --doctest-modules raster.py
     import doctest
 
     doctest.testmod(optionflags=doctest.ELLIPSIS)

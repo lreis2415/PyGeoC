@@ -15,7 +15,7 @@ env:
     - GDALINST=$HOME/gdalinstall
     - GDALBUILD=$HOME/gdalbuild
   matrix:
-    - GDALVERSION="1.11.2"
+    #- GDALVERSION="1.11.2"
     - GDALVERSION="2.2.3"
 addons:
   apt:
@@ -24,7 +24,7 @@ addons:
     - libproj-dev
     - libgdal-dev
 python:
-  - '2.7'
+  #- '2.7'
   - '3.6'
 before_install:
   - pip install -U pip
@@ -49,7 +49,7 @@ script:
   - for i in `find . -name *.whl`; do python -m pip install $i --upgrade; done
   - cd ..
   # doctest
-  - python -m pytest --doctest-module pygeoc -v
+  - python -m pytest --doctest-modules pygeoc -v
   # code coverage
   - python -m pytest --cov pygeoc --cov-report term-missing
   # update docs, only on py3.6 & GDAL 2.2.3 matrix
