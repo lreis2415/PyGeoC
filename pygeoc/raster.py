@@ -188,7 +188,7 @@ class Raster(object):
                              "nRows (%d) or nCols (%d)!" % (self.nRows, self.nCols))
         else:
             value = self.data[int(round(row))][int(round(col))]
-            if value == self.noDataValue:
+            if MathClass.floatequal(value, self.noDataValue):
                 return None
             else:
                 return value
@@ -232,6 +232,18 @@ class Raster(object):
             tmpx = self.xMin + (col + 0.5) * self.dx
             tmpy = self.yMax - (row + 0.5) * self.dx
             return tmpx, tmpy
+
+    def is_nodata(self, row, col):
+        """Check nodata
+
+        Args:
+            row: row number, range from 0 to (nRows - 1).
+            col: col number, range from 0 to (nCols - 1).
+
+        Returns:
+            True if the cell equals nodata.
+        """
+        return True if self.get_value_by_row_col(row, col) is None else False
 
 
 class RasterUtilClass(object):
