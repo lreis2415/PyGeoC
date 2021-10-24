@@ -12,6 +12,7 @@
 """
 from __future__ import absolute_import, unicode_literals
 
+from typing import List, Tuple
 from numpy import frompyfunc, ones, where
 from osgeo.gdal import GDT_Int16, GDT_Float32
 from osgeo.ogr import Open as ogr_Open
@@ -35,8 +36,23 @@ class DinfUtil(object):
         pass
 
     @staticmethod
-    def check_orthogonal(angle, minfrac=0.):
-        """Check the given Dinf angle based on D8 flow direction encoding code by ArcGIS"""
+    def check_orthogonal(angle, minfrac=0.01):
+        # type: (float, float) -> Tuple[float, int]
+        """Check the given Dinf angle based on D8 flow direction encoding code by ArcGIS
+
+        Examples:
+            >>> DinfUtil.check_orthogonal(FlowModelConst.e)  # doctest: +ELLIPSIS
+            (0.0, 1)
+            >>> DinfUtil.check_orthogonal(2 * PI - 0.009 * PI / 4., 0.01)
+            (0.0, 1)
+
+        Args:
+            angle: D-inf flow angle, [0, 2*pi]
+            minfrac: Min. flow fraction that accounts
+
+        Returns:
+            Tuple[revised_dinf_flowdir, single_flowdir_code_ArcGIS]
+        """
         flow_dir = -1
         frac_to_rad = minfrac * PI / 4. + DELTA
         if angle <= FlowModelConst.e + frac_to_rad or angle >= 2 * PI - frac_to_rad:
@@ -68,8 +84,9 @@ class DinfUtil(object):
         return flow_dir_taudem, flow_dir
 
     @staticmethod
-    def compress_dinf(angle, nodata, minfrac=0.):
+    def compress_dinf(angle, nodata, minfrac=0.01):
         """Compress dinf flow direction to D8 direction with weight follows ArcGIS D8 codes.
+
         Args:
             angle: D-inf flow direction angle
             nodata: NoData value
@@ -84,7 +101,7 @@ class DinfUtil(object):
             return DEFAULT_NODATA, DEFAULT_NODATA, DEFAULT_NODATA
         angle, d = DinfUtil.check_orthogonal(angle, minfrac=minfrac)
         if d != -1:
-            return angle, d, 1
+            return angle, d, 1.
         if angle < FlowModelConst.ne:
             a1 = angle
             d = 129  # 1+128
@@ -112,14 +129,19 @@ class DinfUtil(object):
         return angle, d, 1. - a1 / PI * 4.0
 
     @staticmethod
-    def output_compressed_dinf(dinfflowang, compdinffile, weightfile,
-                               minfraction=0., upddinffile=None):
+    def output_compressed_dinf(dinfflowang,  # input
+                               compdinffile, weightfile,  # outputs
+                               minfraction=0.01, subbasin=None, stream=None,  # optional inputs
+                               upddinffile=None  # optional output
+                               ):
         """Output updated Dinf, compressed flow directions, and flow fractions to raster files
         Args:
             dinfflowang: Dinf flow direction raster file
             compdinffile: Compressed D8 flow code
-            weightfile: The correspond weight
+            weightfile: The correspond weight to the first flow direction
             minfraction: Minimum flow fraction that accounted, percent, e.g., 0.01
+            subbasin: Subbasin raster to satisfy that one cell only flow downstream within subbasin
+            stream: Stream raster to satisfy that river cell only flow into one downstream cell
             upddinffile: Updated Dinf flow direction raster file
         """
         dinf_r = RasterUtilClass.read_raster(dinfflowang)
@@ -127,6 +149,55 @@ class DinfUtil(object):
         xsize = dinf_r.nCols
         ysize = dinf_r.nRows
         nodata_value = dinf_r.noDataValue
+
+        use_subbsn = False
+        use_stream = False
+        if subbasin is not None:
+            subbsn_r = RasterUtilClass.read_raster(subbasin)
+            if xsize == subbsn_r.nCols and ysize == subbsn_r.nRows:
+                use_subbsn = True
+        if stream is not None:
+            stream_r = RasterUtilClass.read_raster(stream)
+            if xsize == stream_r.nCols and ysize == stream_r.nRows:
+                use_stream = True
+
+        # if use_stream:
+        #     for i in range(ysize):
+        #         for j in range(xsize):
+        #             strm_v = stream_r.get_value_by_row_col(i, j)
+        #             if strm_v is None or strm_v <= 0 or dinf_r.is_nodata(i, j):
+        #                 continue
+        #             dinf_v = dinf_r.get_value_by_row_col(i, j)
+        #             dinf_upd, flowdir, weight = DinfUtil.compress_dinf(dinf_v,
+        #                                                                dinf_r.noDataValue,
+        #                                                                minfrac=minfraction)
+        #             if flowdir in FlowModelConst.d8dir_ag:
+        #                 continue
+        #
+        #
+        #             down_cs = DinfUtil.downstream_index_dinf(dinf_v, i, j)
+        #             weight = list()
+        #             strm_l = list()
+        #             for [ci, cj] in down_cs:
+        #                 strm_tmp = stream_r.get_value_by_row_col(ci, cj)
+        #                 if strm_v == strm_tmp:
+
+
+        if use_subbsn or use_stream:
+            for i in range(ysize):
+                for j in range(xsize):
+                    if dinf_r.is_nodata(i, j):
+                        continue
+                    # dinf_v = dinf_r.get_value_by_row_col(i, j)
+                    # down_cs = DinfUtil.downstream_index_dinf(dinf_v, i, j)
+                    # if use_subbsn:
+                    #     sid = subbsn_r.get_value_by_row_col(i, j)
+                    #
+                    #     for [ci, cj] in down_cs:
+                    #         sid_tmp = subbsn_r.get_value_by_row_col(ci, cj)
+                    #         if
+                    # if use_stream:
+                    #     strmid = stream_r.get_value_by_row_col(i, j)
 
         cal_dir_code = frompyfunc(DinfUtil.compress_dinf, 3, 3)
         updated_angle, dir_code, weight = cal_dir_code(data, nodata_value, minfraction)
@@ -151,7 +222,7 @@ class DinfUtil(object):
         """
         taud, d = DinfUtil.check_orthogonal(a)
         if d != -1:
-            return [d]
+            return [FlowModelConst.d8dir_td[FlowModelConst.d8dir_ag.index(d)]]
         else:
             if a < FlowModelConst.ne:  # 129 = 1+128
                 return [1, 2]
@@ -184,7 +255,7 @@ class DinfUtil(object):
         down_dirs = DinfUtil.dinf_downslope_direction(dinfdir_value)
         down_coors = list()
         for dir_code in down_dirs:
-            row, col = D8Util.downstream_index(dir_code, i, j)
+            row, col = D8Util.downstream_index(dir_code, i, j, alg='taudem')
             down_coors.append([row, col])
         return down_coors
 
@@ -220,12 +291,12 @@ class StreamnetUtil(object):
         i_link_downslope = layer_def.GetFieldIndex(FLD_DSLINKNO)
         i_len = layer_def.GetFieldIndex(REACH_LENGTH)
 
-        old_id_list = []
+        old_id_list = list()
         # there are some reaches with zero length.
         # this program will remove these zero-length reaches
         # output_dic is used to store the downstream reaches of these zero-length
         # reaches
-        output_dic = {}
+        output_dic = dict()
         ft = layer_reach.GetNextFeature()
         while ft is not None:
             link_id = ft.GetFieldAsInteger(i_link)
@@ -240,7 +311,7 @@ class StreamnetUtil(object):
             ft = layer_reach.GetNextFeature()
         old_id_list.sort()
 
-        id_map = {}
+        id_map = dict()
         for i, old_id in enumerate(old_id_list):
             id_map[old_id] = i + 1
         # print(id_map)
@@ -297,7 +368,7 @@ class StreamnetUtil(object):
 def main():
     """Test code"""
     import os
-    wp = r'D:\code\WatershedModels\SEIMS\data\youwuzhen\workspace\taudem_delineated'
+    wp = r'D:\code\WatershedModels\SEIMS\data\youwuzhen\workspace\watershed delineation'
     dinfflowang = wp + os.sep + 'flowDirDinfTau.tif'
     compdinffile = wp + os.sep + 'dirCodeDinfTau.tif'
     weightfile = wp + os.sep + 'weightDinfTau.tif'
@@ -307,4 +378,10 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # Run doctest in docstrings of Google code style
+    # python -m doctest utils.py (only when doctest.ELLIPSIS is not specified)
+    # or python utils.py -v
+    # or py.test --doctest-modules utils.py
+    import doctest
+
+    doctest.testmod()
