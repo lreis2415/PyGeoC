@@ -1,6 +1,6 @@
 ![pygeoc](docs/img/pygeoc.png)
 
-[![Travis branch](https://img.shields.io/travis/lreis2415/PyGeoC/master.svg)](https://travis-ci.org/lreis2415/PyGeoC)
+[![Travis branch](https://img.shields.io/travis/lreis2415/PyGeoC/master.svg)](https://travis-ci.com/lreis2415/PyGeoC)
 [![Coveralls branch](https://img.shields.io/coveralls/lreis2415/PyGeoC/master.svg)](https://coveralls.io/github/lreis2415/PyGeoC?branch=master)
 
 详情请访问[用户手册及开发文档](https://lreis2415.github.io/PyGeoC/)。
