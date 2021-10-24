@@ -24,7 +24,8 @@ from future.utils import iteritems
 import os
 from io import open
 
-from pygeoc.postTauDEM import DinfUtil
+from osgeo.gdal import GDT_Int32
+from pygeoc.postTauDEM import StreamnetUtil
 from pygeoc.raster import RasterUtilClass
 from pygeoc.utils import UtilClass, MathClass, FileClass, StringClass, sysstr
 
@@ -53,10 +54,10 @@ class TauDEMFilesUtils(object):
     _CHCOORD = 'chCoord.txt'
     _STREAMNET = 'streamNet.shp'
     _SUBBASIN = 'subbasinTau.tif'
-    # masked file names
+    # Serialized IDs of subbasins and streams
     _SUBBASINM = 'subbasinTauM.tif'
-    _D8FLOWDIRM = 'flowDirTauM.tif'
     _STREAMRASTERM = 'streamRasterTauM.tif'
+    _STREAMNETM = 'streamNetSerialized.shp'
 
     def __init__(self, tau_dir):
         """assign taudem resulted file path"""
@@ -81,9 +82,9 @@ class TauDEMFilesUtils(object):
         self.channel_net = tau_dir + os.sep + self._CHNETWORK
         self.channel_coord = tau_dir + os.sep + self._CHCOORD
         self.streamnet_shp = tau_dir + os.sep + self._STREAMNET
+        self.streamnet_m = tau_dir + os.sep + self._STREAMNETM
         self.subbsn = tau_dir + os.sep + self._SUBBASIN
         self.subbsn_m = tau_dir + os.sep + self._SUBBASINM
-        self.d8flow_m = tau_dir + os.sep + self._D8FLOWDIRM
         self.stream_m = tau_dir + os.sep + self._STREAMRASTERM
         self.drptxt = tau_dir + os.sep + self._DROPTXT
 
@@ -315,7 +316,16 @@ class TauDEM(object):
             if not isinstance(mpi_params, dict):
                 TauDEM.error('The MPI settings parameter must be a dict!')
             if 'mpipath' in mpi_params and mpi_params['mpipath'] is not None:
-                commands.append(mpi_params['mpipath'] + os.sep + 'mpiexec')
+                if os.path.isfile(mpi_params['mpipath']):  # in case it is fullpath of mpiexec
+                    commands.append(mpi_params['mpipath'])
+                elif os.path.isdir(mpi_params['mpipath']):
+                    commands.append(mpi_params['mpipath'] + os.sep + 'mpiexec')
+                elif mpi_params['mpipath'][0] == mpi_params['mpipath'][-1] == '"' and \
+                      os.path.isdir(mpi_params['mpipath'][1:-1]):
+                    commands.append('\"%s\\mpiexec\"' %
+                                    os.path.dirname(mpi_params['mpipath'][1:-1]))
+                else:
+                    commands.append('mpiexec')
             else:
                 commands.append('mpiexec')
             if 'hostfile' in mpi_params and mpi_params['hostfile'] is not None \
@@ -786,6 +796,12 @@ class TauDEMWorkflow(object):
                          nc.channel_coord, nc.streamnet_shp, nc.subbsn,
                          workingdir, mpi_bin, bin_dir,
                          log_file=logfile, runtime_file=runtime_file, hostfile=hostfile)
+        # Serialize IDs of subbasins and the corresponding streams
+        UtilClass.writelog(logfile, '[Output] %s' % 'Serialize subbasin&stream IDs...', 'a')
+        id_map = StreamnetUtil.serialize_streamnet(nc.streamnet_shp, nc.streamnet_m)
+        RasterUtilClass.raster_reclassify(nc.subbsn, id_map, nc.subbsn_m, GDT_Int32)
+        StreamnetUtil.assign_stream_id_raster(nc.stream_raster, nc.subbsn_m, nc.stream_m)
+        # Finish the workflow
         UtilClass.writelog(logfile, '[Output] %s' %
                            'Original subbasin delineation is finished!', 'a')
 
@@ -803,7 +819,7 @@ def run_test():
     # TauDEM.mfdmdflowdir(4, td_names.filldem, td_names.mfdmd_dir, td_names.mfdmd_frac,
     #                     min_portion=0.02, workingdir=workingspace,
     #                     log_file=log, runtime_file=runtime)
-    TauDEMWorkflow.watershed_delineation(4, dem)
+    TauDEMWorkflow.watershed_delineation(4, dem, workingdir=workingspace)
 
 
 if __name__ == "__main__":
