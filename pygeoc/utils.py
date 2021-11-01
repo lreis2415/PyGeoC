@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 """Utility Classes and Functions
 
@@ -27,6 +26,7 @@ from datetime import datetime
 from math import sqrt
 from shutil import copy, rmtree
 from typing import Optional, List, Union, Tuple, Dict, Any, AnyStr
+
 try:
     import numpy
 except ImportError:
@@ -386,7 +386,8 @@ class StringClass(object):
         pass
 
     @staticmethod
-    def convert_str2num(unicode_str  # type: Union[AnyStr, int, float, List[Union[AnyStr, float, int]], Tuple[Union[AnyStr, float, int]]]
+    def convert_str2num(unicode_str
+                        # type: Union[AnyStr, int, float, List[Union[AnyStr, float, int]], Tuple[Union[AnyStr, float, int]]]
                         ):
         # type: (...) -> Union[AnyStr, int, float, List[Union[AnyStr, float, int]], Tuple[Union[AnyStr, float, int]]]
         """Convert string to string, integer, or float. Support tuple or list.
@@ -671,10 +672,8 @@ class FileClass(object):
                 return None
         first_path = findout[0].split('\n')[0]
         if os.path.exists(first_path):
-            if ' ' in first_path:
-                return '\"%s\"' % first_path  # in case of blanks in the path
-            else:
-                return first_path
+            return FileClass.get_file_fullpath_string(first_path)
+
         return None
 
     @staticmethod
@@ -695,6 +694,18 @@ class FileClass(object):
             dirname = os.path.abspath(dirname)
             name = dirname + os.sep + name
         return name
+
+    @staticmethod
+    def get_file_fullpath_string(name, dirname=None):
+        # type: (AnyStr, Optional[AnyStr]) -> Optional[AnyStr]
+        """Return full path in string format, to avoid failure caused by spaces in file path"""
+        fullpath = FileClass.get_file_fullpath(name, dirname=dirname)
+        if fullpath is None:
+            return None
+        if ' ' in fullpath and fullpath[0] != '\"' and fullpath[-1] != '\"':
+            return '\"%s\"' % fullpath  # in case of spaces in the path
+        else:
+            return fullpath
 
     @staticmethod
     def get_filename_by_suffixes(dir_src, suffixes):
@@ -1015,7 +1026,8 @@ class UtilClass(object):
             log_status.close()
 
     @staticmethod
-    def decode_strs_in_dict(unicode_dict  # type: Dict[Union[AnyStr, int], Union[int, float, AnyStr, List[Union[int, float, AnyStr]]]]
+    def decode_strs_in_dict(unicode_dict
+                            # type: Dict[Union[AnyStr, int], Union[int, float, AnyStr, List[Union[int, float, AnyStr]]]]
                             ):
         # type: (...) -> Dict[Union[AnyStr, int], Any]
         """Decode strings in dictionary which may contains unicode strings or numeric values.

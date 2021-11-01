@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""TauDEM Utility Class.
+"""TauDEM Utility Class for TauDEM original DTA tools and
+     extended algorithms based on TauDEM parallelization framework.
 
    Thanks to the open-source software `TauDEM`_ by David Tarboton and `QSWAT`_ by Chris George.
 
@@ -12,6 +13,7 @@
     - 17-06-25 lj - check by pylint and reformat by Google style.
     - 21-04-07 lj - add MFD-md algorithm: flowmfdmd
     - 21-09-07 lj - remove unnecessary functions of watershed_delineation
+    - 21-11-01 lj - separate TauDEM and TauDEM_Ext related classes
 
    .. _TauDEM:
       https://github.com/dtarb/TauDEM
@@ -27,6 +29,7 @@ from io import open
 from osgeo.gdal import GDT_Int32
 from pygeoc.postTauDEM import StreamnetUtil
 from pygeoc.raster import RasterUtilClass
+from pygeoc.vector import VectorUtilClass
 from pygeoc.utils import UtilClass, MathClass, FileClass, StringClass, sysstr
 
 
@@ -39,12 +42,10 @@ class TauDEMFilesUtils(object):
     _D8ACC = 'accTauD8.tif'
     _D8ACCWITHWEIGHT = 'accTauD8WithWeight.tif'
     _STREAMRASTER = 'streamRasterTau.tif'
-    # _FLOWDIRDINF = 'flowDirDinfTau.tif'
-    # _DIRCODEDINF = 'dirCodeDinfTau.tif'
-    # _WEIGHTDINF = 'weightDinfTau.tif'
-    # _SLOPEDINF = 'slopeDinfTau.tif'
-    # _DIRCODEMFDMD = 'dirCodeMFDmd.tif'
-    # _FLOWFRACTIONMFDMD = 'fractionsMFDmd.tif'
+    _FLOWDIRDINF = 'flowDirDinfTau.tif'
+    _DIRCODEDINF = 'dirCodeDinfTau.tif'
+    _WEIGHTDINF = 'weightDinfTau.tif'
+    _SLOPEDINF = 'slopeDinfTau.tif'
     _DEFAULTOUTLET = 'outlet_pre.shp'
     _MODIFIEDOUTLET = 'outletM.shp'
     _STREAMSKELETON = 'streamSkeleton.tif'
@@ -54,39 +55,62 @@ class TauDEMFilesUtils(object):
     _CHCOORD = 'chCoord.txt'
     _STREAMNET = 'streamNet.shp'
     _SUBBASIN = 'subbasinTau.tif'
+    # distance down to stream
+    _DIST2STREAMDINF = 'dist2Stream_dinf.tif'
+    # Masked by subbasins
+    _D8FLOWDIRM = 'flowDirTauD8M.tif'
     # Serialized IDs of subbasins and streams
     _SUBBASINM = 'subbasinTauM.tif'
-    _STREAMRASTERM = 'streamRasterTauM.tif'
+    _SUBBASINSHP = 'subbasin.shp'
+    _SUBBASINID = 'SUBBASINID'
     _STREAMNETM = 'streamNetSerialized.shp'
+    _STREAMRASTERM = 'streamRasterTauM.tif'
 
     def __init__(self, tau_dir):
         """assign taudem resulted file path"""
         tau_dir = os.path.abspath(tau_dir)
         self.workspace = tau_dir
-        self.filldem = tau_dir + os.sep + self._FILLEDDEM
-        self.d8flow = tau_dir + os.sep + self._D8FLOWDIR
-        self.slp = tau_dir + os.sep + self._SLOPE
-        self.d8acc = tau_dir + os.sep + self._D8ACC
-        self.d8acc_weight = tau_dir + os.sep + self._D8ACCWITHWEIGHT
-        self.stream_raster = tau_dir + os.sep + self._STREAMRASTER
-        # self.dinf = tau_dir + os.sep + self._FLOWDIRDINF
-        # self.dinf_d8dir = tau_dir + os.sep + self._DIRCODEDINF
-        # self.dinf_weight = tau_dir + os.sep + self._WEIGHTDINF
-        # self.dinf_slp = tau_dir + os.sep + self._SLOPEDINF
-        # self.mfdmd_dir = tau_dir + os.sep + self._DIRCODEMFDMD
-        # self.mfdmd_frac = tau_dir + os.sep + self._FLOWFRACTIONMFDMD
-        self.outlet_pre = tau_dir + os.sep + self._DEFAULTOUTLET
-        self.outlet_m = tau_dir + os.sep + self._MODIFIEDOUTLET
-        self.stream_pd = tau_dir + os.sep + self._STREAMSKELETON
-        self.stream_order = tau_dir + os.sep + self._STREAMORDER
-        self.channel_net = tau_dir + os.sep + self._CHNETWORK
-        self.channel_coord = tau_dir + os.sep + self._CHCOORD
-        self.streamnet_shp = tau_dir + os.sep + self._STREAMNET
-        self.streamnet_m = tau_dir + os.sep + self._STREAMNETM
-        self.subbsn = tau_dir + os.sep + self._SUBBASIN
-        self.subbsn_m = tau_dir + os.sep + self._SUBBASINM
-        self.stream_m = tau_dir + os.sep + self._STREAMRASTERM
-        self.drptxt = tau_dir + os.sep + self._DROPTXT
+        self.filldem = self.workspace + os.sep + self._FILLEDDEM
+        self.d8flow = self.workspace + os.sep + self._D8FLOWDIR
+        self.slp = self.workspace + os.sep + self._SLOPE
+        self.d8acc = self.workspace + os.sep + self._D8ACC
+        self.d8acc_weight = self.workspace + os.sep + self._D8ACCWITHWEIGHT
+        self.stream_raster = self.workspace + os.sep + self._STREAMRASTER
+        self.dinf = self.workspace + os.sep + self._FLOWDIRDINF
+        self.dinf_d8dir = self.workspace + os.sep + self._DIRCODEDINF
+        self.dinf_weight = self.workspace + os.sep + self._WEIGHTDINF
+        self.dinf_slp = self.workspace + os.sep + self._SLOPEDINF
+        self.outlet_pre = self.workspace + os.sep + self._DEFAULTOUTLET
+        self.outlet_m = self.workspace + os.sep + self._MODIFIEDOUTLET
+        self.stream_pd = self.workspace + os.sep + self._STREAMSKELETON
+        self.drptxt = self.workspace + os.sep + self._DROPTXT
+        self.stream_order = self.workspace + os.sep + self._STREAMORDER
+        self.channel_net = self.workspace + os.sep + self._CHNETWORK
+        self.channel_coord = self.workspace + os.sep + self._CHCOORD
+        self.streamnet_shp = self.workspace + os.sep + self._STREAMNET
+        self.subbsn = self.workspace + os.sep + self._SUBBASIN
+        self.dist2stream_dinf = self.workspace + os.sep + self._DIST2STREAMDINF
+        # Masked files by subbasins
+        self.d8flow_m = self.workspace + os.sep + self._D8FLOWDIRM
+        self.subbsn_m = self.workspace + os.sep + self._SUBBASINM
+        self.subbsn_shp = self.workspace + os.sep + self._SUBBASINSHP
+        self.streamnet_m = self.workspace + os.sep + self._STREAMNETM  # shp
+        self.stream_m = self.workspace + os.sep + self._STREAMRASTERM  # tif
+
+
+class TauDEMExtFiles(TauDEMFilesUtils):
+    """predefined TauDEM_Ext resulted file names"""
+    _DIRCODEMFDMD = 'dirCodeMFDmd.tif'
+    _FLOWFRACTIONMFDMD = 'fractionsMFDmd.tif'
+    _DIST2STREAMD8 = 'dist2Stream.tif'
+
+    def __init__(self, tau_dir):
+        """assign taudem resulted file path"""
+        TauDEMFilesUtils.__init__(self, tau_dir)
+
+        self.mfdmd_dir = self.workspace + os.sep + self._DIRCODEMFDMD
+        self.mfdmd_frac = self.workspace + os.sep + self._FLOWFRACTIONMFDMD
+        self.dist2stream_d8 = self.workspace + os.sep + self._DIST2STREAMD8
 
 
 class TauDEM(object):
@@ -246,15 +270,15 @@ class TauDEM(object):
                     if inf is None:
                         continue
                     inf, wp = TauDEM.check_infile_and_wp(inf, wp)
-                    in_files[pid][idx] = inf
+                    in_files[pid][idx] = FileClass.get_file_fullpath_string(inf)
                 continue
             if os.path.exists(infile):
                 infile, wp = TauDEM.check_infile_and_wp(infile, wp)
-                in_files[pid] = os.path.abspath(infile)
+                in_files[pid] = FileClass.get_file_fullpath_string(infile)
             else:
                 # For more flexible input files extension.
                 # e.g., -inputtags 1 <path/to/tag1.tif> 2 <path/to/tag2.tif> ...
-                # in such unpredictable circumstance, we cannot check the existance of
+                # in such unpredictable circumstance, we cannot check the existence of
                 # input files, so the developer will check it in other place.
                 if len(StringClass.split_string(infile, ' ')) > 1:
                     continue
@@ -265,7 +289,7 @@ class TauDEM(object):
                     if not os.path.exists(infile):
                         TauDEM.error('Input files parameter %s: %s is not existed!' %
                                      (pid, infile))
-                    in_files[pid] = os.path.abspath(infile)
+                    in_files[pid] = FileClass.get_file_fullpath_string(infile)
         # Make workspace dir if not existed
         UtilClass.mkdir(wp)
         # Check the log parameter
@@ -301,13 +325,15 @@ class TauDEM(object):
                             continue
                         outf = FileClass.get_file_fullpath(outf, wp)
                         FileClass.remove_files(outf)
-                        out_files[pid][idx] = outf
-                        new_out_files.append(outf)
+                        outf_str = FileClass.get_file_fullpath_string(outf)
+                        out_files[pid][idx] = outf_str
+                        new_out_files.append(outf_str)
                 else:
                     out_file = FileClass.get_file_fullpath(out_file, wp)
                     FileClass.remove_files(out_file)
-                    out_files[pid] = out_file
-                    new_out_files.append(out_file)
+                    out_file_str = FileClass.get_file_fullpath_string(out_file)
+                    out_files[pid] = out_file_str
+                    new_out_files.append(out_file_str)
 
         # concatenate command line
         commands = list()
@@ -332,7 +358,7 @@ class TauDEM(object):
                     and not StringClass.string_match(mpi_params['hostfile'], 'none') \
                     and os.path.isfile(mpi_params['hostfile']):
                 commands.append('-f')
-                commands.append(mpi_params['hostfile'])
+                commands.append(FileClass.get_file_fullpath_string(mpi_params['hostfile']))
             if 'n' in mpi_params and mpi_params['n'] > 1:
                 commands.append('-n')
                 commands.append(str(mpi_params['n']))
@@ -411,23 +437,6 @@ class TauDEM(object):
                           {'-p': flowdir, '-sd8': slope},
                           {'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
                           {'logfile': log_file, 'runtimefile': runtime_file})
-
-    @staticmethod
-    def mfdmdflowdir(np, filleddem, flowdir, portion, min_portion=0.01,
-                     p0=1.1, rng=8.9, lb=0., ub=1.,
-                     workingdir=None, mpiexedir=None, exedir=None,
-                     log_file=None, runtime_file=None, hostfile=None):
-        """Run MFD-md flow direction (Qin et al., 2007)"""
-        fname = TauDEM.func_name('flowmfdmd')
-        return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
-                          {'-dem': filleddem}, workingdir,
-                          {'-min_portion': min_portion,
-                           '-p0': p0, '-range': rng, '-tanb_lb': lb, '-tanb_ub': ub},
-                          {'-mfd': flowdir, '-portion': portion},
-                          {'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
-                          {'logfile': log_file, 'runtimefile': runtime_file},
-                          ignore_err=True)
-        # The output flow fraction files are not the same with the argument 'portion'
 
     @staticmethod
     def dinfflowdir(np, filleddem, flowangle, slope, workingdir=None, mpiexedir=None, exedir=None,
@@ -600,34 +609,13 @@ class TauDEM(object):
                           {'logfile': log_file, 'runtimefile': runtime_file})
 
     @staticmethod
-    def d8distdowntostream(np, p, fel, src, dist, distancemethod, thresh, workingdir=None,
-                           mpiexedir=None, exedir=None,
-                           log_file=None, runtime_file=None, hostfile=None):
-        """Run D8 distance down to stream by different method for distance.
-        This function is extended from d8hdisttostrm by Liangjun.
-
-        Please clone `TauDEM_ext by lreis2415`_ and compile for this program.
-
-        .. _TauDEM_ext by lreis2415:
-           https://github.com/lreis2415/TauDEM_ext
-        """
-        fname = TauDEM.func_name('d8distdowntostream')
-        return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
-                          {'-fel': fel, '-p': p, '-src': src},
-                          workingdir,
-                          {'-thresh': thresh, '-m': TauDEM.convertdistmethod(distancemethod)},
-                          {'-dist': dist},
-                          {'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
-                          {'logfile': log_file, 'runtimefile': runtime_file})
-
-    @staticmethod
     def dinfdistdown(np, ang, fel, slp, src, statsm, distm, edgecontamination, wg, dist,
                      workingdir=None, mpiexedir=None, exedir=None,
                      log_file=None, runtime_file=None, hostfile=None):
         """Run D-inf distance down to stream"""
         in_params = {'-m': '%s %s' % (TauDEM.convertstatsmethod(statsm),
                                       TauDEM.convertdistmethod(distm))}
-        if StringClass.string_match(edgecontamination, 'false') or edgecontamination is False:
+        if StringClass.string_match(str(edgecontamination), 'false') or edgecontamination is False:
             in_params['-nc'] = None
         fname = TauDEM.func_name('dinfdistdown')
         return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
@@ -668,6 +656,51 @@ class TauDEM(object):
                           {'-drp': drp},
                           {'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
                           {'logfile': log_file, 'runtimefile': runtime_file})
+
+
+class TauDEM_Ext(TauDEM):
+    """TauDEM extended DTA tools."""
+    def __init__(self):
+        """Empty function"""
+        TauDEM.__init__(self)
+
+    @staticmethod
+    def d8distdowntostream(np, p, fel, src, dist, distancemethod, thresh, workingdir=None,
+                           mpiexedir=None, exedir=None,
+                           log_file=None, runtime_file=None, hostfile=None):
+        """Run D8 distance down to stream by different method for distance.
+        This function is extended from d8hdisttostrm by Liangjun.
+
+        Please clone `TauDEM_ext by lreis2415`_ and compile for this program.
+
+        .. _TauDEM_ext by lreis2415:
+           https://github.com/lreis2415/TauDEM_ext
+        """
+        fname = TauDEM.func_name('d8distdowntostream')
+        return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
+                          {'-fel': fel, '-p': p, '-src': src},
+                          workingdir,
+                          {'-thresh': thresh, '-m': TauDEM.convertdistmethod(distancemethod)},
+                          {'-dist': dist},
+                          {'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
+                          {'logfile': log_file, 'runtimefile': runtime_file})
+
+    @staticmethod
+    def mfdmdflowdir(np, filleddem, flowdir, portion, min_portion=0.01,
+                     p0=1.1, rng=8.9, lb=0., ub=1.,
+                     workingdir=None, mpiexedir=None, exedir=None,
+                     log_file=None, runtime_file=None, hostfile=None):
+        """Run MFD-md flow direction (Qin et al., 2007)"""
+        fname = TauDEM.func_name('flowmfdmd')
+        return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
+                          {'-dem': filleddem}, workingdir,
+                          {'-min_portion': min_portion,
+                           '-p0': p0, '-range': rng, '-tanb_lb': lb, '-tanb_ub': ub},
+                          {'-mfd': flowdir, '-portion': portion},
+                          {'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
+                          {'logfile': log_file, 'runtimefile': runtime_file},
+                          ignore_err=True)
+        # The output flow fraction files are not the same with the argument 'portion'
 
 
 class TauDEMWorkflow(object):
@@ -801,6 +834,9 @@ class TauDEMWorkflow(object):
         id_map = StreamnetUtil.serialize_streamnet(nc.streamnet_shp, nc.streamnet_m)
         RasterUtilClass.raster_reclassify(nc.subbsn, id_map, nc.subbsn_m, GDT_Int32)
         StreamnetUtil.assign_stream_id_raster(nc.stream_raster, nc.subbsn_m, nc.stream_m)
+        # convert raster to shapefile (for subbasin and basin)
+        UtilClass.writelog(logfile, '[Output] %s' % 'Generating subbasin vector...', 'a')
+        VectorUtilClass.raster2shp(nc.subbsn_m, nc.subbsn_shp, 'subbasin', 'SUBBASINID')
         # Finish the workflow
         UtilClass.writelog(logfile, '[Output] %s' %
                            'Original subbasin delineation is finished!', 'a')
@@ -811,14 +847,14 @@ def run_test():
     dem = '../tests/data/Jamaica_dem.tif'
     log = 'taudem.log'
     runtime = 'runtime.log'
-    td_names = TauDEMFilesUtils(workingspace)
+    td_names = TauDEMExtFiles(workingspace)
 
-    # TauDEM.pitremove(1, dem, td_names.filldem, workingspace, log_file=log, runtime_file=runtime)
-    # TauDEM.d8flowdir(4, td_names.filldem, td_names.d8flow, td_names.slp, workingspace,
-    #                  log_file=log, runtime_file=runtime)
-    # TauDEM.mfdmdflowdir(4, td_names.filldem, td_names.mfdmd_dir, td_names.mfdmd_frac,
-    #                     min_portion=0.02, workingdir=workingspace,
-    #                     log_file=log, runtime_file=runtime)
+    TauDEM.pitremove(1, dem, td_names.filldem, workingspace, log_file=log, runtime_file=runtime)
+    TauDEM.d8flowdir(4, td_names.filldem, td_names.d8flow, td_names.slp, workingspace,
+                     log_file=log, runtime_file=runtime)
+    TauDEM_Ext.mfdmdflowdir(4, td_names.filldem, td_names.mfdmd_dir, td_names.mfdmd_frac,
+                            min_portion=0.02, workingdir=workingspace,
+                            log_file=log, runtime_file=runtime)
     TauDEMWorkflow.watershed_delineation(4, dem, workingdir=workingspace)
 
 
