@@ -20,5 +20,5 @@
 """
 __author__ = 'Liangjun Zhu'
 __email__ = 'zlj@lreis.ac.cn'
-__version__ = '0.3.1'
+__version__ = '0.3.2'
 __url__ = 'https://github.com/lreis2415/PyGeoC'

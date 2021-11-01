@@ -337,7 +337,7 @@ class StreamnetUtil(object):
                 ft.SetField(FLD_DSLINKNO, -1)
             layer_reach.SetFeature(ft)
             ft = layer_reach.GetNextFeature()
-        ds_reach.ExecuteSQL(str('REPACK reach'))
+        ds_reach.ExecuteSQL(str('REPACK %s' % layer_reach.GetName()))
         layer_reach.SyncToDisk()
         ds_reach.Destroy()
         del ds_reach
