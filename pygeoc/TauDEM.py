@@ -210,8 +210,7 @@ class TauDEM(object):
     @staticmethod
     def run(function_name, in_files, wp=None, in_params=None, out_files=None, mpi_params=None,
             log_params=None, ignore_err=False):
-        """
-        Run TauDEM function.
+        """Run TauDEM function.
 
          - 1. The command will not execute if any input file does not exist.
          - 2. An error will be detected after running the TauDEM command if
@@ -227,11 +226,11 @@ class TauDEM(object):
             wp (str, optional): Workspace for outputs. If not specified, the directory of the
                 first input file in ``in_files`` will be used.
             in_params (dict, optional): Dict of pairs of parameter id (string) and value
-                (or None for a flag parameter without a value) for input parameters, e.g.::
+                (or list, or None for a flag parameter without a value) for input parameters, e.g.::
 
                     {'-nc': None}
                     {'-thresh': threshold}
-                    {'-m': 'ave' 's', '-nc': None}
+                    {'-m': ['ave' 's'], '-nc': None}
 
             out_files (dict, optional): Dict of pairs of parameter id (string) and file
                 path (string or list) for output files, e.g.::
@@ -385,12 +384,13 @@ class TauDEM(object):
                 if pid[0] != '-':
                     pid = '-' + pid
                 commands.append(pid)
-                # allow for parameter which is an flag without value
+                # allow for parameter which is a flag without value
                 if v != '' and v is not None:
-                    if MathClass.isnumerical(v):
-                        commands.append(str(v))
+                    if isinstance(v, list) or isinstance(v, tuple):
+                        for tmppar in v:
+                            commands.append(str(tmppar))
                     else:
-                        commands.append(v)
+                        commands.append(str(v))
         # append output parameters
         if out_files is not None:
             for (pid, outfile) in iteritems(out_files):
@@ -613,8 +613,7 @@ class TauDEM(object):
                      workingdir=None, mpiexedir=None, exedir=None,
                      log_file=None, runtime_file=None, hostfile=None):
         """Run D-inf distance down to stream"""
-        in_params = {'-m': '%s %s' % (TauDEM.convertstatsmethod(statsm),
-                                      TauDEM.convertdistmethod(distm))}
+        in_params = {'-m': [TauDEM.convertstatsmethod(statsm), TauDEM.convertdistmethod(distm)]}
         if StringClass.string_match(str(edgecontamination), 'false') or edgecontamination is False:
             in_params['-nc'] = None
         fname = TauDEM.func_name('dinfdistdown')
@@ -643,16 +642,16 @@ class TauDEM(object):
                      logspace, drp, workingdir=None,
                      mpiexedir=None, exedir=None, log_file=None, runtime_file=None, hostfile=None):
         """Drop analysis for optimal threshold for extracting stream."""
-        parstr = '%f %f %f' % (minthresh, maxthresh, numthresh)
+        parlist = [minthresh, maxthresh, numthresh]
         if logspace == 'false':
-            parstr += ' 1'
+            parlist.append(1)
         else:
-            parstr += ' 0'
+            parlist.append(0)
         fname = TauDEM.func_name('dropanalysis')
         return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
                           {'-fel': fel, '-p': p, '-ad8': ad8, '-ssa': ssa, '-o': outlet},
                           workingdir,
-                          {'-par': parstr},
+                          {'-par': parlist},
                           {'-drp': drp},
                           {'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
                           {'logfile': log_file, 'runtimefile': runtime_file})
