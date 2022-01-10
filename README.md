@@ -44,6 +44,11 @@ Please read the instructions very carefully at the head of this website.
 PyGeoC处在不断开发完善中，请根据如下命令安装最新开发版本。
 
 ```bash
+pip install git+https://github.com/lreis2415/PyGeoC@master
+```
+
+或者：
+```bash
 git clone https://github.com/lreis2415/PyGeoC
 cd PyGeoC
 # For *nix OS
