@@ -21,7 +21,7 @@ from osgeo.ogr import GetDriverByName as ogr_GetDriverByName
 from osgeo.ogr import wkbLineString, OFTInteger
 from osgeo.osr import SpatialReference as osr_SpatialReference
 from osgeo.ogr import FieldDefn as ogr_FieldDefn
-import gdal
+from osgeo import gdal
 
 from pygeoc.utils import FileClass, UtilClass, sysstr
 
