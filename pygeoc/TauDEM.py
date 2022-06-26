@@ -360,7 +360,7 @@ class TauDEM(object):
                 commands.append(FileClass.get_file_fullpath_string(mpi_params['hostfile']))
             if 'n' in mpi_params and mpi_params['n'] > 1:
                 commands.append('-n')
-                commands.append(str(mpi_params['n']))
+                commands.append(repr(mpi_params['n']))
             else:  # If number of processor is less equal than 1, then do not call mpiexec.
                 commands = list()
         # append TauDEM function name, which can be full path or just one name
@@ -388,9 +388,9 @@ class TauDEM(object):
                 if v != '' and v is not None:
                     if isinstance(v, list) or isinstance(v, tuple):
                         for tmppar in v:
-                            commands.append(str(tmppar))
+                            commands.append(repr(tmppar))
                     else:
-                        commands.append(str(v))
+                        commands.append(repr(v))
         # append output parameters
         if out_files is not None:
             for (pid, outfile) in iteritems(out_files):
@@ -614,7 +614,7 @@ class TauDEM(object):
                      log_file=None, runtime_file=None, hostfile=None):
         """Run D-inf distance down to stream"""
         in_params = {'-m': [TauDEM.convertstatsmethod(statsm), TauDEM.convertdistmethod(distm)]}
-        if StringClass.string_match(str(edgecontamination), 'false') or edgecontamination is False:
+        if StringClass.string_match(repr(edgecontamination), 'false') or edgecontamination is False:
             in_params['-nc'] = None
         fname = TauDEM.func_name('dinfdistdown')
         return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
