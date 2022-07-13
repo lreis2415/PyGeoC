@@ -25,6 +25,7 @@ from future.utils import iteritems
 
 import os
 from io import open
+from typing import List, Dict, AnyStr, Optional
 
 from osgeo.gdal import GDT_Int32
 from pygeoc.postTauDEM import StreamnetUtil
@@ -208,8 +209,16 @@ class TauDEM(object):
         return curinf, curwp
 
     @staticmethod
-    def run(function_name, in_files, wp=None, in_params=None, out_files=None, mpi_params=None,
-            log_params=None, ignore_err=False):
+    def run(function_name,  # type: AnyStr
+            in_files,  # type: Dict[AnyStr, List[AnyStr]]
+            wp=None,  # type: Optional[AnyStr]
+            in_params=None,  # type: Optional[Dict[AnyStr, Optional[int, float, AnyStr, List[AnyStr]]]]
+            out_files=None,  # type: Optional[Dict[AnyStr, List[AnyStr, List[AnyStr]]]]
+            mpi_params=None,  # type: Optional[Dict[AnyStr, List[int, AnyStr]]]
+            log_params=None,  # type: Optional[Dict[AnyStr, AnyStr]]
+            ignore_err=False  # type: Optional[bool]
+            ):
+        # type: (...) -> bool
         """Run TauDEM function.
 
          - 1. The command will not execute if any input file does not exist.
@@ -230,7 +239,7 @@ class TauDEM(object):
 
                     {'-nc': None}
                     {'-thresh': threshold}
-                    {'-m': ['ave' 's'], '-nc': None}
+                    {'-m': ['ave', 's'], '-nc': None}
 
             out_files (dict, optional): Dict of pairs of parameter id (string) and file
                 path (string or list) for output files, e.g.::

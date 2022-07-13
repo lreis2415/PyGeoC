@@ -8,7 +8,7 @@
 # Created by Yan-Wen Wang
 # Date: 2017.11
 #
-
+import os
 import sys
 
 import numpy as np
@@ -111,7 +111,8 @@ def draw_ID(ID, idx_array, drawID_raster):
 
 if __name__ == "__main__":
     # Example: Compute the craters pixels' connectivity and draw an ID rasterfile.
-    inputRaster = "../tests/data/RFCalcTest1Craters-PostProcessing.tif"
+    cur_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
+    inputRaster = cur_dir + "/../tests/data/RFCalcTest1Craters-PostProcessing.tif"
     RasterData = RasterUtilClass.read_raster(inputRaster)
     # Get the initial set: givenvalue_pixels_positions
     CratersCells = np.where(RasterData.data == 1)
@@ -138,7 +139,7 @@ if __name__ == "__main__":
         # ID need to add 1 for next time's computing
         ID = ID + 1
 
-    RasterUtilClass.write_gtiff_file("../tests/data/tmp_results/OldTest1CratersID.tif",
+    RasterUtilClass.write_gtiff_file(cur_dir + "/../tests/data/tmp_results/OldTest1CratersID.tif",
                                      RasterData.nRows, RasterData.nCols,
                                      CratersIDData, RasterData.geotrans,
                                      RasterData.srs, -9999, GDT_Float32)
