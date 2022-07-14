@@ -15,6 +15,7 @@ FROM crazyzlj/taudem_ext:alpine-openmpi-gdal-py3-latest as builder
 
 # RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories \
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
+    && apk update && apk upgrade \
     && apk add py3-pip
 
 WORKDIR /pygeoc
@@ -27,6 +28,7 @@ FROM crazyzlj/taudem_ext:alpine-openmpi-gdal-py3-latest AS final
 # Running PyGeoC requires GDAL, numpy, and matplotlib, so we need to add py3-matplotlib
 # RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories \
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
+    && apk update && apk upgrade \
     && apk add py3-matplotlib
 
 RUN mkdir /root/.local
