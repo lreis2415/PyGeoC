@@ -646,7 +646,7 @@ class FileClass(object):
 
     @staticmethod
     def get_executable_fullpath(name, dirname=None, raise_exception=True):
-        # type: (AnyStr, Optional[AnyStr], Optional[bool]) -> Optional[None, List[AnyStr]]
+        # type: (AnyStr, Optional[AnyStr], Optional[bool]) -> Optional[List[AnyStr]]
         """get the full path of a given executable name"""
         if name is None:
             return None

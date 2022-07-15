@@ -1,11 +1,8 @@
 ![pygeoc](docs/img/pygeoc.png)
 
-[![Travis branch](https://img.shields.io/travis/lreis2415/PyGeoC/master.svg)](https://travis-ci.com/lreis2415/PyGeoC)
-[![Coveralls branch](https://img.shields.io/coveralls/lreis2415/PyGeoC/master.svg)](https://coveralls.io/github/lreis2415/PyGeoC?branch=master)
-
 详情请访问[用户手册及开发文档](https://lreis2415.github.io/PyGeoC/)。
 
-## 依赖
+# 依赖
 + Python (2.7 and 3.x)
 + GDAL >=1.9
 + Numpy >=1.9
@@ -13,8 +10,21 @@
 + [TauDEM 5.3.7+](http://hydrology.usu.edu/taudem/taudem5/) or
  [TauDEM_ext](https://github.com/lreis2415/TauDEM_ext) 用于水文模块。
 
-## 安装
+# 安装
 
+## Use Docker 
+
+PyGeoC image on [Docker hub](https://hub.docker.com/r/crazyzlj/pygeoc)
+
+```
+docker pull crazyzlj/pygeoc:v0.3.2
+
+# Testing examples:
+docker run -v /path/to/PyGeoC:/pygeoc crazyzlj/pygeoc:v0.3.2 /pygeoc/examples/ex01_begin_with_pygeoc.py
+
+```
+
+## Install by yourself
 ### Numpy, GDAL, and matplotlib
 Although the GISInternals support site (http://www.gisinternals.com/index.html) also provides the GDAL Python bindings (e.g., GDAL-1.11.4.win-amd64-py2.7.msi), it may not work properly. So, the site of Unofficial Windows Binaries for Python Extension Packages by Christoph Gohlke (https://www.lfd.uci.edu/~gohlke/pythonlibs/) is highly recommended. Not only the GDAL, almost the commonly used packages can be found here.
 Please read the instructions very carefully at the head of this website.
@@ -43,6 +53,11 @@ Please read the instructions very carefully at the head of this website.
 
 PyGeoC处在不断开发完善中，请根据如下命令安装最新开发版本。
 
+```bash
+pip install git+https://github.com/lreis2415/PyGeoC@master
+```
+
+或者：
 ```bash
 git clone https://github.com/lreis2415/PyGeoC
 cd PyGeoC

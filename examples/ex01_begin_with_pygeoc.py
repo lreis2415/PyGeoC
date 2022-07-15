@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # Exercise 1: Begin with PyGeoC
+import os, sys
 
 from pygeoc.raster import RasterUtilClass
 
@@ -15,7 +16,8 @@ def main():
         std: 32.32, sum: 2650967.00
 
     """
-    input_tif = "../tests/data/Jamaica_dem.tif"
+    cur_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
+    input_tif = cur_dir + "/../tests/data/Jamaica_dem.tif"
     rst = RasterUtilClass.read_raster(input_tif)
     # metadata information
     print("rows: %d, cols: %d" % (rst.nRows, rst.nCols))
