@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#    This file is aimed for reCompile and reInstall PyGeoC for debugging on Linu/Unix platform.
+#    This file is aimed for reCompile and reInstall PyGeoC for debugging on Linux/Unix platform.
 #
 #    PyGeoC is distributed for Research and/or Education only,
 #    any commercial purpose will be FORBIDDEN.
