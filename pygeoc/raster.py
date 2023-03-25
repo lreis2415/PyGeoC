@@ -431,9 +431,9 @@ class RasterUtilClass(object):
                  'XLLCENTER %f\n' \
                  'YLLCENTER %f\n' \
                  'CELLSIZE %f\n' \
-                 'NODATA_VALUE %f' % (xsize, ysize, geotransform[0] + 0.5 * geotransform[1],
-                                      geotransform[3] - (ysize - 0.5) * geotransform[1],
-                                      geotransform[1], nodata_value)
+                 'NODATA_VALUE %f\n' % (xsize, ysize, geotransform[0] + 0.5 * geotransform[1],
+                                        geotransform[3] - (ysize - 0.5) * geotransform[1],
+                                        geotransform[1], nodata_value)
 
         with open(filename, 'w', encoding='utf-8') as f:
             f.write(header)
