@@ -114,7 +114,7 @@ setup(
             # 'gdal>=1.9.0',
             # 'numpy>=1.9.0',
             # 'matplotlib',
-            'typing',
+            'typing;python_version<"3.5"',
             'future',
             'six',
             'configparser;python_version<"3"'
