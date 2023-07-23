@@ -15,6 +15,8 @@ import os
 import numpy
 from pygeoc.raster import RasterUtilClass, GDALDataType
 from pygeoc.utils import FileClass, PI, SQ2, DEFAULT_NODATA
+import pygeoc.logger
+import logging
 
 
 class FlowModelConst(object):
@@ -214,7 +216,7 @@ class Hillslopes(object):
                 3 - Set stream cell to NoData, <name>_nodata.tif
                 4 (Default) - Set stream cell to 0, <name>_zero.tif
         """
-        print('Delineating hillslopes (header, left, and right hillslopes)...')
+        logging.info('Delineating hillslopes (header, left, and right hillslopes)...')
         streamr = RasterUtilClass.read_raster(stream_raster)
         stream_data = streamr.data
         stream_nodata = streamr.noDataValue

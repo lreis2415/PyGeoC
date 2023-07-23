@@ -24,7 +24,8 @@ from osgeo.ogr import FieldDefn as ogr_FieldDefn
 from osgeo import gdal
 
 from pygeoc.utils import FileClass, UtilClass, sysstr
-
+import pygeoc.logger
+import logging
 
 class VectorUtilClass(object):
     """Utility function to handle vector data."""
@@ -42,13 +43,13 @@ class VectorUtilClass(object):
         gdal.UseExceptions()
         src_ds = gdal.Open(rasterfile)
         if src_ds is None:
-            print('Unable to open %s' % rasterfile)
+            logging.error('Unable to open %s' % rasterfile)
             sys.exit(1)
         try:
             srcband = src_ds.GetRasterBand(band_num)
         except RuntimeError as e:
             # for example, try GetRasterBand(10)
-            print('Band ( %i ) not found, %s' % (band_num, e))
+            logging.error('Band ( %i ) not found, %s' % (band_num, e))
             sys.exit(1)
         if mask == 'default':
             maskband = srcband.GetMaskBand()
@@ -93,16 +94,16 @@ class VectorUtilClass(object):
     @staticmethod
     def write_line_shp(line_list, out_shp):
         """Export ESRI Shapefile -- Line feature"""
-        print('Write line shapefile: %s' % out_shp)
+        logging.info('Write line shapefile: %s' % out_shp)
         driver = ogr_GetDriverByName(str('ESRI Shapefile'))
         if driver is None:
-            print('ESRI Shapefile driver not available.')
+            logging.error('ESRI Shapefile driver not available.')
             sys.exit(1)
         if os.path.exists(out_shp):
             driver.DeleteDataSource(out_shp)
         ds = driver.CreateDataSource(out_shp.rpartition(os.sep)[0])
         if ds is None:
-            print('ERROR Output: Creation of output file failed.')
+            logging.error('ERROR Output: Creation of output file failed.')
             sys.exit(1)
         lyr = ds.CreateLayer(str(out_shp.rpartition(os.sep)[2].split('.')[0]), None, wkbLineString)
         for l in line_list:

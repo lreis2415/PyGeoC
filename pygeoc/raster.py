@@ -33,6 +33,8 @@ from osgeo.osr import SpatialReference as osr_SpatialReference
 
 from pygeoc.utils import MathClass, UtilClass, FileClass, DEFAULT_NODATA, DELTA
 from pygeoc.utils import is_string
+import pygeoc.logger
+import logging
 
 GDALDataType = {0: GDT_Unknown,  # Unknown or unspecified type
                 1: GDT_Byte,  # Eight bit unsigned integer
@@ -332,7 +334,7 @@ class RasterUtilClass(object):
             y_max_mask = y_max
             i_min = 0
             j_min = 0
-        print('%dx%d -> %dx%d' % (xsize, ysize, x_size_mask, y_size_mask))
+        logging.info('%dx%d -> %dx%d' % (xsize, ysize, x_size_mask, y_size_mask))
 
         mask = numpy.zeros((y_size_mask, x_size_mask))
 
@@ -398,7 +400,7 @@ class RasterUtilClass(object):
         try:
             ds = driver.Create(f_name, n_cols, n_rows, 1, gdal_type)
         except Exception:
-            print('Cannot create output file %s' % f_name)
+            logging.error('Cannot create output file %s' % f_name)
             return
         ds.SetGeoTransform(geotransform)
         try:

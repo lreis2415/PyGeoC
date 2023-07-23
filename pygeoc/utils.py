@@ -11,6 +11,9 @@
      - 18-10-31 lj - add type hints according to typing package.
 """
 from __future__ import division, unicode_literals
+
+import sys
+
 from future.utils import iteritems
 
 import argparse
@@ -26,11 +29,13 @@ from datetime import datetime
 from math import sqrt
 from shutil import copy, rmtree
 from typing import Optional, List, Union, Tuple, Dict, Any, AnyStr
+import pygeoc.logger
+import logging
 
 try:
     import numpy
 except ImportError:
-    print('numpy is not installed, some functions cannot be used!')
+    logging.error('numpy is not installed, some functions cannot be used!')
 
 sysstr = platform.system()
 
@@ -645,9 +650,11 @@ class FileClass(object):
         return False
 
     @staticmethod
-    def get_executable_fullpath(name, dirname=None, raise_exception=True):
+    def get_executable_fullpath(name, dirname=None, raise_exception=True, stderr_redirect=None):
         # type: (AnyStr, Optional[AnyStr], Optional[bool]) -> Optional[List[AnyStr]]
         """get the full path of a given executable name"""
+        if stderr_redirect is not None and callable(stderr_redirect):
+            sys.stderr = stderr_redirect
         if name is None:
             return None
         if is_string(name):
@@ -666,7 +673,7 @@ class FileClass(object):
             findout = UtilClass.run_command('which %s' % name, raise_exception)
         if not findout or len(findout) == 0:
             if raise_exception:
-                print("%s is not included in the env path" % name)
+                logging.error("%s is not included in the env path" % name, file=sys.stderr)
                 exit(-1)
             else:
                 return None
@@ -882,8 +889,6 @@ class UtilClass(object):
         .. _handling-subprocess-crash-in-windows:
             https://stackoverflow.com/questions/5069224/handling-subprocess-crash-in-windows
         """
-        # commands = StringClass.convert_unicode2str(commands)
-        # print(commands)
 
         use_shell = False
         subprocess_flags = 0
@@ -913,7 +918,11 @@ class UtilClass(object):
                     if isinstance(v, int) or isinstance(v, float):
                         # Fix :TypeError: execv() arg 2 must contain only strings
                         commands[idx] = repr(v)
-        print(commands)
+        if isinstance(commands, list):
+            for c in commands:
+                logging.info(c)
+        else:
+            logging.info(commands)
 
         # insert prior search paths for executables if specified, otherwise use the default PATH
         envpaths = os.environ.copy()
@@ -926,7 +935,7 @@ class UtilClass(object):
             elif type(prior_envpath) is str:
                 envpaths['PATH'] = prior_envpath + os.pathsep + envpaths['PATH']
             else:
-                print('prior_envpath for run_command should be string, list, or dict!')
+                logging.error('prior_envpath for run_command should be string, list, or dict!')
 
         process = subprocess.Popen(commands, shell=use_shell, stdout=subprocess.PIPE,
                                    stdin=open(os.devnull),
@@ -935,9 +944,13 @@ class UtilClass(object):
                                    creationflags=subprocess_flags)
         try:
             out, err = process.communicate()
+            if out:
+                logging.info('subprocess finished with message:\n%s' % out)
+            if err:
+                logging.error(err)
             recode = process.returncode
         except UnicodeDecodeError as unidecodeerr:
-            print(unidecodeerr)
+            logging.error(unidecodeerr)
             return []
 
         if out is None:
@@ -991,7 +1004,7 @@ class UtilClass(object):
             os.makedirs(dir_path)
 
     @staticmethod
-    def print_msg(contentlist):
+    def get_msg(contentlist):
         # type: (Union[AnyStr, List[AnyStr], Tuple[AnyStr]]) -> AnyStr
         """concatenate message list as single string with line feed."""
         if isinstance(contentlist, list) or isinstance(contentlist, tuple):
@@ -1005,25 +1018,6 @@ class UtilClass(object):
     def error(msg):
         """throw RuntimeError exception"""
         raise RuntimeError(msg)
-
-    @staticmethod
-    def writelog(logfile, contentlist, mode='replace'):
-        # type: (AnyStr, Union[AnyStr, List[AnyStr], Tuple[AnyStr]], AnyStr) -> None
-        """write log"""
-        if logfile is None:  # If logfile is not assigned, just print msg.
-            print(UtilClass.print_msg(contentlist))
-        else:
-            if os.path.exists(logfile):
-                if mode == 'replace':
-                    os.remove(logfile)
-                    log_status = open(logfile, 'w')
-                else:
-                    log_status = open(logfile, 'a')
-            else:
-                log_status = open(logfile, 'w')
-            log_status.write(UtilClass.print_msg(contentlist))
-            log_status.flush()
-            log_status.close()
 
     @staticmethod
     def decode_strs_in_dict(unicode_dict
@@ -1071,7 +1065,7 @@ def get_config_file():
     args = parser.parse_args()
     ini_file = args.ini
     if not FileClass.is_file_exists(ini_file):
-        print("Usage: -ini <full path to the configuration file.>")
+        logging.error("Usage: -ini <full path to the configuration file.>")
         exit(-1)
     return ini_file
 
