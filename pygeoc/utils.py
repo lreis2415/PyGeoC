@@ -945,7 +945,7 @@ class UtilClass(object):
         try:
             out, err = process.communicate()
             if out:
-                logging.info('subprocess finished with message:\n%s' % out)
+                logging.debug('subprocess finished with message:\n%s' % out)
             if err:
                 logging.error(err)
             recode = process.returncode
