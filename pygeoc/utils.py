@@ -232,6 +232,9 @@ class MathClass(object):
         if log:  # Be care of zero values
             obsvalues = numpy.where((obsvalues == 0.) | (simvalues == 0.), numpy.nan, obsvalues)
             simvalues = numpy.where((obsvalues == 0.) | (simvalues == 0.), numpy.nan, simvalues)
+            if obsvalues.min() <= 0. or simvalues.min() <= 0.:
+                raise ValueError("The observed and simulated values must be"
+                                 " greater than zero for logarithmic transformation!")
             obsvalues = numpy.log(obsvalues)
             simvalues = numpy.log(simvalues)
         if expon > len(obsvalues) or expon < 1:
