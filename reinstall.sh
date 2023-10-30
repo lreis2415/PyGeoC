@@ -29,4 +29,4 @@ if $pythonexec -c "import pygeoc" &> /dev/null; then
 else
     echo 'PyGeoC will be firstly installed.'
 fi
-for i in $(find . -name '*.whl'); do $pythonexec -m pip install "$i" --upgrade; done
+for i in $(find . -name '*.whl'); do $pythonexec -m pip install "$i" --upgrade --force-reinstall; done
