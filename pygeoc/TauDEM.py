@@ -403,9 +403,15 @@ class TauDEM(object):
                 if v != '' and v is not None:
                     if isinstance(v, list) or isinstance(v, tuple):
                         for tmppar in v:
-                            commands.append(repr(tmppar))
+                            if MathClass.isnumerical(tmppar):
+                                commands.append(repr(tmppar))
+                            else:
+                                commands.append(str(tmppar))
                     else:
-                        commands.append(repr(v))
+                        if MathClass.isnumerical(v):
+                            commands.append(repr(v))
+                        else:
+                            commands.append(str(v))
         # append output parameters
         if out_files is not None:
             for (pid, outfile) in iteritems(out_files):
@@ -725,8 +731,7 @@ class TauDEM_Ext(TauDEM):
         """Run Dinf distance to ridge."""
         fname = TauDEM_Ext.func_name('dinfdistuptoridge')
         in_params = {'-thresh': str(propthresh),
-                     '-m': '%s %s' % (TauDEM_Ext.convertstatsmethod(statsm),
-                                      TauDEM_Ext.convertdistmethod(distm))}
+                     '-m': [TauDEM_Ext.convertstatsmethod(statsm), TauDEM_Ext.convertdistmethod(distm)]}
         if StringClass.string_match(edgecontamination, 'false') or edgecontamination is False:
             in_params['-nc'] = None
         return TauDEM_Ext.run(FileClass.get_executable_fullpath(fname, exedir),
