@@ -14,6 +14,7 @@
     - 21-04-07 lj - add MFD-md algorithm: flowmfdmd
     - 21-09-07 lj - remove unnecessary functions of watershed_delineation
     - 21-11-01 lj - separate TauDEM and TauDEM_Ext related classes
+    - 23-10-30 lj - move taudem extension functions of AutoFuzSlpPos to here
 
    .. _TauDEM:
       https://github.com/dtarb/TauDEM
@@ -191,7 +192,7 @@ class TauDEM(object):
     @staticmethod
     def check_infile_and_wp(curinf, curwp):
         """Check the existence of the given file and directory path.
-           1. Raise Runtime exception of both not existed.
+           1. Raise Runtime exception if both not existed.
            2. If the ``curwp`` is None, the set the base folder of ``curinf`` to it.
         """
         if not os.path.exists(curinf):
@@ -288,8 +289,9 @@ class TauDEM(object):
                 # e.g., -inputtags 1 <path/to/tag1.tif> 2 <path/to/tag2.tif> ...
                 # in such unpredictable circumstance, we cannot check the existence of
                 # input files, so the developer will check it in other place.
-                if len(StringClass.split_string(infile, ' ')) > 1:
-                    continue
+                infile_list = StringClass.split_string(infile, ' ')
+                if len(infile_list) > 1:
+                    in_files[pid] = infile_list
                 else:  # the infile still should be a existing file, so check in workspace
                     if wp is None:
                         TauDEM.error('Workspace should not be None!')
@@ -382,7 +384,11 @@ class TauDEM(object):
                 pid = '-' + pid
             commands.append(pid)
             if isinstance(infile, list) or isinstance(infile, tuple):
-                commands.append(' '.join(tmpf for tmpf in infile))
+                if sysstr == 'Windows':
+                    commands.append(' '.join(tmpf for tmpf in infile))
+                else:
+                    for tmpf in infile:
+                        commands.append(tmpf)
             else:
                 commands.append(infile)
         # append input parameters
@@ -409,7 +415,11 @@ class TauDEM(object):
                     pid = '-' + pid
                 commands.append(pid)
                 if isinstance(outfile, list) or isinstance(outfile, tuple):
-                    commands.append(' '.join(tmpf for tmpf in outfile))
+                    if sysstr == 'Windows':
+                        commands.append(' '.join(tmpf for tmpf in outfile))
+                    else:
+                        for tmpf in outfile:
+                            commands.append(tmpf)
                 else:
                     commands.append(outfile)
         # run command
@@ -694,6 +704,167 @@ class TauDEM_Ext(TauDEM):
                           {'logfile': log_file, 'runtimefile': runtime_file})
 
     @staticmethod
+    def d8distuptoridge(np, p, fel, src, dist, distm,
+                        workingdir=None, mpiexedir=None, exedir=None,
+                        log_file=None, runtime_file=None, hostfile=None):
+        """Run D8 distance to stream"""
+        fname = TauDEM_Ext.func_name('d8distuptoridge')
+        return TauDEM_Ext.run(FileClass.get_executable_fullpath(fname, exedir),
+                              in_files={'-fel': fel, '-p': p, '-src': src},
+                              wp=workingdir,
+                              in_params={'-m': TauDEM_Ext.convertdistmethod(distm)},
+                              out_files={'-du': dist},
+                              mpi_params={'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
+                              log_params={'logfile': log_file, 'runtimefile': runtime_file})
+
+    @staticmethod
+    def dinfdistuptoridge(np, ang, fel, slp, propthresh, dist, statsm, distm,
+                          edgecontamination, rdg=None,
+                          workingdir=None, mpiexedir=None, exedir=None,
+                          log_file=None, runtime_file=None, hostfile=None):
+        """Run Dinf distance to ridge."""
+        fname = TauDEM_Ext.func_name('dinfdistuptoridge')
+        in_params = {'-thresh': str(propthresh),
+                     '-m': '%s %s' % (TauDEM_Ext.convertstatsmethod(statsm),
+                                      TauDEM_Ext.convertdistmethod(distm))}
+        if StringClass.string_match(edgecontamination, 'false') or edgecontamination is False:
+            in_params['-nc'] = None
+        return TauDEM_Ext.run(FileClass.get_executable_fullpath(fname, exedir),
+                              in_files={'-ang': ang, '-fel': fel, '-slp': slp, '-rdg': rdg},
+                              wp=workingdir,
+                              in_params=in_params,
+                              out_files={'-du': dist},
+                              mpi_params={'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
+                              log_params={'logfile': log_file, 'runtimefile': runtime_file})
+
+    @staticmethod
+    def extractridge(np, angfile, elevfile, rdgsrc,
+                     workingdir=None, mpiexedir=None, exedir=None,
+                     log_file=None, runtime_file=None, hostfile=None):
+        """Extract ridge source."""
+        fname = TauDEM_Ext.func_name('ridgeextraction')
+        return TauDEM_Ext.run(FileClass.get_executable_fullpath(fname, exedir),
+                              in_files={'-dir': angfile, '-fel': elevfile},
+                              wp=workingdir,
+                              in_params=None,
+                              out_files={'-src': rdgsrc},
+                              mpi_params={'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
+                              log_params={'logfile': log_file, 'runtimefile': runtime_file})
+
+    @staticmethod
+    def rpiskidmore(np, vlysrc, rdgsrc, rpi, vlytag=1, rdgtag=1, dist2vly=None, dist2rdg=None,
+                    workingdir=None, mpiexedir=None, exedir=None,
+                    log_file=None, runtime_file=None, hostfile=None):
+        """Calculate RPI according to Skidmore (1990)."""
+        fname = TauDEM_Ext.func_name('rpiskidmore')
+        in_params = dict()
+        if vlytag > 0:
+            in_params['-vlytag'] = vlytag
+        if rdgtag > 0:
+            in_params['-rdgtag'] = rdgtag
+        return TauDEM_Ext.run(FileClass.get_executable_fullpath(fname, exedir),
+                              in_files={'-vly': vlysrc, '-rdg': rdgsrc},
+                              wp=workingdir,
+                              in_params=in_params,
+                              out_files={'-rpi': rpi, '-dist2vly': dist2vly, '-dist2rdg': dist2rdg},
+                              mpi_params={'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
+                              log_params={'logfile': log_file, 'runtimefile': runtime_file})
+
+    @staticmethod
+    def curvature(np, fel, profc,
+                  horizc=None, planc=None, unspherc=None, avec=None, maxc=None, minc=None,
+                  workingdir=None, mpiexedir=None, exedir=None,
+                  log_file=None, runtime_file=None, hostfile=None):
+        """Calculate various curvature."""
+        fname = TauDEM_Ext.func_name('curvature')
+        return TauDEM_Ext.run(FileClass.get_executable_fullpath(fname, exedir),
+                              in_files={'-fel': fel},
+                              wp=workingdir,
+                              in_params=None,
+                              out_files={'-prof': profc, '-plan': planc, '-horiz': horizc,
+                                         '-unspher': unspherc, '-ave': avec, '-max': maxc,
+                                         '-min': minc},
+                              mpi_params={'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
+                              log_params={'logfile': log_file, 'runtimefile': runtime_file})
+
+    @staticmethod
+    def simplecalculator(np, inputa, inputb, output, operator,
+                         workingdir=None, mpiexedir=None, exedir=None,
+                         log_file=None, runtime_file=None, hostfile=None):
+        """Run simple calculator.
+
+           operator = 0: add
+                      1: minus
+                      2: multiply
+                      3: divide
+                      4: a/(a+b)
+                      5: mask
+        """
+        fname = TauDEM_Ext.func_name('simplecalculator')
+        return TauDEM_Ext.run(FileClass.get_executable_fullpath(fname, exedir),
+                              in_files={'-in': [inputa, inputb]},
+                              wp=workingdir,
+                              in_params={'-op': operator},
+                              out_files={'-out': output},
+                              mpi_params={'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
+                              log_params={'logfile': log_file, 'runtimefile': runtime_file})
+
+    @staticmethod
+    def selecttyplocslppos(np, inputconf, outputconf=None, extlog=None,
+                           workingdir=None, mpiexedir=None, exedir=None,
+                           log_file=None, runtime_file=None, hostfile=None):
+        """Select typical locations."""
+        fname = TauDEM_Ext.func_name('selecttyplocslppos')
+        return TauDEM_Ext.run(FileClass.get_executable_fullpath(fname, exedir),
+                              in_files={'-in': inputconf},
+                              wp=workingdir,
+                              in_params=None,
+                              out_files={'-out': outputconf, '-extlog': extlog},
+                              mpi_params={'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
+                              log_params={'logfile': log_file, 'runtimefile': runtime_file})
+
+    @staticmethod
+    def fuzzyslpposinference(np, config, workingdir=None, mpiexedir=None,
+                             exedir=None, log_file=None, runtime_file=None, hostfile=None):
+        """Run fuzzy inference."""
+        fname = TauDEM_Ext.func_name('fuzzyslpposinference')
+        return TauDEM_Ext.run(FileClass.get_executable_fullpath(fname, exedir),
+                              in_files={'-in': config},
+                              wp=workingdir,
+                              in_params=None,
+                              out_files=None,
+                              mpi_params={'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
+                              log_params={'logfile': log_file, 'runtimefile': runtime_file})
+
+    @staticmethod
+    def hardenslppos(np, simifiles, tags, hard, maxsimi,
+                     sechard=None, secsimi=None, spsim=None, spsi=None,
+                     workingdir=None, mpiexedir=None, exedir=None,
+                     log_file=None, runtime_file=None, hostfile=None):
+        """Select typical locations."""
+        fname = TauDEM_Ext.func_name('hardenslppos')
+        if len(simifiles) != len(tags):
+            raise RuntimeError("hardenslppos: simifiles and tags must have the same size!")
+        tag_path = ''
+        tag_list = list()
+        tag_list.append('%d' % len(simifiles))
+        for i, tag in enumerate(tags):
+            tag_path += ' %d %s' % (tag, simifiles[i])
+            tag_list.append('%d' % tag)
+            tag_list.append(simifiles[i])
+        in_params = dict()
+        if spsim is not None and spsi is not None:
+            in_params['-m'] = '%d %s' % (spsim, spsi)
+        return TauDEM_Ext.run(FileClass.get_executable_fullpath(fname, exedir),
+                              in_files={'-inf': '%d%s' % (len(simifiles), tag_path)},
+                              # in_files={'-inf': tag_list},
+                              wp=workingdir,
+                              in_params=in_params,
+                              out_files={'-maxS': [hard, maxsimi], '-secS': [sechard, secsimi]},
+                              mpi_params={'mpipath': mpiexedir, 'hostfile': hostfile, 'n': np},
+                              log_params={'logfile': log_file, 'runtimefile': runtime_file})
+
+    @staticmethod
     def mfdmdflowdir(np, filleddem, flowdir, portion, min_portion=0.01,
                      p0=1.1, rng=8.9, lb=0., ub=1.,
                      workingdir=None, mpiexedir=None, exedir=None,
@@ -709,7 +880,6 @@ class TauDEM_Ext(TauDEM):
                           {'logfile': log_file, 'runtimefile': runtime_file},
                           ignore_err=True)
         # The output flow fraction files are not the same with the argument 'portion'
-
 
 class TauDEMWorkflow(object):
     """Common used workflow based on TauDEM"""
@@ -744,7 +914,7 @@ class TauDEMWorkflow(object):
         if not os.path.exists(dem):
             TauDEM.error('DEM: %s is not existed!' % dem)
         dem = os.path.abspath(dem)
-        if workingdir is None or workingdir is '':
+        if workingdir is None or workingdir == '':
             workingdir = os.path.dirname(dem)
         nc = TauDEMFilesUtils(workingdir)  # predefined names
         workingdir = nc.workspace
