@@ -921,11 +921,7 @@ class UtilClass(object):
                     if isinstance(v, int) or isinstance(v, float):
                         # Fix :TypeError: execv() arg 2 must contain only strings
                         commands[idx] = repr(v)
-        if isinstance(commands, list):
-            for c in commands:
-                logging.info(c)
-        else:
-            logging.info(commands)
+        logging.info(commands)
 
         # insert prior search paths for executables if specified, otherwise use the default PATH
         envpaths = os.environ.copy()

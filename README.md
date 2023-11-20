@@ -74,3 +74,8 @@ sudo ./reinstall.sh
 ```bash
 pip install -r requirements_dev.txt
 ```
+
+to install local PyGeoC
+```bash
+pip install -e .
+```
