@@ -1,0 +1,45 @@
+##
+# docker pull ghcr.io/lreis2415/pygeoc:0.3.5-ubuntu
+# or
+# docker pull registry.cn-hangzhou.aliyuncs.com/ljzhu-geomodels/pygeoc:0.3.5-ubuntu
+#
+# Build by yourself (DO NOT MISSING the dot at the end of the line):
+#   > cd PyGeoC
+#   > docker build -t pygeoc:0.3.5-ubuntu -f docker/Dockerfile.ubuntu .
+#
+# Test examples:
+#   > docker pull ghcr.io/lreis2415/pygeoc:0.3.5-ubuntu
+#   > cd PyGeoC
+#   > docker run -v $(pwd):/pygeoc ghcr.io/lreis2415/pygeoc:0.3.5-ubuntu /pygeoc/examples/ex01_begin_with_pygeoc.py
+#   > docker run -v $(pwd):/pygeoc ghcr.io/lreis2415/pygeoc:0.3.5-ubuntu /pygeoc/examples/ex02_taudem_simple_usage.py
+#
+# Copyright 2022-2024 Liang-Jun Zhu <zlj@lreis.ac.cn>
+#
+ARG GDAL_VERSION=3.9.2
+# PyGeoC depends on TauDEM_ext (https://github.com/lreis2415/TauDEM_ext).
+# Use TauDEM_ext executables of the latest TauDEM_ext image based on gdal:ubuntu-small-${GDAL_VERSION} as the runner
+# Use the same gdal:ubuntu-small-${GDAL_VERSION} with the taudem_ext:ubuntu as builder
+#  see https://github.com/OSGeo/gdal/pkgs/container/gdal/versions?filters%5Bversion_type%5D=tagged
+FROM ghcr.io/osgeo/gdal:ubuntu-small-${GDAL_VERSION} AS builder
+
+RUN apt-get update -q -y && \
+    apt-get install -q -y --no-install-recommends \
+    python3-pip && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /pygeoc
+COPY . .
+# Install pygeoc to .local directory
+RUN pip install --user --break-system-packages .
+
+FROM ghcr.io/lreis2415/taudem_ext:ubuntu AS runner
+
+# Copy pygeoc from builder
+RUN mkdir /root/.local
+COPY --from=builder /root/.local/ /root/.local/
+# Make sure scripts in .local are usable:
+ENV PATH=/root/.local/bin:$PATH
+
+ENTRYPOINT [ "python" ]
+CMD ["-c", "import pygeoc; print('PyGeoC v%s installed' % pygeoc.__version__)"]

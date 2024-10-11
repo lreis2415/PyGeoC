@@ -1,0 +1,63 @@
+##
+# docker pull ghcr.io/lreis2415/pygeoc:0.3.5-alpine
+# or
+# docker pull registry.cn-hangzhou.aliyuncs.com/ljzhu-geomodels/pygeoc:0.3.5-alpine
+#
+# Build by yourself (DO NOT MISSING the dot at the end of the line):
+#   > cd PyGeoC
+#   > docker build -t pygeoc:0.3.5-alpine -f docker/Dockerfile.alpine .
+#
+# Test examples:
+#   > docker pull ghcr.io/lreis2415/pygeoc:0.3.5-alpine
+#   > cd PyGeoC
+#   > docker run -v $(pwd):/pygeoc ghcr.io/lreis2415/pygeoc:0.3.5-alpine /pygeoc/examples/ex01_begin_with_pygeoc.py
+#   > docker run -v $(pwd):/pygeoc ghcr.io/lreis2415/pygeoc:0.3.5-alpine /pygeoc/examples/ex02_taudem_simple_usage.py
+#
+# Copyright 2022-2024 Liang-Jun Zhu <zlj@lreis.ac.cn>
+#
+ARG GDAL_VERSION=3.9.2
+# PyGeoC depends on TauDEM_ext (https://github.com/lreis2415/TauDEM_ext).
+# Copy TauDEM_ext executables of the latest TauDEM_ext image based on alpine to the runner
+FROM ghcr.io/lreis2415/taudem_ext:alpine AS builtexec
+
+# Use the corresponding gdal:alpine-normal-${GDAL_VERSION} with the taudem_ext:alpine
+#  see https://github.com/OSGeo/gdal/pkgs/container/gdal/versions?filters%5Bversion_type%5D=tagged
+FROM ghcr.io/osgeo/gdal:alpine-normal-${GDAL_VERSION} AS builder
+
+# RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories && \
+# RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
+RUN apk update && apk upgrade && \
+    apk add --no-cache py3-pip
+
+WORKDIR /pygeoc
+COPY . .
+# Install pygeoc to .local directory
+RUN pip install --user --break-system-packages .
+
+FROM ghcr.io/osgeo/gdal:alpine-normal-${GDAL_VERSION} AS runner
+
+# Running TauDEM_ext requires openmpi, omp, and openssh
+# Running PyGeoC requires GDAL, numpy, and matplotlib, now we only need to add py3-matplotlib
+
+# Replace alpine repository source cdn to accelarate access speed and setup build env, when necessary
+# RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories && \
+# RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
+RUN apk update && apk upgrade && \
+    apk add --no-cache py3-matplotlib \
+    openmpi libgomp tini openssh && \
+    rm -rf /var/cache/apk/*
+
+# Copy pygeoc from builder
+RUN mkdir /root/.local
+COPY --from=builder /root/.local/ /root/.local/
+# Make sure scripts in .local are usable:
+ENV PATH=/root/.local/bin:$PATH
+
+# Copy taudem_ext from builtexec
+COPY --from=builtexec /usr/local/bin/ /usr/local/bin/
+COPY --from=builtexec /docker-entrypoint.sh /
+ENV OMPI_ALLOW_RUN_AS_ROOT=1
+ENV OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+
+ENTRYPOINT [ "python" ]
+CMD ["-c", "import pygeoc; print('PyGeoC v%s installed' % pygeoc.__version__)"]
