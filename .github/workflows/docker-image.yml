@@ -13,6 +13,7 @@ on:
 env:
   # Container registry domain, and a name for the Docker image that this workflow builds.
   IMAGE_NAME: pygeoc
+  PKG_VER: 0.3.5
   # github container registry
   REGISTRY: ghcr.io
   NAMESPACE: ${{ github.repository_owner }}
@@ -83,8 +84,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           provenance: false
           tags: |
-            ${{ env.REGISTRY_ACR }}/${{ env.NAMESPACE_ACR }}/${{ env.IMAGE_NAME }}:${{ env.ALPINE_IMAGE_TAG }}
-            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.ALPINE_IMAGE_TAG }}
+            ${{ env.REGISTRY_ACR }}/${{ env.NAMESPACE_ACR }}/${{ env.IMAGE_NAME }}:${{ env.PKG_VER}}-${{ env.ALPINE_IMAGE_TAG }}
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.PKG_VER}}-${{ env.ALPINE_IMAGE_TAG }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -143,7 +144,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           provenance: false
           tags: |
-            ${{ env.REGISTRY_ACR }}/${{ env.NAMESPACE_ACR }}/${{ env.IMAGE_NAME }}:${{ env.UBUNTU_IMAGE_TAG }}
-            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.UBUNTU_IMAGE_TAG }}
+            ${{ env.REGISTRY_ACR }}/${{ env.NAMESPACE_ACR }}/${{ env.IMAGE_NAME }}:${{ env.PKG_VER}}-${{ env.UBUNTU_IMAGE_TAG }}
+            ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.PKG_VER}}-${{ env.UBUNTU_IMAGE_TAG }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
