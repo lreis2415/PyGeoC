@@ -1,0 +1,8 @@
+# .dockerignore
+.github
+.idea
+.pytest_cache
+.vs
+build*
+PyGeoC.egg-info
+dist
