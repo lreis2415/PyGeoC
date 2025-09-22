@@ -68,3 +68,5 @@ target/
 .vscode
 #temp result files
 tmp_results
+
+.DS_Store
