@@ -31,6 +31,6 @@ REM Compile and install PyGeoC through pip
 cd dist
 for /f "delims=" %%i in ('dir /s/b "*.whl"') do (
 echo installing %%~ni ...
-%pippath% install %%i --upgrade
+%pippath% install %%i --upgrade --force-reinstall
 )
 cd ..
