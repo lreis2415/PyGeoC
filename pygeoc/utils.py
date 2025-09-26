@@ -67,15 +67,15 @@ def is_integer(v):
         False
         >>> is_integer(None)
         False
-        >>> is_integer(numpy.int(3))
+        >>> is_integer(numpy.int32(3))
         True
     """
     try:
         from builtins import int
-        return isinstance(v, int)  # Match both int and long on Py2
+        return isinstance(v, (int, numpy.integer))  # Match both int and long on Py2
     except ImportError:
         from past.builtins import long
-        return isinstance(v, (int, long))
+        return isinstance(v, (int, long, numpy.integer))
 
 
 def is_string(in_str):
