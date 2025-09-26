@@ -277,9 +277,15 @@ class RasterUtilClass(object):
         geotrans = ds.GetGeoTransform()
         dttype = band.DataType
 
-        srs = osr_SpatialReference()
-        srs.ImportFromWkt(ds.GetProjection())
-        # print(srs.ExportToProj4())
+        srs = ds.GetSpatialRef()
+        if srs is None:
+            wkt = ds.GetProjection()
+            srs = osr_SpatialReference()
+            if wkt:
+                # print(wkt)
+                srs.ImportFromWkt(wkt)  # srs may still be empty if file has no SRS
+                # print(srs.ExportToProj4())
+
         if nodata_value is None:
             nodata_value = DEFAULT_NODATA
         band = None
@@ -738,9 +744,9 @@ class RasterUtilClass(object):
 
 if __name__ == '__main__':
     # Run doctest in docstrings of Google code style
-    # python -m doctest raster.py (only when doctest.ELLIPSIS is not specified)
-    # or python raster.py -v
-    # or py.test --doctest-modules raster.py
+    # (Recommended) python -m doctest -o ELLIPSIS -v pygeoc/raster.py
+    # or python pygeoc/raster.py -v
+    # or py.test --doctest-modules pygeoc/raster.py
     import doctest
 
     doctest.testmod(optionflags=doctest.ELLIPSIS)
