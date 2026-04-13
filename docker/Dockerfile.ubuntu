@@ -1,21 +1,21 @@
 ##
-# docker pull ghcr.io/lreis2415/pygeoc:0.3.5-ubuntu
+# docker pull ghcr.io/lreis2415/pygeoc:0.3.6-ubuntu
 # or
-# docker pull registry.cn-hangzhou.aliyuncs.com/ljzhu-geomodels/pygeoc:0.3.5-ubuntu
+# docker pull registry.cn-hangzhou.aliyuncs.com/ljzhu-geomodels/pygeoc:0.3.6-ubuntu
 #
 # Build by yourself (DO NOT MISSING the dot at the end of the line):
 #   > cd PyGeoC
-#   > docker build -t pygeoc:0.3.5-ubuntu -f docker/Dockerfile.ubuntu .
+#   > docker build -t pygeoc:0.3.6-ubuntu -f docker/Dockerfile.ubuntu .
 #
 # Test examples:
-#   > docker pull ghcr.io/lreis2415/pygeoc:0.3.5-ubuntu
+#   > docker pull ghcr.io/lreis2415/pygeoc:0.3.6-ubuntu
 #   > cd PyGeoC
-#   > docker run -v $(pwd):/pygeoc ghcr.io/lreis2415/pygeoc:0.3.5-ubuntu /pygeoc/examples/ex01_begin_with_pygeoc.py
-#   > docker run -v $(pwd):/pygeoc ghcr.io/lreis2415/pygeoc:0.3.5-ubuntu /pygeoc/examples/ex02_taudem_simple_usage.py
+#   > docker run -v $(pwd):/pygeoc ghcr.io/lreis2415/pygeoc:0.3.6-ubuntu /pygeoc/examples/ex01_begin_with_pygeoc.py
+#   > docker run -v $(pwd):/pygeoc ghcr.io/lreis2415/pygeoc:0.3.6-ubuntu /pygeoc/examples/ex02_taudem_simple_usage.py
 #
-# Copyright 2022-2024 Liang-Jun Zhu <zlj@lreis.ac.cn>
+# Copyright 2022-2026 Liang-Jun Zhu <zlj@lreis.ac.cn>
 #
-ARG GDAL_VERSION=3.9.2
+ARG GDAL_VERSION=3.9.3
 # PyGeoC depends on TauDEM_ext (https://github.com/lreis2415/TauDEM_ext).
 # Use TauDEM_ext executables of the latest TauDEM_ext image based on gdal:ubuntu-small-${GDAL_VERSION} as the runner
 # Use the same gdal:ubuntu-small-${GDAL_VERSION} with the taudem_ext:ubuntu as builder

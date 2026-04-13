@@ -1,21 +1,21 @@
 ##
-# docker pull ghcr.io/lreis2415/pygeoc:0.3.5-alpine
+# docker pull ghcr.io/lreis2415/pygeoc:0.3.6-alpine
 # or
-# docker pull registry.cn-hangzhou.aliyuncs.com/ljzhu-geomodels/pygeoc:0.3.5-alpine
+# docker pull registry.cn-hangzhou.aliyuncs.com/ljzhu-geomodels/pygeoc:0.3.6-alpine
 #
 # Build by yourself (DO NOT MISSING the dot at the end of the line):
 #   > cd PyGeoC
-#   > docker build -t pygeoc:0.3.5-alpine -f docker/Dockerfile.alpine .
+#   > docker build -t pygeoc:0.3.6-alpine -f docker/Dockerfile.alpine .
 #
 # Test examples:
-#   > docker pull ghcr.io/lreis2415/pygeoc:0.3.5-alpine
+#   > docker pull ghcr.io/lreis2415/pygeoc:0.3.6-alpine
 #   > cd PyGeoC
-#   > docker run -v $(pwd):/pygeoc ghcr.io/lreis2415/pygeoc:0.3.5-alpine /pygeoc/examples/ex01_begin_with_pygeoc.py
-#   > docker run -v $(pwd):/pygeoc ghcr.io/lreis2415/pygeoc:0.3.5-alpine /pygeoc/examples/ex02_taudem_simple_usage.py
+#   > docker run -v $(pwd):/pygeoc ghcr.io/lreis2415/pygeoc:0.3.6-alpine /pygeoc/examples/ex01_begin_with_pygeoc.py
+#   > docker run -v $(pwd):/pygeoc ghcr.io/lreis2415/pygeoc:0.3.6-alpine /pygeoc/examples/ex02_taudem_simple_usage.py
 #
-# Copyright 2022-2024 Liang-Jun Zhu <zlj@lreis.ac.cn>
+# Copyright 2022-2026 Liang-Jun Zhu <zlj@lreis.ac.cn>
 #
-ARG GDAL_VERSION=3.9.2
+ARG GDAL_VERSION=3.9.3
 # PyGeoC depends on TauDEM_ext (https://github.com/lreis2415/TauDEM_ext).
 # Copy TauDEM_ext executables of the latest TauDEM_ext image based on alpine to the runner
 FROM ghcr.io/lreis2415/taudem_ext:alpine AS builtexec
