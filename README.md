@@ -17,10 +17,10 @@
 PyGeoC image on [Docker hub](https://hub.docker.com/r/crazyzlj/pygeoc)
 
 ```
-docker pull crazyzlj/pygeoc:v0.3.2
+docker pull ghcr.io/lreis2415/pygeoc:0.3.6-ubuntu
 
 # Testing examples:
-docker run -v /path/to/PyGeoC:/pygeoc crazyzlj/pygeoc:v0.3.2 /pygeoc/examples/ex01_begin_with_pygeoc.py
+docker run -v /path/to/PyGeoC:/pygeoc ghcr.io/lreis2415/pygeoc:0.3.6-ubuntu /pygeoc/examples/ex01_begin_with_pygeoc.py
 
 ```
 

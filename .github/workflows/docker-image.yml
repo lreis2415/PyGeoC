@@ -7,13 +7,13 @@ on:
       branches:
         - 'master'
         - 'dev'
-    pull_request:
+    #pull_request:
     workflow_dispatch:
 
 env:
   # Container registry domain, and a name for the Docker image that this workflow builds.
   IMAGE_NAME: pygeoc
-  PKG_VER: 0.3.5
+  PKG_VER: 0.3.6
   # github container registry
   REGISTRY: ghcr.io
   NAMESPACE: ${{ github.repository_owner }}
@@ -39,7 +39,7 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       # login alibaba Container Registry
       - name: Login to ACR
         uses: aliyun/acr-login@v1
@@ -50,7 +50,7 @@ jobs:
           password: ${{ secrets.ACR_PASSWORD }}
       # login ghcr.io
       - name: Log in to the Container registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -99,7 +99,7 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       # login alibaba Container Registry
       - name: Login to ACR
         uses: aliyun/acr-login@v1
@@ -110,7 +110,7 @@ jobs:
           password: ${{ secrets.ACR_PASSWORD }}
       # login ghcr.io
       - name: Log in to the Container registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
