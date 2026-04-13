@@ -146,7 +146,7 @@ class MathClass(object):
         """If float a is equal to float b.
 
         Examples:
-            >>> MathClass.floatequal(1, 1.000001)  # result likes -9.999999999177334e-07
+            >>> MathClass.floatequal(1, 1.000001)  # 1 - 1.000001 likes -9.999999999177334e-07
             True
             >>> MathClass.floatequal(1, 1.0000001)
             True
@@ -156,6 +156,78 @@ class MathClass(object):
             False
         """
         return abs(a - b) < DELTA
+
+    @staticmethod
+    def _check_pair_arrays(obsvalues, simvalues):
+        # type: (...) -> Tuple[numpy.ndarray, numpy.ndarray]
+        """Convert paird inputs to float arrays and remove NaN/Inf pairs.
+
+        Examples:
+            >>> obs = [1.0, 2.0, numpy.nan, 4.0]
+            >>> sim = [1.1, 1.9, 3.0, numpy.inf]
+            >>> o, s = MathClass._check_pair_arrays(obs, sim)
+            >>> o.tolist()
+            [1.0, 2.0]
+            >>> s.tolist()
+            [1.1, 1.9]
+        """
+        if len(obsvalues) != len(simvalues):
+            raise ValueError("The size of observed and simulated values must be the same!")
+
+        if not isinstance(obsvalues, numpy.ndarray):
+            obsvalues = numpy.array(obsvalues, dtype=float)
+        else:
+            obsvalues = obsvalues.astype(float)
+
+        if not isinstance(simvalues, numpy.ndarray):
+            simvalues = numpy.array(simvalues, dtype=float)
+        else:
+            simvalues = simvalues.astype(float)
+
+        valid = numpy.isfinite(obsvalues) & numpy.isfinite(simvalues)
+        obsvalues = obsvalues[valid]
+        simvalues = simvalues[valid]
+
+        if len(obsvalues) == 0:
+            raise ValueError(
+                "No valid paired observed and simulated values remain after removing NaN/Inf!")
+
+        return obsvalues, simvalues
+
+    @staticmethod
+    def _std(values,  # type: Union[numpy.ndarray, List[Union[float, int]]]
+             ddof=0   # type: int
+            ):
+        # type: (...) -> Union[float, numpy.ScalarType]
+        """Calculate standard deviation with user-defined ddof.
+
+        Examples:
+            >>> vals = [1., 2., 3., 4.]
+            >>> MathClass._std(vals)  # doctest: +ELLIPSIS
+            1.118033988749895...
+            >>> MathClass._std(vals, ddof=1)  # doctest: +ELLIPSIS
+            1.2909944487358056...
+            >>> vals = [1., 2., 3., 4., numpy.nan, numpy.inf]
+            >>> MathClass._std(vals)  # doctest: +ELLIPSIS
+            1.118033988749895...
+            >>> MathClass._std(vals, ddof=1)  # doctest: +ELLIPSIS
+            1.2909944487358056...
+        """
+        if not isinstance(values, numpy.ndarray):
+            values = numpy.array(values, dtype=float)
+        else:
+            values = values.astype(float)
+
+        values = values[numpy.isfinite(values)]
+        if len(values) == 0:
+            raise ValueError("No valid values for standard deviation calculation!")
+
+        if ddof < 0:
+            raise ValueError("ddof must be greater than or equal to 0!")
+        if len(values) <= ddof:
+            raise ValueError("The number of valid values must be greater than ddof!")
+
+        return numpy.std(values, ddof=ddof)
 
     @staticmethod
     def nashcoef(obsvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
@@ -217,16 +289,14 @@ class MathClass(object):
         Returns:
             NSE, or raise exception
         """
-        if len(obsvalues) != len(simvalues):
-            raise ValueError("The size of observed and simulated values must be"
-                             " the same for NSE calculation!")
-        if not isinstance(obsvalues, numpy.ndarray):
-            obsvalues = numpy.array(obsvalues)
-        if not isinstance(simvalues, numpy.ndarray):
-            simvalues = numpy.array(simvalues)
+        obsvalues, simvalues = MathClass._check_pair_arrays(obsvalues, simvalues)
+
         if log:  # Be care of zero values
-            obsvalues = numpy.where((obsvalues == 0.) | (simvalues == 0.), numpy.nan, obsvalues)
-            simvalues = numpy.where((obsvalues == 0.) | (simvalues == 0.), numpy.nan, simvalues)
+            valid = (obsvalues > 0.) & (simvalues > 0.)
+            obsvalues = obsvalues[valid]
+            simvalues = simvalues[valid]
+            if len(obsvalues) == 0:
+                raise ValueError("No positive paired values available for log-NSE calculation!")
             obsvalues = numpy.log(obsvalues)
             simvalues = numpy.log(simvalues)
         if expon > len(obsvalues) or expon < 1:
@@ -234,9 +304,47 @@ class MathClass(object):
         ave = numpy.nanmean(obsvalues)
         a1 = numpy.nansum(numpy.abs(obsvalues - simvalues) ** expon)
         a2 = numpy.nansum(numpy.abs(obsvalues - ave) ** expon)
-        if a2 == 0.:
-            return 1.
+
+        if MathClass.floatequal(a2, 0.):
+            if numpy.allclose(obsvalues, simvalues):
+                return 1.
+            return 0.
+
         return 1. - a1 / a2
+
+    @staticmethod
+    def pearsonr(obsvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
+                 simvalues  # type: Union[numpy.ndarray, List[Union[float, int]]]
+                 ):
+        # type: (...) -> Union[float, numpy.ScalarType]
+        """Calculate Pearson correlation coefficient (r).
+
+        Examples:
+            >>> obs = [2.92, 2.75, 2.01, 1.09, 2.87, 1.43, 1.96,\
+                       4.00, 2.24, 29.28, 5.88, 0.86, 13.21]
+            >>> sim = [2.90, 2.87, 2.85, 2.83, 3.04, 2.81, 2.85,\
+                       2.78, 2.76, 13.40, 2.70, 2.09, 1.62]
+            >>> MathClass.pearsonr(obs, sim)  # doctest: +ELLIPSIS
+            0.867689555679048...
+        """
+        obsvalues, simvalues = MathClass._check_pair_arrays(obsvalues, simvalues)
+
+        if len(obsvalues) < 2:
+            raise ValueError("At least two paired values are required for Pearson-r calculation!")
+
+        obs_avg = numpy.mean(obsvalues)
+        sim_avg = numpy.mean(simvalues)
+        obs_minus_avg_sq = numpy.sum((obsvalues - obs_avg) ** 2)
+        sim_minus_avg_sq = numpy.sum((simvalues - sim_avg) ** 2)
+        obs_sim_minus_avgs = numpy.sum((obsvalues - obs_avg) * (simvalues - sim_avg))
+
+        yy = obs_minus_avg_sq ** 0.5 * sim_minus_avg_sq ** 0.5
+        if MathClass.floatequal(yy, 0.):
+            if numpy.allclose(obsvalues, simvalues):
+                return 1.
+            return 0.
+
+        return obs_sim_minus_avgs / yy
 
     @staticmethod
     def rsquare(obsvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
@@ -267,23 +375,26 @@ class MathClass(object):
         Returns:
             R-square value, or raise exception
         """
-        if len(obsvalues) != len(simvalues):
-            raise ValueError("The size of observed and simulated values must be "
-                             "the same for R-square calculation!")
-        if not isinstance(obsvalues, numpy.ndarray):
-            obsvalues = numpy.array(obsvalues)
-        if not isinstance(simvalues, numpy.ndarray):
-            simvalues = numpy.array(simvalues)
-        obs_avg = numpy.mean(obsvalues)
-        pred_avg = numpy.mean(simvalues)
-        obs_minus_avg_sq = numpy.sum((obsvalues - obs_avg) ** 2)
-        pred_minus_avg_sq = numpy.sum((simvalues - pred_avg) ** 2)
-        obs_pred_minus_avgs = numpy.sum((obsvalues - obs_avg) * (simvalues - pred_avg))
-        # Calculate R-square
-        yy = obs_minus_avg_sq ** 0.5 * pred_minus_avg_sq ** 0.5
-        if MathClass.floatequal(yy, 0.):
-            return 1.
-        return (obs_pred_minus_avgs / yy) ** 2.
+        cc = MathClass.pearsonr(obsvalues, simvalues)
+        return cc ** 2.
+
+    @staticmethod
+    def mse(obsvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
+            simvalues  # type: Union[numpy.ndarray, List[Union[float, int]]]
+            ):
+        # type: (...) -> Union[float, numpy.ScalarType]
+        """Calculate MSE.
+
+        Examples:
+            >>> obs = [2.92, 2.75, 2.01, 1.09, 2.87, 1.43, 1.96,\
+                       4.00, 2.24, 29.28, 5.88, 0.86, 13.21]
+            >>> sim = [2.90, 2.87, 2.85, 2.83, 3.04, 2.81, 2.85,\
+                       2.78, 2.76, 13.40, 2.70, 2.09, 1.62]
+            >>> MathClass.mse(obs, sim)  # doctest: +ELLIPSIS
+            31.25846153846154...
+        """
+        obsvalues, simvalues = MathClass._check_pair_arrays(obsvalues, simvalues)
+        return numpy.mean((obsvalues - simvalues) ** 2.)
 
     @staticmethod
     def rmse(obsvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
@@ -307,21 +418,40 @@ class MathClass(object):
         Returns:
             RMSE value
         """
-        if len(obsvalues) != len(simvalues):
-            raise ValueError("The size of observed and simulated values must be "
-                             "the same for R-square calculation!")
-        if not isinstance(obsvalues, numpy.ndarray):
-            obsvalues = numpy.array(obsvalues)
-        if not isinstance(simvalues, numpy.ndarray):
-            simvalues = numpy.array(simvalues)
-        return numpy.sqrt(numpy.mean((obsvalues - simvalues) ** 2.))
+        return numpy.sqrt(MathClass.mse(obsvalues, simvalues))
+
+    @staticmethod
+    def mae(obsvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
+            simvalues  # type: Union[numpy.ndarray, List[Union[float, int]]]
+            ):
+        # type: (...) -> Union[float, numpy.ScalarType]
+        """Calculate MAE.
+
+        Examples:
+            >>> obs = [2.92, 2.75, 2.01, 1.09, 2.87, 1.43, 1.96,\
+                       4.00, 2.24, 29.28, 5.88, 0.86, 13.21]
+            >>> sim = [2.90, 2.87, 2.85, 2.83, 3.04, 2.81, 2.85,\
+                       2.78, 2.76, 13.40, 2.70, 2.09, 1.62]
+            >>> MathClass.mae(obs, sim)  # doctest: +ELLIPSIS
+            2.983076923076923...
+        """
+        obsvalues, simvalues = MathClass._check_pair_arrays(obsvalues, simvalues)
+        return numpy.mean(numpy.abs(obsvalues - simvalues))
 
     @staticmethod
     def pbias(obsvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
-              simvalues  # type: Union[numpy.ndarray, List[Union[float, int]]]
+              simvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
+              sim_minus_obs = True  # type: bool
               ):
         # type: (...) -> Union[float, numpy.ScalarType]
-        """Calculate PBIAS, or percent model bias.
+        """Calculate PBIAS (percent model bias).
+
+        Note:
+            Default sign convention is pySWATPlus-compatible:
+                PBIAS = 100 * sum(sim - obs) / sum(obs)
+
+            If you want to preserve the old convention, set sim_minus_obs=False:
+                PBIAS = 100 * sum(obs - sim) / sum(obs)
 
         Args:
             obsvalues: observe values array
@@ -333,15 +463,50 @@ class MathClass(object):
             >>> sim = [2.90, 2.87, 2.85, 2.83, 3.04, 2.81, 2.85,\
                        2.78, 2.76, 13.40, 2.70, 2.09, 1.62]
             >>> MathClass.pbias(obs, sim)  # doctest: +ELLIPSIS
+            -35.46099290780142...
+            >>> MathClass.pbias(obs, sim, sim_minus_obs=False)  # doctest: +ELLIPSIS
             35.46099290780142...
 
         Returns:
             PBIAS value (percentage), or raise exception
         """
-        if len(obsvalues) != len(simvalues):
-            raise ValueError("The size of observed and simulated values must be"
-                             " the same for PBIAS calculation!")
-        return sum(map(lambda x, y: (x - y) * 100, obsvalues, simvalues)) / sum(obsvalues)
+        obsvalues, simvalues = MathClass._check_pair_arrays(obsvalues, simvalues)
+        obs_sum = numpy.sum(obsvalues)
+
+        if MathClass.floatequal(obs_sum, 0.):
+            raise ValueError("The sum of observed values is zero for PBIAS calculation!")
+
+        if sim_minus_obs:
+            return 100. * numpy.sum(simvalues - obsvalues) / obs_sum
+        return 100. * numpy.sum(obsvalues - simvalues) / obs_sum
+
+    @staticmethod
+    def mare(obsvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
+             simvalues  # type: Union[numpy.ndarray, List[Union[float, int]]]
+             ):
+        # type: (...) -> Union[float, numpy.ScalarType]
+        """Calculate MARE (Mean Absolute Relative Error).
+
+        Notes:
+            Pairs with observed value == 0 are excluded to avoid division by zero.
+
+        Examples:
+            >>> obs = [2.92, 2.75, 2.01, 1.09, 2.87, 1.43, 1.96,\
+                       4.00, 2.24, 29.28, 5.88, 0.86, 13.21]
+            >>> sim = [2.90, 2.87, 2.85, 2.83, 3.04, 2.81, 2.85,\
+                       2.78, 2.76, 13.40, 2.70, 2.09, 1.62]
+            >>> MathClass.mare(obs, sim)  # doctest: +ELLIPSIS
+            0.5746910422728188...
+        """
+        obsvalues, simvalues = MathClass._check_pair_arrays(obsvalues, simvalues)
+        valid = numpy.logical_not(numpy.isclose(obsvalues, 0.))
+        obsvalues = obsvalues[valid]
+        simvalues = simvalues[valid]
+
+        if len(obsvalues) == 0:
+            raise ValueError("No non-zero observed values available for MARE calculation!")
+
+        return numpy.mean(numpy.abs((obsvalues - simvalues) / obsvalues))
 
     @staticmethod
     def rsr(obsvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
@@ -369,13 +534,254 @@ class MathClass(object):
         Returns:
             RSR value, or raise exception
         """
-        if len(obsvalues) != len(simvalues):
-            raise ValueError("The size of observed and simulated values must be"
-                             " the same for RSR calculation!")
-        mean_obs = sum(obsvalues) / len(obsvalues)
-        return sqrt(sum(map(lambda x, y: (x - y) ** 2, obsvalues, simvalues))) / \
-               sqrt(sum(map(lambda x, y: (x - y) ** 2, obsvalues, [mean_obs] * len(obsvalues))))
+        obsvalues, simvalues = MathClass._check_pair_arrays(obsvalues, simvalues)
 
+        mean_obs = numpy.mean(obsvalues)
+        numerator = numpy.sqrt(numpy.sum((obsvalues - simvalues) ** 2.))
+        denominator = numpy.sqrt(numpy.sum((obsvalues - mean_obs) ** 2.))
+
+        if MathClass.floatequal(denominator, 0.):
+            if MathClass.floatequal(numerator, 0.):
+                return 0.
+            return numpy.inf
+
+        return numerator / denominator
+
+    @staticmethod
+    def kge(obsvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
+            simvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
+            ddof=0  # type: int
+            ):
+        # type: (...) -> Union[float, numpy.ScalarType]
+        """Calculate KGE (Kling-Gupta Efficiency).
+
+        Notes:
+            r = Pearson correlation coefficient
+            alpha = std(sim) / std(obs)
+            beta = mean(sim) / mean(obs)
+
+        Args:
+            obsvalues: observe values array
+            simvalues: simulate values array
+            ddof: Delta degrees of freedom used in standard deviation, 0 by default
+
+        Examples:
+            >>> obs = [2.92, 2.75, 2.01, 1.09, 2.87, 1.43, 1.96,\
+                       4.00, 2.24, 29.28, 5.88, 0.86, 13.21]
+            >>> sim = [2.90, 2.87, 2.85, 2.83, 3.04, 2.81, 2.85,\
+                       2.78, 2.76, 13.40, 2.70, 2.09, 1.62]
+            >>> MathClass.kge(obs, sim)  # doctest: +ELLIPSIS
+            0.27501928706851364...
+            >>> MathClass.kge(obs, sim, ddof=1)  # doctest: +ELLIPSIS
+            0.27501928706851364...
+        """
+        obsvalues, simvalues = MathClass._check_pair_arrays(obsvalues, simvalues)
+
+        if len(obsvalues) < 2:
+            raise ValueError("At least two paired values are required for KGE calculation!")
+
+        obs_avg = numpy.mean(obsvalues)
+        sim_avg = numpy.mean(simvalues)
+        obs_std = MathClass._std(obsvalues, ddof=ddof)
+        sim_std = MathClass._std(simvalues, ddof=ddof)
+
+        if MathClass.floatequal(obs_avg, 0.):
+            raise ValueError("The mean of observed values is zero for KGE calculation!")
+        if MathClass.floatequal(obs_std, 0.):
+            if numpy.allclose(obsvalues, simvalues):
+                return 1.
+            return 0.
+
+        cc = MathClass.pearsonr(obsvalues, simvalues)
+        alpha = sim_std / obs_std
+        beta = sim_avg / obs_avg
+        return 1. - numpy.sqrt((cc - 1.) ** 2 + (alpha - 1.) ** 2 + (beta - 1.) ** 2)
+
+    @staticmethod
+    def mkge(obsvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
+             simvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
+             ddof=0  # type: int
+             ):
+        # type: (...) -> Union[float, numpy.ScalarType]
+        """Calculate modified KGE (MKGE).
+
+        Notes:
+            gamma = (std(sim) / mean(sim)) / (std(obs) / mean(obs))
+
+        Args:
+            obsvalues: observe values array
+            simvalues: simulate values array
+            ddof: Delta degrees of freedom used in standard deviation, 0 by default
+
+        Examples:
+            >>> obs = [2.92, 2.75, 2.01, 1.09, 2.87, 1.43, 1.96,\
+                       4.00, 2.24, 29.28, 5.88, 0.86, 13.21]
+            >>> sim = [2.90, 2.87, 2.85, 2.83, 3.04, 2.81, 2.85,\
+                       2.78, 2.76, 13.40, 2.70, 2.09, 1.62]
+            >>> MathClass.mkge(obs, sim)  # doctest: +ELLIPSIS
+            0.44301113475711...
+            >>> MathClass.mkge(obs, sim, ddof=1)  # doctest: +ELLIPSIS
+            0.44301113475711...
+        """
+        obsvalues, simvalues = MathClass._check_pair_arrays(obsvalues, simvalues)
+
+        if len(obsvalues) < 2:
+            raise ValueError("At least two paired values are required for MKGE calculation!")
+
+        obs_avg = numpy.mean(obsvalues)
+        sim_avg = numpy.mean(simvalues)
+        obs_std = MathClass._std(obsvalues, ddof=ddof)
+        sim_std = MathClass._std(simvalues, ddof=ddof)
+
+        if MathClass.floatequal(obs_avg, 0.) or MathClass.floatequal(sim_avg, 0.):
+            raise ValueError("Mean observed or simulated values is zero for MKGE calculation!")
+        if MathClass.floatequal(obs_std, 0.):
+            if numpy.allclose(obsvalues, simvalues):
+                return 1.
+            return 0.
+
+        cc = MathClass.pearsonr(obsvalues, simvalues)
+        beta = sim_avg / obs_avg
+        gamma = (sim_std / sim_avg) / (obs_std / obs_avg)
+        return 1. - numpy.sqrt((cc - 1.) ** 2 + (beta - 1.) ** 2 + (gamma - 1.) ** 2)
+
+    @staticmethod
+    def performance_dict(obsvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
+                         simvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
+                         ddof=0  # type: int
+                         ):
+        # type: (...) -> Dict[str, Union[float, numpy.ScalarType]]
+        """Return a commonly used set of performance metrics.
+
+        Examples:
+            >>> obs = [2.92, 2.75, 2.01, 1.09, 2.87, 1.43, 1.96,\
+                       4.00, 2.24, 29.28, 5.88, 0.86, 13.21]
+            >>> sim = [2.90, 2.87, 2.85, 2.83, 3.04, 2.81, 2.85,\
+                       2.78, 2.76, 13.40, 2.70, 2.09, 1.62]
+            >>> sorted(MathClass.performance_dict(obs, sim).keys())
+            ['KGE', 'MAE', 'MARE', 'MKGE', 'MSE', 'NSE', 'PBIAS', 'R', 'R2', 'RMSE', 'RSR', 'logNSE']
+        """
+        return {
+            'NSE': MathClass.nashcoef(obsvalues, simvalues),
+            'logNSE': MathClass.nashcoef(obsvalues, simvalues, log=True),
+            'R': MathClass.pearsonr(obsvalues, simvalues),
+            'R2': MathClass.rsquare(obsvalues, simvalues),
+            'MSE': MathClass.mse(obsvalues, simvalues),
+            'RMSE': MathClass.rmse(obsvalues, simvalues),
+            'MAE': MathClass.mae(obsvalues, simvalues),
+            'MARE': MathClass.mare(obsvalues, simvalues),
+            'PBIAS': MathClass.pbias(obsvalues, simvalues),
+            'RSR': MathClass.rsr(obsvalues, simvalues),
+            'KGE': MathClass.kge(obsvalues, simvalues, ddof=ddof),
+            'MKGE': MathClass.mkge(obsvalues, simvalues, ddof=ddof),
+        }
+
+    @staticmethod
+    def indicator_names():
+        # type: () -> Dict[str, str]
+        """Return available performance indicator names.
+
+        Examples:
+            >>> sorted(MathClass.indicator_names().keys())
+            ['KGE', 'MAE', 'MARE', 'MKGE', 'MSE', 'NSE', 'PBIAS', 'R', 'R2', 'RMSE', 'RSR', 'logNSE']
+        """
+        return {
+            'NSE': 'Nash-Sutcliffe Efficiency',
+            'logNSE': 'Log-transformed Nash-Sutcliffe Efficiency',
+            'R': 'Pearson Correlation Coefficient',
+            'R2': 'Coefficient of Determination',
+            'MSE': 'Mean Squared Error',
+            'RMSE': 'Root Mean Squared Error',
+            'MAE': 'Mean Absolute Error',
+            'MARE': 'Mean Absolute Relative Error',
+            'PBIAS': 'Percent Bias',
+            'RSR': 'RMSE-observations Standard deviation Ratio',
+            'KGE': 'Kling-Gupta Efficiency',
+            'MKGE': 'Modified Kling-Gupta Efficiency',
+        }
+
+    @staticmethod
+    def _validate_indicator_abbr(indicator):
+        # type: (str) -> None
+        """Validate indicator abbreviation.
+
+        Examples:
+            >>> MathClass._validate_indicator_abbr('NSE')
+            >>> MathClass._validate_indicator_abbr('ABC')
+            Traceback (most recent call last):
+            ...
+            ValueError: Invalid indicator "ABC"; expected names are ['NSE', 'logNSE', 'R', 'R2', 'MSE', 'RMSE', 'MAE', 'MARE', 'PBIAS', 'RSR', 'KGE', 'MKGE']
+        """
+        abbr_indicator = MathClass.indicator_names()
+        if indicator not in abbr_indicator:
+            raise ValueError('Invalid indicator "%s"; expected names are %s'
+                             % (indicator, list(abbr_indicator.keys())))
+
+    @staticmethod
+    def compute_from_abbr(obsvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
+                          simvalues,  # type: Union[numpy.ndarray, List[Union[float, int]]]
+                          indicator,  # type: str
+                          **kwargs  # type: Any
+                          ):
+        # type: (...) -> Union[float, numpy.ScalarType]
+        """Compute performance metric from indicator abbreviation.
+
+        Notes:
+            Optional keyword arguments are passed to the target metric function.
+            For example:
+                - ddof for KGE and MKGE
+                - sim_minus_obs for PBIAS
+                - log / expon for NSE if indicator == 'NSE'
+
+        Examples:
+            >>> obs = [2.92, 2.75, 2.01, 1.09, 2.87, 1.43, 1.96,\
+                       4.00, 2.24, 29.28, 5.88, 0.86, 13.21]
+            >>> sim = [2.90, 2.87, 2.85, 2.83, 3.04, 2.81, 2.85,\
+                       2.78, 2.76, 13.40, 2.70, 2.09, 1.62]
+            >>> MathClass.compute_from_abbr(obs, sim, 'NSE')  # doctest: +ELLIPSIS
+            0.451803966838596...
+            >>> MathClass.compute_from_abbr(obs, sim, 'R2')  # doctest: +ELLIPSIS
+            0.7528851650345053...
+            >>> MathClass.compute_from_abbr(obs, sim, 'KGE', ddof=0)  # doctest: +ELLIPSIS
+            0.27501928706851364...
+            >>> MathClass.compute_from_abbr(obs, sim, 'PBIAS')  # doctest: +ELLIPSIS
+            -35.46099290780142...
+            >>> MathClass.compute_from_abbr(obs, sim, 'PBIAS', sim_minus_obs=False)  # doctest: +ELLIPSIS
+            35.46099290780142...
+            >>> MathClass.compute_from_abbr(obs, sim, 'logNSE')  # doctest: +ELLIPSIS
+            0.2841143016830745...
+        """
+        MathClass._validate_indicator_abbr(indicator)
+
+        if indicator == 'NSE':
+            return MathClass.nashcoef(obsvalues, simvalues, **kwargs)
+        elif indicator == 'logNSE':
+            # allow user override, but default log=True
+            if 'log' not in kwargs:
+                kwargs['log'] = True
+            return MathClass.nashcoef(obsvalues, simvalues, **kwargs)
+        elif indicator == 'R':
+            return MathClass.pearsonr(obsvalues, simvalues)
+        elif indicator == 'R2':
+            return MathClass.rsquare(obsvalues, simvalues)
+        elif indicator == 'MSE':
+            return MathClass.mse(obsvalues, simvalues)
+        elif indicator == 'RMSE':
+            return MathClass.rmse(obsvalues, simvalues)
+        elif indicator == 'MAE':
+            return MathClass.mae(obsvalues, simvalues)
+        elif indicator == 'MARE':
+            return MathClass.mare(obsvalues, simvalues)
+        elif indicator == 'PBIAS':
+            return MathClass.pbias(obsvalues, simvalues, **kwargs)
+        elif indicator == 'RSR':
+            return MathClass.rsr(obsvalues, simvalues)
+        elif indicator == 'KGE':
+            return MathClass.kge(obsvalues, simvalues, **kwargs)
+        elif indicator == 'MKGE':
+            return MathClass.mkge(obsvalues, simvalues, **kwargs)
+
+        raise ValueError('Unsupported indicator: %s' % indicator)
 
 class StringClass(object):
     """String handling class
