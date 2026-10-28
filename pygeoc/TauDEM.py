@@ -576,11 +576,6 @@ class TauDEM(object):
                           exedir=None, log_file=None, runtime_file=None, hostfile=None):
         """Run move the given outlets to stream"""
         fname = TauDEM.func_name('moveoutletstostrm')
-        legacy_names = [TauDEM.func_name('moveoutletstostreams')]  # name in old TauDEM version
-        for lname in legacy_names:
-            if FileClass.get_executable_fullpath(lname, exedir, raise_exception=False) is not None:
-                fname = lname
-                break
         return TauDEM.run(FileClass.get_executable_fullpath(fname, exedir),
                           {'-p': flowdir, '-src': streamRaster, '-o': outlet},
                           workingdir,
